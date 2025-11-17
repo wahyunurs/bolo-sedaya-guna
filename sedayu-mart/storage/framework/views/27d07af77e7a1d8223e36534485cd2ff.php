@@ -1,1 +1,0 @@
-<?php /**PATH D:\laragon\www\Goloka\resources\views/user/produk/index.blade.php ENDPATH**/ ?>
