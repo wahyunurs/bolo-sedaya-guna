@@ -15,7 +15,7 @@
                     <div class="w-full lg:w-11/12 p-6 md:p-1 flex flex-col justify-center">
                         <h1 class="text-5xl md:text-6xl font-black mb-6 leading-tight">
                             <strong class="font-black block whitespace-nowrap">SELAMAT DATANG DI</strong>
-                            <span class="block tracking-tight text-[#39963c]">SEDAYU MART</span>
+                            <span class="text-[#065f46]">Sedayu</span><span class="text-[#FBBF24]">Mart</span>
                         </h1>
                         <p class="text-base md:text-md mb-8 leading-relaxed">
                             Sendayu Mart adalah platform pasar lokal khas

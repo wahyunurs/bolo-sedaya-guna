@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('password')->nullable();
             $table->text('google_token')->nullable();
             $table->text('google_refresh_token')->nullable();
+            $table->string('avatar')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

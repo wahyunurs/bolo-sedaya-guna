@@ -20,7 +20,7 @@ Route::middleware('guest')->group(function () {
     Route::get('masuk', [AuthenticatedSessionController::class, 'create'])
         ->name('login');
 
-    Route::post('login', [AuthenticatedSessionController::class, 'store']);
+    Route::post('masuk', [AuthenticatedSessionController::class, 'store']);
 
     Route::get('auth/redirect', [AuthenticatedSessionController::class, 'redirect'])
         ->name('auth.redirect');

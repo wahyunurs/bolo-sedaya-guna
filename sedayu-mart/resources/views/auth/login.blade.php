@@ -6,7 +6,6 @@
         style="background-size: cover; background-position: center; background-repeat: no-repeat;">
         <!-- Main container -->
         <div class="flex w-full max-w-4xl bg-[#ffffff] rounded-3xl shadow-lg overflow-hidden">
-            <!-- two-column content directly inside main container so both halves fill the card -->
             <!-- Right side (image) - moved to first column -->
             <div class="w-1/2 flex items-center justify-center p-8">
                 <div class="relative w-full h-full flex items-center justify-center">
@@ -21,8 +20,11 @@
             <!-- Left side (form) - moved to second column -->
             <div class="w-1/2 p-10">
                 <!-- Logo -->
-                <div class="flex justify-center mb-4">
-                    <img src="{{ asset('img/logo/goloka.png') }}" alt="Goloka" class="w-24 h-auto">
+                <div class="flex items-center justify-center mb-4 gap-3">
+                    <img src="{{ asset('img/logo/sedayumart.png') }}" alt="SedayuMart" class="w-10 h-auto">
+                    <div class="text-xl font-bold">
+                        <span class="text-[#065f46]">Sedayu</span><span class="text-[#FBBF24]">Mart</span>
+                    </div>
                 </div>
 
                 <!-- Title -->

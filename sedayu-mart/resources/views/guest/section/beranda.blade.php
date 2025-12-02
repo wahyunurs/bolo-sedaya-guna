@@ -1,5 +1,5 @@
 <!-- HOME GUEST -->
-<section id="beranda" class="pt-40 pb-24 min-h-screen bg-no-repeat bg-center bg-cover"
+<section id="beranda" class="pt-40 pb-24 min-h-screen bg-no-repeat bg-center bg-cover flex items-center"
     style="background-image: url('{{ asset('img/page/guest-dashboard.png') }}');">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 h-full items-center">
@@ -9,7 +9,8 @@
                 <div class="w-full lg:w-11/12 p-6 md:p-1 flex flex-col justify-center">
                     <h1 class="text-5xl md:text-6xl font-black mb-6 leading-tight">
                         <strong class="font-black block whitespace-nowrap">SELAMAT DATANG DI</strong>
-                        <span class="block tracking-tight text-[#39963c]">SEDAYU MART</span>
+                        <span class="block tracking-tight text-[#065f46]">SEDAYU<span
+                                class="text-[#FBBF24]">MART</span></span>
                     </h1>
                     <p class="text-base md:text-md mb-8 leading-relaxed">
                         Sendayu Mart adalah platform pasar lokal khas
@@ -31,7 +32,7 @@
             </div>
 
             <!-- Right column -->
-            <div></div>
+            <div class="flex items-center h-full"></div>
         </div>
     </div>
 </section>

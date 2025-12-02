@@ -13,4 +13,7 @@
 
     <!-- KONTAK GUEST -->
     @include('guest.section.kontak')
+
+    <!-- FOOTER -->
+    @include('guest.components.footer')
 </x-guest-layout>

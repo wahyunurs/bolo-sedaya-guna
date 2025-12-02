@@ -3,8 +3,11 @@
 
         <!-- Left: Logo + Mobile toggle -->
         <div class="flex items-center flex-1 md:flex-none">
-            <a href="#beranda" class="inline-flex items-center">
-                <img src="{{ asset('img/logo/goloka.png') }}" class="w-20" alt="Logo">
+            <a href="{{ route('user.dashboard') }}" class="inline-flex items-center">
+                <img src="{{ asset('img/logo/sedayumart.png') }}" class="w-10" alt="Logo">
+                <div class="ml-2 text-lg font-semibold">
+                    <span class="text-[#065f46]">Sedayu</span><span class="text-[#FBBF24]">Mart</span>
+                </div>
             </a>
 
             <!-- Mobile menu button -->

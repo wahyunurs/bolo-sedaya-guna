@@ -5,7 +5,7 @@
         <!-- Judul -->
         <header class="text-center mb-20 mt-6">
             <h2 class="text-4xl md:text-5xl font-extrabold text-black tracking-wide">
-                TENTANG <span class="text-[#40b344]">SEDAYU MART</span>
+                TENTANG <span class="text-[#40b344]">SEDAYU<span class="text-[#FBBF24]">MART</span></span>
             </h2>
         </header>
 
@@ -14,7 +14,7 @@
 
             <!-- Fitur 1 -->
             <div
-                class="group bg-white rounded-xl p-8 text-center border-2 border-[#d6d6d68e] hover:bg-[#35c83a] hover:ring-1 hover:ring-[#40b344]/30 focus:outline-none focus:ring-4 focus:ring-[#40b344]/30 transition-colors duration-300 ease-in-out">
+                class="group bg-white rounded-xl p-8 text-center border-2 border-[#d6d6d68e] hover:bg-[#35c83a] hover:ring-1 hover:ring-[#40b344]/30 focus:outline-none focus:ring-4 focus:ring-[#40b344]/30 transition-transform duration-300 ease-in-out transform hover:scale-105 hover:shadow-2xl">
                 <div class="w-24 h-24 mx-auto mb-6 flex items-center justify-center">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -41,7 +41,7 @@
 
             <!-- Fitur 2 -->
             <div
-                class="group bg-white rounded-xl p-8 text-center border-2 border-[#d6d6d68e] hover:bg-[#35c83a] hover:ring-1 hover:ring-[#40b344]/30 focus:outline-none focus:ring-4 focus:ring-[#40b344]/30 transition-colors duration-300 ease-in-out">
+                class="group bg-white rounded-xl p-8 text-center border-2 border-[#d6d6d68e] hover:bg-[#35c83a] hover:ring-1 hover:ring-[#40b344]/30 focus:outline-none focus:ring-4 focus:ring-[#40b344]/30 transition-transform duration-300 ease-in-out transform hover:scale-105 hover:shadow-2xl">
                 <div class="w-24 h-24 mx-auto mb-6 flex items-center justify-center">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -66,7 +66,7 @@
 
             <!-- Fitur 3 -->
             <div
-                class="group bg-white rounded-xl p-8 text-center border-2 border-[#d6d6d68e] hover:bg-[#35c83a] hover:ring-1 hover:ring-[#40b344]/30 focus:outline-none focus:ring-4 focus:ring-[#40b344]/30 transition-colors duration-300 ease-in-out">
+                class="group bg-white rounded-xl p-8 text-center border-2 border-[#d6d6d68e] hover:bg-[#35c83a] hover:ring-1 hover:ring-[#40b344]/30 focus:outline-none focus:ring-4 focus:ring-[#40b344]/30 transition-transform duration-300 ease-in-out transform hover:scale-105 hover:shadow-2xl">
                 <div class="w-24 h-24 mx-auto mb-6 flex items-center justify-center">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round"

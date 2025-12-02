@@ -1,10 +1,13 @@
-<nav class="bg-[#209416] shadow-lg fixed w-full z-20 top-0 left-0 border-b-4 border-gray-200 h-20">
+<nav class="bg-[#e9ffe6] shadow-lg fixed w-full z-20 top-0 left-0 border-b-4 border-[#d3d3d3] h-20">
     <div class="max-w-screen-xl mx-auto p-4 flex items-center">
 
         <!-- Left: Logo + Mobile toggle -->
         <div class="flex items-center flex-1 md:flex-none">
             <a href="{{ route('user.dashboard') }}" class="inline-flex items-center">
-                <img src="{{ asset('img/logo/goloka.png') }}" class="w-20" alt="Logo">
+                <img src="{{ asset('img/logo/sedayumart.png') }}" class="w-10" alt="Logo">
+                <div class="ml-2 text-lg font-semibold">
+                    <span class="text-[#065f46]">Sedayu</span><span class="text-[#FBBF24]">Mart</span>
+                </div>
             </a>
 
             <!-- Mobile menu button -->
@@ -26,34 +29,34 @@
                     class="font-small flex flex-col p-3 md:p-0 mt-4 border rounded-lg  md:flex-row md:space-x-4 md:mt-0 md:border-0">
                     <li>
                         <a href="{{ route('user.dashboard') }}"
-                            class="relative block py-2 px-2 {{ request()->routeIs('user.dashboard') ? 'text-yellow-300' : 'text-white hover:text-yellow-300' }} group">
+                            class="relative block py-2 px-2 {{ request()->routeIs('user.dashboard') ? 'text-[#4CAF50]' : 'text-black hover:text-[#4CAF50]' }} group">
                             Beranda
                             <span aria-hidden="true"
-                                class="absolute left-0 -bottom-0.5 h-0.5 w-full bg-yellow-300 origin-left transform transition-transform duration-300 {{ request()->routeIs('user.dashboard') ? 'scale-x-100' : 'scale-x-0' }} group-hover:scale-x-100"></span>
+                                class="absolute left-0 -bottom-0.5 h-0.5 w-full bg-[#4CAF50] origin-left transform transition-transform duration-300 {{ request()->routeIs('user.dashboard') ? 'scale-x-100' : 'scale-x-0' }} group-hover:scale-x-100"></span>
                         </a>
                     </li>
                     <li>
                         <a href="{{ route('user.produk.index') }}"
-                            class="relative block py-2 px-2 text-white hover:text-yellow-300 group {{ request()->routeIs('user.produk.index') ? 'text-yellow-300' : '' }}">
+                            class="relative block py-2 px-2 hover:text-[#4CAF50] group {{ request()->routeIs('user.produk.index') ? 'text-[#4CAF50]' : '' }}">
                             Produk
                             <span aria-hidden="true"
-                                class="absolute left-0 -bottom-0.5 h-0.5 w-full bg-yellow-300 origin-left transform transition-transform duration-300 {{ request()->routeIs('user.produk.index') ? 'scale-x-100' : 'scale-x-0' }} group-hover:scale-x-100"></span>
+                                class="absolute left-0 -bottom-0.5 h-0.5 w-full bg-[#4CAF50] origin-left transform transition-transform duration-300 {{ request()->routeIs('user.produk.index') ? 'scale-x-100' : 'scale-x-0' }} group-hover:scale-x-100"></span>
                         </a>
                     </li>
                     <li>
                         <a href="{{ route('user.keranjang.index') }}"
-                            class="relative block py-2 px-2 text-white hover:text-yellow-300 group {{ request()->routeIs('user.keranjang.index') ? 'text-yellow-300' : '' }}">
+                            class="relative block py-2 px-2 hover:text-[#4CAF50] group {{ request()->routeIs('user.keranjang.index') ? 'text-[#4CAF50]' : '' }}">
                             Keranjang
                             <span aria-hidden="true"
-                                class="absolute left-0 -bottom-0.5 h-0.5 w-full bg-yellow-300 origin-left transform transition-transform duration-300 {{ request()->routeIs('user.keranjang.index') ? 'scale-x-100' : 'scale-x-0' }} group-hover:scale-x-100"></span>
+                                class="absolute left-0 -bottom-0.5 h-0.5 w-full bg-[#4CAF50] origin-left transform transition-transform duration-300 {{ request()->routeIs('user.keranjang.index') ? 'scale-x-100' : 'scale-x-0' }} group-hover:scale-x-100"></span>
                         </a>
                     </li>
                     <li>
                         <a href="{{ route('user.pesanan.index') }}"
-                            class="relative block py-2 px-2 text-white hover:text-yellow-300 group {{ request()->routeIs('user.pesanan.index') ? 'text-yellow-300' : '' }}">
+                            class="relative block py-2 px-2 hover:text-[#4CAF50] group {{ request()->routeIs('user.pesanan.index') ? 'text-[#4CAF50]' : '' }}">
                             Pesanan
                             <span aria-hidden="true"
-                                class="absolute left-0 -bottom-0.5 h-0.5 w-full bg-yellow-300 origin-left transform transition-transform duration-300 {{ request()->routeIs('user.pesanan.index') ? 'scale-x-100' : 'scale-x-0' }} group-hover:scale-x-100"></span>
+                                class="absolute left-0 -bottom-0.5 h-0.5 w-full bg-[#4CAF50] origin-left transform transition-transform duration-300 {{ request()->routeIs('user.pesanan.index') ? 'scale-x-100' : 'scale-x-0' }} group-hover:scale-x-100"></span>
                         </a>
                     </li>
                 </ul>
@@ -62,36 +65,66 @@
 
         <!-- Right: Profile / Dropdown -->
         <div class="flex items-center justify-end flex-1 md:flex-none">
-            <div class="hidden sm:flex sm:items-center ms-3">
-                <button id="user-menu-btn" type="button" onclick="toggleUserMenu()"
-                    class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150"
-                    aria-haspopup="true" aria-expanded="false">
-                    <div class="text-sm font-medium">{{ Auth::user()->nama }}</div>
-                    <div class="ms-1">
-                        <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                            aria-hidden="true">
-                            <path fill-rule="evenodd"
-                                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                clip-rule="evenodd" />
-                        </svg>
+            <div class="hidden sm:flex sm:items-center ms-3 relative">
+
+                <!-- Wrapper untuk menggunakan focus-within -->
+                <div class="relative group focus-within:block">
+
+                    @php
+                        $user = Auth::user();
+                        $avatar = $user->avatar ?? null;
+                        if ($avatar) {
+                            $profilePhoto = \Illuminate\Support\Str::startsWith($avatar, ['http://', 'https://'])
+                                ? $avatar
+                                : asset($avatar);
+                        } elseif (!empty($user->profile_photo_url)) {
+                            $profilePhoto = $user->profile_photo_url;
+                        } else {
+                            $profilePhoto = asset('img/avatar.png');
+                        }
+                    @endphp
+
+                    <!-- Tombol Foto Profil -->
+                    <button class="peer flex items-center p-0 border-2 border-[#065f46] rounded-full transition-all duration-200 ease-in-out focus:outline-none peer-focus:border-4">
+                        <img src="{{ $profilePhoto }}" class="w-10 h-10 rounded-full object-cover cursor-pointer" alt="Avatar">
+                    </button>
+
+                    <!-- Dropdown (muncul saat foto profil di klik/focus) -->
+                    <div
+                        class="absolute right-0 mt-2 w-56 z-50 hidden peer-focus:block group-hover:block bg-white divide-y divide-gray-200 rounded-lg shadow-lg">
+
+                        <div class="px-4 py-3 bg-gray-100 rounded-t-lg">
+                            <span class="block text-sm font-semibold text-gray-800">
+                                {{ Auth::user()->name ?? Auth::user()->nama }}
+                            </span>
+                            <span class="block text-sm text-gray-500 truncate">
+                                {{ Auth::user()->email }}
+                            </span>
+                        </div>
+
+                        <ul class="py-2 bg-white rounded-b-lg">
+                            <li>
+                                <a href="{{ route('user.profil.index') }}"
+                                    class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition">
+                                    Profil
+                                </a>
+                            </li>
+                            <li>
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit"
+                                        class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-red-100 hover:text-red-700 transition">
+                                        Keluar
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+
                     </div>
-                </button>
-
-                <div id="user-menu"
-                    class="hidden absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50 overflow-hidden">
-                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile</a>
-
-                    <div class="border-t"></div>
-
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit"
-                            class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-                            Log Out
-                        </button>
-                    </form>
                 </div>
+
             </div>
         </div>
+
     </div>
 </nav>

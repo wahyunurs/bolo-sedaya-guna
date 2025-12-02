@@ -1,11 +1,10 @@
 @extends('auth.components.layout')
 @section('content')
     <!-- Wrapper -->
-    <section class="min-h-screen flex items-center justify-center bg-green-100"
+    <section class="min-h-screen flex items-center justify-center bg-[#e5ffda]"
         style="background-size: cover; background-position: center; background-repeat: no-repeat;">
         <!-- Main container -->
-        <!-- fixed height so card stays consistent; form column will scroll if content overflows -->
-        <div class="flex w-full max-w-4xl bg-gray-50 rounded-3xl shadow-lg overflow-hidden h-[560px]">
+        <div class="flex w-full max-w-4xl bg-[#ffffff] rounded-3xl shadow-lg overflow-hidden h-[560px]">
             <!-- Right side (image) - moved to first column -->
             <div class="w-1/2 flex items-center justify-center p-8">
                 <div class="relative w-full h-full flex items-center justify-center">
@@ -18,11 +17,13 @@
             </div>
 
             <!-- Left side (form) - moved to second column -->
-            <!-- add direction: rtl so scrollbar appears on left; inner form forced back to ltr -->
             <div class="w-1/2 p-10 overflow-y-auto" style="direction: rtl;">
                 <!-- Logo -->
-                <div class="flex justify-center mb-4">
-                    <img src="{{ asset('img/logo/goloka.png') }}" alt="Goloka" class="w-24 h-auto">
+                <div class="flex items-center justify-center mb-4 gap-3">
+                    <img src="{{ asset('img/logo/sedayumart.png') }}" alt="SedayuMart" class="w-10 h-auto">
+                    <div class="text-xl font-bold">
+                        <span class="text-[#065f46]">Sedayu</span><span class="text-[#FBBF24]">Mart</span>
+                    </div>
                 </div>
 
                 <!-- Title -->

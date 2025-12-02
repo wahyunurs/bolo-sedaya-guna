@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\LoginRequest;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Route;
-use Illuminate\View\View;
-use Laravel\Socialite\Facades\Socialite;
 use App\Models\User;
+use Illuminate\View\View;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Route;
+use App\Http\Requests\Auth\LoginRequest;
+use Laravel\Socialite\Facades\Socialite;
+use Illuminate\Validation\ValidationException;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -27,7 +28,12 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
-        $request->authenticate();
+        try {
+            $request->authenticate();
+        } catch (\Throwable $e) {
+            // Pastikan setiap kegagalan autentikasi mengembalikan pesan field-spesifik
+            throw ValidationException::withMessages($this->loginErrorMessage($request));
+        }
 
         $request->session()->regenerate();
 
@@ -38,17 +44,24 @@ class AuthenticatedSessionController extends Controller
     }
 
     /**
-     * Destroy an authenticated session.
+     * Login error message based on email existence.
      */
-    public function destroy(Request $request): RedirectResponse
+    protected function loginErrorMessage(LoginRequest $request): array
     {
-        Auth::guard('web')->logout();
+        $email = (string) $request->input('email');
+        $emailExists = User::where('email', $email)->exists();
 
-        $request->session()->invalidate();
+        // Jika email tidak terdaftar, tampilkan error pada field email
+        if (! $emailExists) {
+            return [
+                'email' => 'Email tidak terdaftar.',
+            ];
+        }
 
-        $request->session()->regenerateToken();
-
-        return redirect('/');
+        // Jika email ada namun autentikasi gagal, arahkan pesan ke field password
+        return [
+            'password' => 'Kata sandi salah.',
+        ];
     }
 
     /**
@@ -84,6 +97,7 @@ class AuthenticatedSessionController extends Controller
                 'google_id' => $googleUser->id,
                 'google_token' => $googleUser->token,
                 'google_refresh_token' => $googleUser->refreshToken ?? null,
+                'avatar' => $googleUser->avatar ?? null,
                 'alamat' => '',
                 'nomor_telepon' => '',
             ]);
@@ -92,6 +106,10 @@ class AuthenticatedSessionController extends Controller
             $user->google_id = $googleUser->id;
             $user->google_token = $googleUser->token;
             $user->google_refresh_token = $googleUser->refreshToken ?? null;
+            // update avatar if provided by Google
+            if (! empty($googleUser->avatar)) {
+                $user->avatar = $googleUser->avatar;
+            }
             $user->save();
         }
 
@@ -111,5 +129,19 @@ class AuthenticatedSessionController extends Controller
         }
 
         return route('user.dashboard');
+    }
+
+    /**
+     * Destroy an authenticated session.
+     */
+    public function destroy(Request $request): RedirectResponse
+    {
+        Auth::guard('web')->logout();
+
+        $request->session()->invalidate();
+
+        $request->session()->regenerateToken();
+
+        return redirect('/');
     }
 }
