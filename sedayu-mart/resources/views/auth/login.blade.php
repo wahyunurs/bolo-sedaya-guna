@@ -143,7 +143,7 @@
                 </form>
             </div>
 
-            @vite('resources/js/guest/login.js')
+            @vite('resources/js/auth/login.js')
         </div>
     </section>
 @endsection

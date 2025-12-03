@@ -2,11 +2,11 @@
     @include('user.components.navbar')
 
     <!-- SECTION PESANAN -->
-    <section class="py-20 bg-[#CBF5BA] min-h-screen">
+    <section class="py-20 bg-[#e9ffe1] min-h-screen">
 
         <!-- JUDUL -->
-        <h1 class="text-center text-4xl font-extrabold text-green-800 mt-6 mb-10">
-            DAFTAR PESANAN
+        <h1 class="text-center text-4xl md:text-5xl font-extrabold tracking-wide text-green-800 mb-8 mt-8">
+            RIWAYAT PESANAN
         </h1>
 
         <!-- SEARCH + FILTER + DELETE -->
@@ -36,7 +36,7 @@
 
             <!-- FILTER STATUS -->
             <select
-                class="h-12 px-4 bg-white rounded-xl border-gray-300 text-gray-700 focus:ring-green-600 focus:border-green-600">
+                class="h-12 px-8 bg-white rounded-xl border-gray-300 text-gray-700 focus:ring-green-600 focus:border-green-600">
                 <option value="">Semua Status</option>
                 <option value="pending">Pending</option>
                 <option value="diproses">Diproses</option>
@@ -61,57 +61,58 @@
         </div>
 
         <!-- LIST PESANAN -->
-        <div class="px-20 space-y-8">
+        <div class="px-28 space-y-8">
 
             <!-- CARD PESANAN -->
-<div class="bg-white rounded-2xl shadow px-10 py-6 flex items-center justify-between">
+            <div class="bg-white rounded-2xl shadow px-10 py-6 flex items-center justify-between">
 
-    <!-- KIRI -->
-    <div class="flex items-start gap-8">
+                <!-- KIRI -->
+                <div class="flex items-start gap-8">
 
-        <!-- CHECKBOX -->
-        <input type="checkbox" class="self-center w-7 h-7 rounded-lg">
+                    <!-- CHECKBOX -->
+                    <input type="checkbox" class="self-center w-7 h-7 rounded-lg">
 
-        <!-- FOTO PRODUK -->
-        <img src="{{ asset('img/card/produk1.png') }}" class="h-24 w-24 rounded-xl object-cover">
+                    <!-- FOTO PRODUK -->
+                    <img src="{{ asset('img/card/produk1.png') }}" class="h-24 w-24 rounded-xl object-cover">
 
-        <!-- INFO PESANAN -->
-        <div>
-            <p class="font-bold text-2xl text-gray-800">Olahan Jagung</p>
+                    <!-- INFO PESANAN -->
+                    <div>
+                        <p class="font-bold text-2xl text-gray-800">Olahan Jagung</p>
 
-            <p class="text-gray-600 mt-1">
-                Jumlah: <span class="font-semibold">10</span> pcs
-            </p>
+                        <p class="text-gray-600 mt-1">
+                            Jumlah: <span class="font-semibold">10</span> pcs
+                        </p>
 
-            <!-- STATUS PESANAN -->
-            <span class="inline-block mt-3 bg-yellow-300 text-yellow-800 font-semibold px-3 py-1 rounded-lg">
-                Diproses
-            </span>
-        </div>
-    </div>
+                        <!-- STATUS PESANAN -->
+                        <span
+                            class="inline-block mt-3 bg-yellow-300 text-yellow-800 font-semibold px-3 py-1 rounded-lg">
+                            Diproses
+                        </span>
+                    </div>
+                </div>
 
-    <!-- KANAN (TOTAL HARGA + DELETE) -->
-    <div class="flex items-center gap-10">
+                <!-- KANAN (TOTAL HARGA + DELETE) -->
+                <div class="flex items-center gap-10">
 
-        <!-- TOTAL HARGA -->
-        <p class="text-green-700 font-bold text-2xl whitespace-nowrap">
-            Rp 200.000,-
-        </p>
+                    <!-- TOTAL HARGA -->
+                    <p class="text-green-700 font-bold text-2xl whitespace-nowrap">
+                        Rp 200.000,-
+                    </p>
 
-        <!-- ICON DELETE -->
-        <button
-            class="p-2 rounded-lg text-red-600 border border-red-600 hover:bg-red-600 hover:text-white transition">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                stroke-linejoin="round">
-                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
-                <path d="M3 6h18" />
-                <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-            </svg>
-        </button>
+                    <!-- ICON DELETE -->
+                    <button
+                        class="p-2 rounded-lg text-red-600 border border-red-600 hover:bg-red-600 hover:text-white transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+                            <path d="M3 6h18" />
+                            <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                        </svg>
+                    </button>
 
-    </div>
-</div>
+                </div>
+            </div>
 
 
         </div>

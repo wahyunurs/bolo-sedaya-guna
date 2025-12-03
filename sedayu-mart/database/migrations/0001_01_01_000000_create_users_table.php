@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('nama');
             $table->string('alamat')->nullable();
+            $table->string('kabupaten')->nullable();
+            $table->string('provinsi')->nullable();
             $table->string('nomor_telepon')->nullable();
             $table->enum('role', ['user', 'admin'])->default('user');
             $table->string('google_id')->nullable();

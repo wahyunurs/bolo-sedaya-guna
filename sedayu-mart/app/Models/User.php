@@ -20,6 +20,8 @@ class User extends Authenticatable
     protected $fillable = [
         'nama',
         'alamat',
+        'kabupaten',
+        'provinsi',
         'nomor_telepon',
         'role',
         'google_id',

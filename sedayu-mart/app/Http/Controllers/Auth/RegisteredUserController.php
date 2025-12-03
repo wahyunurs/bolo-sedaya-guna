@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Route;
+use App\Models\TarifPengiriman;
 
 class RegisteredUserController extends Controller
 {
@@ -20,7 +21,8 @@ class RegisteredUserController extends Controller
      */
     public function create(): View
     {
-        return view('auth.register');
+        $kabupatens = TarifPengiriman::orderBy('kabupaten')->pluck('kabupaten');
+        return view('auth.register', compact('kabupatens'));
     }
 
     /**
@@ -32,14 +34,24 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'nama' => ['required', 'string', 'max:255'],
+            'alamat' => ['required', 'string', 'max:500'],
+            'kabupaten' => ['required', 'string', 'max:255'],
+            'provinsi' => ['required', 'string', 'max:255'],
+            'nomor_telepon' => ['required', 'string', 'max:50'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
+        // Create user with the fields matching the users table (excluding avatar and google attributes)
         $user = User::create([
             'nama' => $request->nama,
+            'alamat' => $request->alamat,
+            'kabupaten' => $request->kabupaten,
+            'provinsi' => $request->provinsi,
+            'nomor_telepon' => $request->nomor_telepon,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => 'user',
         ]);
 
         event(new Registered($user));
@@ -56,6 +68,6 @@ class RegisteredUserController extends Controller
             return redirect('/admin');
         }
 
-        return redirect(route('dashboard', absolute: false));
+        return redirect(route('user.beranda', absolute: false));
     }
 }

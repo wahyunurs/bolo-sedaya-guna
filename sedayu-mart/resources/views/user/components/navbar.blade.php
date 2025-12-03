@@ -3,7 +3,7 @@
 
         <!-- Left: Logo + Mobile toggle -->
         <div class="flex items-center flex-1 md:flex-none">
-            <a href="{{ route('user.dashboard') }}" class="inline-flex items-center">
+            <a href="{{ route('user.beranda') }}" class="inline-flex items-center">
                 <img src="{{ asset('img/logo/sedayumart.png') }}" class="w-10" alt="Logo">
                 <div class="ml-2 text-lg font-semibold">
                     <span class="text-[#065f46]">Sedayu</span><span class="text-[#FBBF24]">Mart</span>
@@ -28,11 +28,11 @@
                 <ul
                     class="font-small flex flex-col p-3 md:p-0 mt-4 border rounded-lg  md:flex-row md:space-x-4 md:mt-0 md:border-0">
                     <li>
-                        <a href="{{ route('user.dashboard') }}"
-                            class="relative block py-2 px-2 {{ request()->routeIs('user.dashboard') ? 'text-[#4CAF50]' : 'text-black hover:text-[#4CAF50]' }} group">
+                        <a href="{{ route('user.beranda') }}"
+                            class="relative block py-2 px-2 {{ request()->routeIs('user.beranda') ? 'text-[#4CAF50]' : 'text-black hover:text-[#4CAF50]' }} group">
                             Beranda
                             <span aria-hidden="true"
-                                class="absolute left-0 -bottom-0.5 h-0.5 w-full bg-[#4CAF50] origin-left transform transition-transform duration-300 {{ request()->routeIs('user.dashboard') ? 'scale-x-100' : 'scale-x-0' }} group-hover:scale-x-100"></span>
+                                class="absolute left-0 -bottom-0.5 h-0.5 w-full bg-[#4CAF50] origin-left transform transition-transform duration-300 {{ request()->routeIs('user.beranda') ? 'scale-x-100' : 'scale-x-0' }} group-hover:scale-x-100"></span>
                         </a>
                     </li>
                     <li>
@@ -80,13 +80,29 @@
                         } elseif (!empty($user->profile_photo_url)) {
                             $profilePhoto = $user->profile_photo_url;
                         } else {
-                            $profilePhoto = asset('img/avatar.png');
+                            // no avatar available, render inline SVG instead of default image
+                            $profilePhoto = null;
                         }
                     @endphp
 
                     <!-- Tombol Foto Profil -->
-                    <button class="peer flex items-center p-0 border-2 border-[#065f46] rounded-full transition-all duration-200 ease-in-out focus:outline-none peer-focus:border-4">
-                        <img src="{{ $profilePhoto }}" class="w-10 h-10 rounded-full object-cover cursor-pointer" alt="Avatar">
+                    <button
+                        class="peer flex items-center p-0 border-2 border-[#065f46] rounded-full transition-all duration-200 ease-in-out focus:outline-none peer-focus:border-4">
+                        @if (!empty($profilePhoto))
+                            <img src="{{ $profilePhoto }}" class="w-10 h-10 rounded-full object-cover cursor-pointer"
+                                alt="Avatar">
+                        @else
+                            <span
+                                class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 text-gray-700">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round"
+                                    class="lucide lucide-user-round-icon lucide-user-round w-6 h-6">
+                                    <circle cx="12" cy="8" r="5" />
+                                    <path d="M20 21a8 8 0 0 0-16 0" />
+                                </svg>
+                            </span>
+                        @endif
                     </button>
 
                     <!-- Dropdown (muncul saat foto profil di klik/focus) -->

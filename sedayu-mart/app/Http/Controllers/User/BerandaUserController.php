@@ -6,14 +6,13 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 
-class DashboardUserController extends Controller
+class BerandaUserController extends Controller
 {
     public function index()
     {
         $user = Auth::user();
 
-        return view('user.dashboard.index', [
-            'title' => 'Dashboard User',
+        return view('user.beranda.index', [
             'user' => $user,
         ]);
     }

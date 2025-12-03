@@ -128,7 +128,7 @@ class AuthenticatedSessionController extends Controller
             return route('admin.dashboard');
         }
 
-        return route('user.dashboard');
+        return route('user.beranda');
     }
 
     /**

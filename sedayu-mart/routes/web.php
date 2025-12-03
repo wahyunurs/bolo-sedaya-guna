@@ -11,16 +11,17 @@ use App\Http\Controllers\Guest\GuestController;
 /*
 * ADMIN CONTROLLERS
 */
-use App\Http\Controllers\Admin\DashboardAdminController;
+use App\Http\Controllers\User\ProdukUserController;
 
 /*
 * USER CONTROLLERS
 */
-use App\Http\Controllers\User\DashboardUserController;
-use App\Http\Controllers\User\ProdukUserController;
-use App\Http\Controllers\User\KeranjangUserController;
-use App\Http\Controllers\User\PesananUserController;
 use App\Http\Controllers\User\ProfilUserController;
+use App\Http\Controllers\User\BerandaUserController;
+use App\Http\Controllers\User\PesananUserController;
+use App\Http\Controllers\Admin\ProfilAdminController;
+use App\Http\Controllers\User\KeranjangUserController;
+use App\Http\Controllers\Admin\DashboardAdminController;
 
 require __DIR__ . '/auth.php';
 
@@ -39,6 +40,9 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::prefix('admin')->group(function () {
         // Dashboard
         Route::get('/', [DashboardAdminController::class, 'index'])->name('admin.dashboard');
+
+        // Profil
+        Route::get('/profil', [ProfilAdminController::class, 'index'])->name('admin.profil.index');
     });
 });
 
@@ -47,19 +51,42 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 */
 Route::middleware(['auth', 'role:user'])->group(function () {
     Route::prefix('user')->group(function () {
-        // Dashboard
-        Route::get('/', [DashboardUserController::class, 'index'])->name('user.dashboard');
+
+        // Beranda
+        Route::get('/', [BerandaUserController::class, 'index'])->name('user.beranda');
 
         // Produk
-        Route::get('/produk', [ProdukUserController::class, 'index'])->name('user.produk.index');
+        Route::prefix('produk')->group(function () {
+
+            Route::get('/checkout', [ProdukUserController::class, 'checkout'])
+                ->name('user.produk.checkout');
+
+            Route::post('/bayar-sekarang', [ProdukUserController::class, 'bayarSekarang'])
+                ->name('user.produk.bayarSekarang');
+
+            Route::post('/beli-sekarang', [ProdukUserController::class, 'beliSekarang'])
+                ->name('user.produk.beliSekarang');
+
+            Route::get('/', [ProdukUserController::class, 'index'])
+                ->name('user.produk.index');
+
+            Route::get('/detail/{id}', [ProdukUserController::class, 'detail'])
+                ->name('user.produk.detail');
+
+            Route::post('/tambah-keranjang', [ProdukUserController::class, 'tambahKeranjang'])
+                ->name('user.produk.tambahKeranjang');
+        });
 
         // Keranjang
-        Route::get('/keranjang', [KeranjangUserController::class, 'index'])->name('user.keranjang.index');
+        Route::get('/keranjang', [KeranjangUserController::class, 'index'])
+            ->name('user.keranjang.index');
 
         // Pesanan
-        Route::get('/pesanan', [PesananUserController::class, 'index'])->name('user.pesanan.index');
+        Route::get('/pesanan', [PesananUserController::class, 'index'])
+            ->name('user.pesanan.index');
 
         // Profil
-        Route::get('/profil', [ProfilUserController::class, 'index'])->name('user.profil.index');
+        Route::get('/profil', [ProfilUserController::class, 'index'])
+            ->name('user.profil.index');
     });
 });

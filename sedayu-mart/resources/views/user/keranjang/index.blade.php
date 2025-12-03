@@ -2,9 +2,9 @@
     @include('user.components.navbar')
 
     <!-- SECTION KERANJANG BELANJA -->
-    <section class="py-20 bg-[#CBF5BA] min-h-screen">
+    <section class="py-20 bg-[#e9ffe1] min-h-screen">
         <!-- JUDUL -->
-        <h1 class="text-center text-4xl font-extrabold text-green-800 mb-8 mt-6">
+        <h1 class="text-center text-4xl md:text-5xl font-extrabold tracking-wide text-green-800 mb-8 mt-8">
             KERANJANG BELANJA
         </h1>
 
@@ -62,7 +62,7 @@
         </div>
 
         <!-- LIST PRODUK -->
-        <div class="px-20 space-y-8">
+        <div class="px-28 space-y-8">
 
             <!-- ITEM -->
             <div class="bg-white rounded-2xl shadow px-10 py-5 flex items-center justify-between">
