@@ -11,7 +11,9 @@
         </button>
 
         <div class="flex items-center gap-4 mb-4">
-            <img id="modalProductImg" src="" class="w-20 h-20 rounded-lg object-cover border" alt="">
+            {{-- static placeholder — JS will replace src when opening the modal --}}
+            <img src="{{ asset('img/card/produk1.png') }}" id="modalProductImg"
+                class="w-20 h-20 rounded-lg object-cover border" alt="Produk">
             <div>
                 <p id="modalProductName" class="font-semibold text-green-900 text-lg">Produk</p>
                 <p id="modalProductPrice" class="text-gray-600">Rp 0</p>

@@ -58,14 +58,8 @@
                 <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition">
                     <a href="{{ route('user.produk.detail', $produk->id) }}" class="block">
                         <div class="relative w-full" style="padding-top: 100%;">
-                            @php
-                                // use the eager-loaded 'gambarProduks' relation (filtered in controller)
-                                $gambar = optional($produk->gambarProduks->first())->gambar;
-                                $imgPath = $gambar
-                                    ? asset('storage/img/produk/' . $gambar)
-                                    : asset('img/card/produk1.png');
-                            @endphp
-                            <img src="{{ $imgPath }}" class="absolute inset-0 w-full h-full object-cover"
+                            <img src="{{ asset('/storage/img/produk/' . $produk->gambarProduks->first()->gambar) }}"
+                                class="absolute inset-0 w-full h-full object-cover"
                                 alt="{{ $produk->nama ?? ($produk->nama_produk ?? 'Produk') }}">
                         </div>
                         <div class="ml-4 mt-2">
@@ -85,7 +79,8 @@
                                 <button aria-label="show-modal" type="button"
                                     class="show-modal-btn text-green-600 border border-green-600 px-3 py-2 rounded-lg hover:bg-green-600 hover:text-white transition"
                                     data-id="{{ $produk->id }}" data-price="{{ $produk->harga }}"
-                                    data-name="{{ $produk->nama }}" data-img="{{ $imgPath }}">
+                                    data-name="{{ $produk->nama }}"
+                                    data-img="{{ optional($produk->gambarProduks->first())->gambar ? asset('storage/img/produk/' . $produk->gambarProduks->first()->gambar) : asset('img/card/produk1.png') }}">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                         stroke-linecap="round" stroke-linejoin="round"
@@ -102,17 +97,9 @@
                 </div>
             @empty
                 <div class="col-span-full text-center py-12">
-                    <p class="text-gray-600">Tidak ada produk yang ditemukan untuk kata kunci
-                        "{{ $search ?? request('search') }}".</p>
+                    <p class="text-gray-600">Tidak ada produk yang ditemukan.</p>
                 </div>
             @endforelse
-
-        </div>
-
-        <div class="mt-8 flex justify-center">
-            @if (isset($produks))
-                {{ $produks->appends(['search' => $search ?? request('search')])->links() }}
-            @endif
         </div>
     </section>
 

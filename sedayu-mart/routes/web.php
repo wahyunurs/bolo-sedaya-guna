@@ -78,8 +78,22 @@ Route::middleware(['auth', 'role:user'])->group(function () {
         });
 
         // Keranjang
-        Route::get('/keranjang', [KeranjangUserController::class, 'index'])
-            ->name('user.keranjang.index');
+        Route::prefix('keranjang')->group(function () {
+            Route::get('/', [KeranjangUserController::class, 'index'])
+                ->name('user.keranjang.index');
+
+            Route::post('/select-destroy', [KeranjangUserController::class, 'selectDestroy'])
+                ->name('user.keranjang.selectDestroy');
+
+            Route::post('/update', [KeranjangUserController::class, 'update'])
+                ->name('user.keranjang.update');
+
+            Route::delete('/destroy/{id}', [KeranjangUserController::class, 'destroy'])
+                ->name('user.keranjang.destroy');
+
+            Route::post('/checkout', [KeranjangUserController::class, 'checkout'])
+                ->name('user.keranjang.checkout');
+        });
 
         // Pesanan
         Route::get('/pesanan', [PesananUserController::class, 'index'])

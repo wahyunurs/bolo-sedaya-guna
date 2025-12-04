@@ -29,6 +29,7 @@ return new class extends Migration
             ])->default('Menunggu Verifikasi');
             $table->text('catatan')->nullable(); // catatan tambahan dari pembeli
             $table->text('keterangan')->nullable(); // alasan penolakan dari admin
+            $table->boolean('dihapus')->default(false);  // menandai item yang dihapus setelah pemesanan
             $table->timestamps();
         });
     }

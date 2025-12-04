@@ -26,15 +26,15 @@ class ProdukUserController extends Controller
 
         $search = $request->input('search');
 
-        $produks = Produk::with(['gambarProduks' => function ($query) {
-            $query->where('utama', 1);
+        $query = Produk::with(['gambarProduks' => function ($q) {
+            $q->where('utama', 1)->limit(1);
         }]);
 
         if ($search) {
-            $produks->where('nama', 'like', '%' . $search . '%');
+            $query->where('nama', 'like', '%' . $search . '%');
         }
 
-        $produks = $produks->paginate(10)->withQueryString();
+        $produks = $query->get();
 
         return view('user.produk.index', [
             'produks' => $produks,
@@ -216,7 +216,7 @@ class ProdukUserController extends Controller
             'ongkir' => 'nullable|integer|min:0',
             'subtotal_produk' => 'required|integer|min:0',
             'total_bayar' => 'required|integer|min:0',
-            'bukti_pembayaran' => 'nullable|image|mimes:jpeg,png,jpg|max:5120',
+            'bukti_pembayaran' => 'required|image|mimes:jpeg,png,jpg|max:5120',
             'catatan' => 'nullable|string|max:1000',
 
             // Item Pesanan
@@ -231,45 +231,80 @@ class ProdukUserController extends Controller
         if ($request->hasFile('bukti_pembayaran')) {
             $file = $request->file('bukti_pembayaran');
             $fileName = date('Y-m-d-') . '_' . $file->getClientOriginalName();
-            $path = 'produk/' . $fileName;
+            $path = 'img/bukti_pembayaran/' . $fileName;
 
             Storage::disk('public')->put($path, file_get_contents($file));
         }
 
         $produk = Produk::findOrFail($request->produk_id);
 
-        // Cek ketersediaan stok produk
-        if ($produk->stok < $request->kuantitas) {
-            return redirect()->back()->with('error', 'Stok produk tidak mencukupi');
+        // Find a related keranjang if provided
+        $keranjang = null;
+        if ($request->filled('keranjang_id')) {
+            $keranjang = Keranjang::where('id', $request->keranjang_id)
+                ->where('user_id', $user->id)
+                ->first();
         }
 
-        $produk->decrement('stok', $request->kuantitas);
+        try {
+            DB::transaction(function () use ($request, $user, $produk, $keranjang, $fileName) {
+                // Stock adjustments:
+                // - If checkout from cart: the cart already reserved stock when added.
+                //   We compute delta = buyQty - cartQty and adjust the product stock by that delta.
+                // - If not from cart: decrement full buy quantity.
 
-        $pesanan = Pesanan::create([
-            'user_id' => $user->id,
-            'alamat' => $request->alamat,
-            'kabupaten_tujuan' => $request->kabupaten_tujuan,
-            'ongkir' => $request->ongkir ?? 0,
-            'subtotal_produk' => $request->subtotal_produk,
-            'total_bayar' => $request->total_bayar,
-            'bukti_pembayaran' => $fileName,
-            'status' => 'Menunggu Verifikasi',
-            'catatan' => $request->catatan,
-        ]);
+                $buyQty = (int) $request->kuantitas;
 
-        ItemPesanan::create([
-            'pesanan_id' => $pesanan->id,
-            'produk_id' => $request->produk_id,
-            'kuantitas' => $request->kuantitas,
-            'harga_saat_pemesanan' => $request->harga_saat_pemesanan,
-            'berat_total' => $request->berat_total,
-        ]);
+                if ($keranjang) {
+                    $cartQty = (int) ($keranjang->kuantitas ?? $keranjang->jumlah ?? 0);
+                    $delta = $buyQty - $cartQty;
 
-        // Update stok produk berdasarkan kuantitas itempesanan
+                    if ($delta > 0) {
+                        if ($produk->stok < $delta) {
+                            throw new \Exception('Stok produk tidak mencukupi');
+                        }
+                        $produk->decrement('stok', $delta);
+                    } elseif ($delta < 0) {
+                        $produk->increment('stok', -$delta);
+                    }
+                } else {
+                    if ($produk->stok < $buyQty) {
+                        throw new \Exception('Stok produk tidak mencukupi');
+                    }
+                    $produk->decrement('stok', $buyQty);
+                }
 
+                $pesanan = Pesanan::create([
+                    'user_id' => $user->id,
+                    'alamat' => $request->alamat,
+                    'kabupaten_tujuan' => $request->kabupaten_tujuan,
+                    'ongkir' => $request->ongkir ?? 0,
+                    'subtotal_produk' => $request->subtotal_produk,
+                    'total_bayar' => $request->total_bayar,
+                    'bukti_pembayaran' => $fileName,
+                    'status' => 'Menunggu Verifikasi',
+                    'catatan' => $request->catatan,
+                ]);
 
-        return redirect()
-            ->route('user.produk.index')
-            ->with('success', 'Pesanan berhasil dibuat, menunggu verifikasi pembayaran.');
+                ItemPesanan::create([
+                    'pesanan_id' => $pesanan->id,
+                    'produk_id' => $request->produk_id,
+                    'kuantitas' => $request->kuantitas,
+                    'harga_saat_pemesanan' => $request->harga_saat_pemesanan,
+                    'berat_total' => $request->berat_total,
+                ]);
+
+                // If checkout came from a cart item, remove that cart row now
+                if ($keranjang) {
+                    $keranjang->delete();
+                }
+            });
+
+            return redirect()
+                ->route('user.produk.index')
+                ->with('success', 'Pesanan berhasil dibuat, menunggu verifikasi pembayaran.');
+        } catch (\Exception $e) {
+            return redirect()->back()->withInput()->with('error', $e->getMessage());
+        }
     }
 }
