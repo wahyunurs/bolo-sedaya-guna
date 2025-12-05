@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             TarifPengirimanSeeder::class,
             ProdukSeeder::class,
             GambarProdukSeeder::class,
+            RekeningSeeder::class,
         ]);
     }
 }

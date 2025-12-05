@@ -12,6 +12,13 @@ use App\Http\Controllers\Guest\GuestController;
 * ADMIN CONTROLLERS
 */
 use App\Http\Controllers\User\ProdukUserController;
+use App\Http\Controllers\Admin\PenggunaAdminController;
+use App\Http\Controllers\Admin\RekeningAdminController;
+use App\Http\Controllers\Admin\DashboardAdminController;
+use App\Http\Controllers\Admin\TarifPengirimanAdminController;
+use App\Http\Controllers\Admin\ProdukAdminController;
+use App\Http\Controllers\Admin\ProfilAdminController;
+use App\Http\Controllers\Admin\PesananAdminController;
 
 /*
 * USER CONTROLLERS
@@ -19,9 +26,7 @@ use App\Http\Controllers\User\ProdukUserController;
 use App\Http\Controllers\User\ProfilUserController;
 use App\Http\Controllers\User\BerandaUserController;
 use App\Http\Controllers\User\PesananUserController;
-use App\Http\Controllers\Admin\ProfilAdminController;
 use App\Http\Controllers\User\KeranjangUserController;
-use App\Http\Controllers\Admin\DashboardAdminController;
 
 require __DIR__ . '/auth.php';
 
@@ -41,8 +46,55 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
         // Dashboard
         Route::get('/', [DashboardAdminController::class, 'index'])->name('admin.dashboard');
 
+        // Pengguna
+        Route::prefix('pengguna')->group(function () {
+            Route::get('/', [PenggunaAdminController::class, 'index'])->name('admin.pengguna.index');
+            Route::get('/{id}', [PenggunaAdminController::class, 'show'])->name('admin.pengguna.show');
+        });
+
+        // Produk
+        Route::prefix('produk')->group(function () {
+            Route::get('/', [ProdukAdminController::class, 'index'])->name('admin.produk.index');
+            Route::get('/show/{id}', [ProdukAdminController::class, 'show'])->name('admin.produk.show');
+            Route::get('/create', [ProdukAdminController::class, 'create'])->name('admin.produk.create');
+            Route::post('/store', [ProdukAdminController::class, 'store'])->name('admin.produk.store');
+            Route::get('/edit/{id}', [ProdukAdminController::class, 'edit'])->name('admin.produk.edit');
+            Route::put('/update/{id}', [ProdukAdminController::class, 'update'])->name('admin.produk.update');
+            Route::delete('/destroy/{id}', [ProdukAdminController::class, 'destroy'])->name('admin.produk.destroy');
+        });
+
+        // Pesanan
+        Route::prefix('pesanan')->group(function () {
+            Route::get('/', [PesananAdminController::class, 'index'])->name('admin.pesanan.index');
+            Route::get('/verifikasi/{id}', [PesananAdminController::class, 'showVerifikasi'])->name('admin.pesanan.showVerifikasi');
+            Route::post('/verifikasi/{id}', [PesananAdminController::class, 'verifikasi'])->name('admin.pesanan.verifikasi');
+            Route::put('/update-status/{id}', [PesananAdminController::class, 'updateStatus'])->name('admin.pesanan.updateStatus');
+        });
+
+        // Tarif Pengiriman
+        Route::prefix('tarif-pengiriman')->group(function () {
+            Route::get('/', [TarifPengirimanAdminController::class, 'index'])->name('admin.tarifPengiriman.index');
+            Route::get('/edit/{id}', [TarifPengirimanAdminController::class, 'edit'])->name('admin.tarifPengiriman.edit');
+            Route::post('/store', [TarifPengirimanAdminController::class, 'store'])->name('admin.tarifPengiriman.store');
+            Route::put('/update/{id}', [TarifPengirimanAdminController::class, 'update'])->name('admin.tarifPengiriman.update');
+            Route::delete('/destroy/{id}', [TarifPengirimanAdminController::class, 'destroy'])->name('admin.tarifPengiriman.destroy');
+        });
+
+        // Rekening
+        Route::prefix('rekening')->group(function () {
+            Route::get('/', [RekeningAdminController::class, 'index'])->name('admin.rekening.index');
+            Route::post('/store', [RekeningAdminController::class, 'store'])->name('admin.rekening.store');
+            Route::get('/edit/{id}', [RekeningAdminController::class, 'edit'])->name('admin.rekening.edit');
+            Route::put('/update/{id}', [RekeningAdminController::class, 'update'])->name('admin.rekening.update');
+            Route::delete('/destroy/{id}', [RekeningAdminController::class, 'destroy'])->name('admin.rekening.destroy');
+        });
+
         // Profil
-        Route::get('/profil', [ProfilAdminController::class, 'index'])->name('admin.profil.index');
+        Route::prefix('profil')->group(function () {
+            Route::get('/', [ProfilAdminController::class, 'index'])->name('admin.profil.index');
+            Route::get('/edit', [ProfilAdminController::class, 'edit'])->name('admin.profil.edit');
+            Route::put('/update', [ProfilAdminController::class, 'update'])->name('admin.profil.update');
+        });
     });
 });
 
