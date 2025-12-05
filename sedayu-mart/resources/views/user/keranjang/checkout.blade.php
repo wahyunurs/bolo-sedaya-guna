@@ -12,7 +12,7 @@
             <div class="bg-white p-8 rounded-2xl shadow mt-8">
 
                 <div class="flex items-center gap-3 mb-6">
-                    <a href="{{ route('user.produk.index') }}" aria-label="Kembali ke detail"
+                    <a href="{{ route('user.keranjang.index') }}" aria-label="Kembali ke detail"
                         class="text-green-700 hover:text-green-900 p-1 rounded">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -90,6 +90,9 @@
 
                                 <div class="text-right">
                                     <p class="text-sm text-gray-600">
+                                        Subtotal: Rp <span
+                                            id="produkSubtotalText">{{ number_format($subtotal, 0, ',', '.') }}</span>
+                                    </p>
                                 </div>
                             </div>
 

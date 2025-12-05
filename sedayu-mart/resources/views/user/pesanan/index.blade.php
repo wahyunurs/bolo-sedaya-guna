@@ -3,6 +3,8 @@
 
     <!-- SECTION PESANAN -->
     <section class="py-20 bg-[#e9ffe1] min-h-screen">
+        <!-- Modal Flash Message -->
+        @include('user.components.message-modal')
 
         <!-- JUDUL -->
         <h1 class="text-center text-4xl md:text-5xl font-extrabold tracking-wide text-green-800 mb-8 mt-8">
@@ -20,7 +22,8 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M21 21l-4.35-4.35M11 19a8 8 0 1 1 0-16 8 8 0 0 1 0 16z" />
                     </svg>
-                    <input type="text" placeholder="Cari pesanan..."
+                    <input id="pesananSearch" name="q" type="text" placeholder="Cari pesanan..."
+                        value="{{ request('q') }}"
                         class="w-full pl-11 pr-4 py-3 text-gray-600 border-0 focus:outline-none focus:ring-0" />
                 </div>
                 <button class="bg-[#4CD137] px-6 py-3 text-white hover:bg-green-600 transition flex items-center gap-2">
@@ -35,18 +38,21 @@
             </div>
 
             <!-- FILTER STATUS -->
-            <select
+            <select id="pesananStatus" name="status"
                 class="h-12 px-8 bg-white rounded-xl border-gray-300 text-gray-700 focus:ring-green-600 focus:border-green-600">
-                <option value="">Semua Status</option>
-                <option value="pending">Pending</option>
-                <option value="diproses">Diproses</option>
-                <option value="dikirim">Dikirim</option>
-                <option value="selesai">Selesai</option>
-                <option value="batal">Batal</option>
+                <option value="" {{ request('status') == '' ? 'selected' : '' }}>Semua Status</option>
+                <option value="Menunggu Verifikasi" {{ request('status') == 'Menunggu Verifikasi' ? 'selected' : '' }}>
+                    Menunggu Verifikasi</option>
+                <option value="Diterima" {{ request('status') == 'Diterima' ? 'selected' : '' }}>Diterima</option>
+                <option value="Ditolak" {{ request('status') == 'Ditolak' ? 'selected' : '' }}>Ditolak</option>
+                <option value="Dalam Pengiriman" {{ request('status') == 'Dalam Pengiriman' ? 'selected' : '' }}>Dalam
+                    Pengiriman
+                </option>
+                <option value="Selesai" {{ request('status') == 'Selesai' ? 'selected' : '' }}>Selesai</option>
             </select>
 
             <!-- DELETE ALL -->
-            <button
+            <button id="bulkDeleteBtn"
                 class="bg-red-500 hover:bg-red-600 text-white h-12 w-12 rounded-xl flex items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -58,65 +64,309 @@
                 </svg>
             </button>
 
+            <form id="selectDestroyForm" method="POST" action="{{ route('user.pesanan.selectDestroy') }}"
+                style="display:none">
+                @csrf
+                <div id="selectedIdsContainer"></div>
+            </form>
+
+            {{-- include confirmation modal (reused) --}}
+            @include('user.keranjang.konfirmasi-hapus')
+
         </div>
 
         <!-- LIST PESANAN -->
-        <div class="px-28 space-y-8">
+        <div id="pesananList" class="px-28 space-y-8">
+            @forelse ($pesanans as $pesanan)
+                @php
+                    $firstItem = $pesanan->items->first();
+                    $img = optional(optional($firstItem)->produk->gambarProduks->first())->gambar ?? null;
+                    $imgPath = $img ? asset('storage/img/produk/' . $img) : asset('img/card/produk1.png');
+                    $totalJumlah = $pesanan->items->sum('kuantitas');
+                    $status = $pesanan->status ?? '';
+                    $badgeClass = 'bg-gray-200 text-gray-800';
 
-            <!-- CARD PESANAN -->
-            <div class="bg-white rounded-2xl shadow px-10 py-6 flex items-center justify-between">
+                    // Exact enum mapping (case-sensitive):
+                    // 'Menunggu Verifikasi', 'Ditolak', 'Diterima', 'Dalam Pengiriman', 'Selesai'
+                    if ($status === 'Menunggu Verifikasi') {
+                        $badgeClass = 'bg-gray-200 text-gray-800';
+                    } elseif ($status === 'Ditolak') {
+                        $badgeClass = 'bg-red-100 text-red-800';
+                    } elseif ($status === 'Diterima') {
+                        $badgeClass = 'bg-blue-100 text-blue-800';
+                    } elseif ($status === 'Dalam Pengiriman') {
+                        $badgeClass = 'bg-yellow-300 text-yellow-800';
+                    } elseif ($status === 'Selesai') {
+                        $badgeClass = 'bg-green-100 text-green-800';
+                    }
 
-                <!-- KIRI -->
-                <div class="flex items-start gap-8">
+                    // Disable interactions (checkbox + trash) for these statuses.
+                    $disabledStatuses = ['Menunggu Verifikasi', 'Ditolak', 'Diterima', 'Dalam Pengiriman'];
+                    $isDisabled = in_array($status, $disabledStatuses, true);
+                @endphp
 
-                    <!-- CHECKBOX -->
-                    <input type="checkbox" class="self-center w-7 h-7 rounded-lg">
+                <div data-id="{{ $pesanan->id }}"
+                    class="pesanan-card bg-white rounded-2xl shadow px-10 py-6 grid grid-cols-[22rem_minmax(0,1fr)_18rem] gap-x-4 items-center">
 
-                    <!-- FOTO PRODUK -->
-                    <img src="{{ asset('img/card/produk1.png') }}" class="h-24 w-24 rounded-xl object-cover">
+                    <!-- KIRI -->
+                    <div class="flex items-start gap-6 self-start">
 
-                    <!-- INFO PESANAN -->
-                    <div>
-                        <p class="font-bold text-2xl text-gray-800">Olahan Jagung</p>
+                        <!-- CHECKBOX -->
+                        <input type="checkbox"
+                            class="pesanan-checkbox self-center w-7 h-7 rounded-lg {{ $isDisabled ? 'opacity-50 cursor-not-allowed' : '' }}"
+                            value="{{ $pesanan->id }}" {{ $isDisabled ? 'disabled' : '' }}>
 
-                        <p class="text-gray-600 mt-1">
-                            Jumlah: <span class="font-semibold">10</span> pcs
+                        <!-- FOTO PRODUK -->
+                        <img src="{{ $imgPath }}" class="h-24 w-24 rounded-xl object-cover">
+
+                        <!-- INFO PESANAN -->
+                        <div>
+                            <p class="font-bold text-2xl text-gray-800 truncate max-w-[14rem]">
+                                {{ optional($firstItem->produk)->nama ?? 'Produk' }}</p>
+
+                            <p class="text-gray-600 mt-1">
+                                Jumlah: <span class="font-semibold">{{ $totalJumlah }}</span>
+                                {{ optional($firstItem->produk)->satuan_produk ?? '' }}
+                            </p>
+
+                            <!-- STATUS PESANAN -->
+                            <span class="inline-block mt-2 {{ $badgeClass }} font-semibold px-3 py-1 rounded-lg">
+                                {{ $pesanan->status ?? '-' }}
+                            </span>
+                        </div>
+                    </div>
+                    <!-- MIDDLE COLUMN: rejection message centered between left and right -->
+                    <div class="px-4 min-w-0 flex items-center border-l border-r border-gray-100">
+                        @if ($status === 'Ditolak')
+                            <p
+                                class="text-sm text-red-600 font-medium text-left break-words break-all whitespace-normal max-w-full">
+                                Pesan: {{ $pesanan->keterangan ?? '-' }}</p>
+                        @endif
+                    </div>
+
+                    <!-- KANAN (TOTAL HARGA + DELETE) -->
+                    <div class="flex items-center gap-10 justify-end">
+
+                        <!-- TOTAL HARGA -->
+                        <p class="text-green-700 font-bold text-2xl whitespace-nowrap">
+                            Rp {{ number_format($pesanan->total_bayar ?? 0, 0, ',', '.') }},-
                         </p>
 
-                        <!-- STATUS PESANAN -->
-                        <span
-                            class="inline-block mt-3 bg-yellow-300 text-yellow-800 font-semibold px-3 py-1 rounded-lg">
-                            Diproses
-                        </span>
+                        <!-- EDIT DELIVERY (visible only when Ditolak) -->
+                        @if ($status === 'Ditolak')
+                            <a href="{{ route('user.pesanan.edit', $pesanan->id) }}" title="Ubah pesanan"
+                                class="editDeliveryBtn p-2 rounded-lg text-blue-600 border border-blue-600 hover:bg-blue-600 hover:text-white transition mr-2 inline-flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M12 20h9" />
+                                    <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
+                                </svg>
+                            </a>
+                        @endif
+
+                        <!-- ICON DELETE (opens confirmation modal) -->
+                        <button type="button" data-id="{{ $pesanan->id }}" {{ $isDisabled ? 'disabled' : '' }}
+                            class="singleDeleteBtn p-2 rounded-lg transition {{ $isDisabled ? 'text-gray-400 border-gray-200 cursor-not-allowed bg-transparent' : 'text-red-600 border border-red-600 hover:bg-red-600 hover:text-white' }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+                                <path d="M3 6h18" />
+                                <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                            </svg>
+                        </button>
+
                     </div>
                 </div>
-
-                <!-- KANAN (TOTAL HARGA + DELETE) -->
-                <div class="flex items-center gap-10">
-
-                    <!-- TOTAL HARGA -->
-                    <p class="text-green-700 font-bold text-2xl whitespace-nowrap">
-                        Rp 200.000,-
-                    </p>
-
-                    <!-- ICON DELETE -->
-                    <button
-                        class="p-2 rounded-lg text-red-600 border border-red-600 hover:bg-red-600 hover:text-white transition">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round">
-                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
-                            <path d="M3 6h18" />
-                            <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                        </svg>
-                    </button>
-
+            @empty
+                <div class="col-span-full text-center py-12">
+                    <p class="text-gray-600">Tidak ada pesanan ditemukan.</p>
                 </div>
-            </div>
-
-
+            @endforelse
         </div>
 
     </section>
+
+    <script>
+        (function() {
+            const urlBase = "{{ route('user.pesanan.index') }}";
+            const input = document.getElementById('pesananSearch');
+            const select = document.getElementById('pesananStatus');
+            const listContainer = document.getElementById('pesananList');
+
+            if (!listContainer) return;
+
+            function debounce(fn, wait) {
+                let t;
+                return function() {
+                    const args = arguments;
+                    clearTimeout(t);
+                    t = setTimeout(function() {
+                        fn.apply(null, args);
+                    }, wait);
+                };
+            }
+
+            function submitAndReplace() {
+                const params = new URLSearchParams();
+                if (input && input.value.trim() !== '') params.set('q', input.value.trim());
+                if (select && select.value) params.set('status', select.value);
+
+                const url = urlBase + (params.toString() ? ('?' + params.toString()) : '');
+
+                fetch(url, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(function(res) {
+                        if (!res.ok) throw new Error('Network error');
+                        return res.text();
+                    })
+                    .then(function(html) {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        const newList = doc.getElementById('pesananList');
+                        if (newList) {
+                            listContainer.innerHTML = newList.innerHTML;
+                        }
+                    })
+                    .catch(function(err) {
+                        console.error('Fetch error:', err);
+                    });
+            }
+
+            const debounced = debounce(submitAndReplace, 300);
+
+            if (input) input.addEventListener('input', debounced);
+            if (select) select.addEventListener('change', submitAndReplace);
+
+            // Bulk and single delete handler (uses shared confirmation modal)
+            const bulkBtn = document.getElementById('bulkDeleteBtn');
+            const selectForm = document.getElementById('selectDestroyForm');
+            const selectedContainer = document.getElementById('selectedIdsContainer');
+            const singleForm = document.getElementById('singleDeleteForm');
+            const destroyUrlTemplate = "{{ route('user.pesanan.destroy', ['id' => '__ID__']) }}";
+
+            if (bulkBtn && selectForm && selectedContainer && singleForm) {
+                let pendingBulkIds = [];
+                let pendingSingleId = null;
+                let mode = null; // 'bulk' or 'single'
+
+                const modal = document.getElementById('bulkDeleteModal');
+                const modalCountEl = document.getElementById('bulkDeleteCount');
+                const modalCancel = document.getElementById('bulkDeleteCancel');
+                const modalCloseTop = document.getElementById('btnCloseModalTop');
+                const modalConfirm = document.getElementById('bulkDeleteConfirm');
+
+                function openModalForBulk(ids) {
+                    pendingBulkIds = ids;
+                    pendingSingleId = null;
+                    mode = 'bulk';
+                    if (modal) {
+                        modal.classList.remove('hidden');
+                        modal.classList.add('flex');
+                    }
+                    if (modalCountEl) modalCountEl.textContent = String(ids.length);
+                }
+
+                function openModalForSingle(id) {
+                    pendingSingleId = id;
+                    pendingBulkIds = [];
+                    mode = 'single';
+                    if (modal) {
+                        modal.classList.remove('hidden');
+                        modal.classList.add('flex');
+                    }
+                    if (modalCountEl) modalCountEl.textContent = '1';
+                }
+
+                function closeModal() {
+                    if (modal) {
+                        modal.classList.remove('flex');
+                        modal.classList.add('hidden');
+                    }
+                }
+
+                bulkBtn.addEventListener('click', function() {
+                    const checked = Array.from(document.querySelectorAll('.pesanan-checkbox:checked'))
+                        .map(function(el) {
+                            return el.value;
+                        });
+                    if (checked.length === 0) {
+                        alert('Pilih minimal satu pesanan untuk dihapus.');
+                        return;
+                    }
+                    openModalForBulk(checked);
+                });
+
+                // single delete buttons
+                document.querySelectorAll('.singleDeleteBtn').forEach(function(btn) {
+                    btn.addEventListener('click', function() {
+                        const id = btn.getAttribute('data-id');
+                        if (!id) return;
+                        openModalForSingle(id);
+                    });
+                });
+
+                if (modalCancel) modalCancel.addEventListener('click', closeModal);
+                if (modalCloseTop) modalCloseTop.addEventListener('click', closeModal);
+
+                if (modalConfirm) modalConfirm.addEventListener('click', function() {
+                    if (mode === 'single' && pendingSingleId) {
+                        // set action on single form and submit
+                        const action = destroyUrlTemplate.replace('__ID__', pendingSingleId);
+                        singleForm.action = action;
+                        singleForm.submit();
+                        return;
+                    }
+
+                    if (mode === 'bulk' && pendingBulkIds.length > 0) {
+                        selectedContainer.innerHTML = '';
+                        pendingBulkIds.forEach(function(id) {
+                            const input = document.createElement('input');
+                            input.type = 'hidden';
+                            input.name = 'ids[]';
+                            input.value = id;
+                            selectedContainer.appendChild(input);
+                        });
+                        selectForm.submit();
+                        return;
+                    }
+
+                    closeModal();
+                });
+            }
+
+            // Card click -> open detail modal
+            document.querySelectorAll('.pesanan-card').forEach(function(card) {
+                card.addEventListener('click', function(e) {
+                    // ignore clicks on checkbox or buttons inside card
+                    if (e.target.closest('input') || e.target.closest('button')) return;
+                    const id = card.getAttribute('data-id');
+                    if (!id) return;
+                    const url = "{{ url('user/pesanan') }}" + '/' + id;
+                    fetch(url, {
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        })
+                        .then(function(res) {
+                            if (!res.ok) throw new Error('Network error');
+                            return res.text();
+                        })
+                        .then(function(html) {
+                            // append modal HTML and it's self-handling close
+                            const wrapper = document.createElement('div');
+                            wrapper.innerHTML = html;
+                            document.body.appendChild(wrapper);
+                        }).catch(function(err) {
+                            console.error(err);
+                        });
+                });
+            });
+        })();
+    </script>
 
 </x-app-layout>
