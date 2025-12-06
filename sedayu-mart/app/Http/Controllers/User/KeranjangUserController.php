@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\User;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\Keranjang;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use App\Models\TarifPengiriman;
 use App\Models\Produk;
+use App\Models\Rekening;
+use App\Models\Keranjang;
+use Illuminate\Http\Request;
+use App\Models\TarifPengiriman;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class KeranjangUserController extends Controller
 {
@@ -168,6 +169,8 @@ class KeranjangUserController extends Controller
         ]);
 
         $user = Auth::user();
+        $rekening = Rekening::all();
+
         $keranjang = Keranjang::with('produk')->where('id', $request->keranjang_id)
             ->where('user_id', $user->id)
             ->first();
@@ -228,6 +231,8 @@ class KeranjangUserController extends Controller
             'totalBeratGram' => $totalBeratGram,
             'berat_gram' => $produk->berat ?? 0,
             'keranjang_id' => $keranjang->id,
+
+            'rekening' => $rekening,
         ]);
     }
 }

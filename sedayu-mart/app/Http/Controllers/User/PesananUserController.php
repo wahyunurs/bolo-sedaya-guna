@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers\User;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\Pesanan;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use App\Models\Produk;
-use App\Models\TarifPengiriman;
+use App\Models\Pesanan;
+use App\Models\Rekening;
 use App\Models\ItemPesanan;
+use Illuminate\Http\Request;
+use App\Models\TarifPengiriman;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class PesananUserController extends Controller
@@ -101,6 +102,7 @@ class PesananUserController extends Controller
     public function edit(Request $request, $id)
     {
         $user = Auth::user();
+        $rekening = Rekening::all();
         $pesanan = Pesanan::with(['items.produk.gambarProduks'])
             ->where('id', $id)
             ->where('user_id', $user->id)
@@ -117,6 +119,8 @@ class PesananUserController extends Controller
         return view('user.pesanan.edit-pesanan', [
             'pesanan' => $pesanan,
             'tarif_per_kg' => $tarif_per_kg,
+            'rekening' => $rekening,
+            'user' => $user,
         ]);
     }
 

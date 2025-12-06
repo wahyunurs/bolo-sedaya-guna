@@ -1,68 +1,114 @@
-<x-app-layout>
+@component('user.components.user-layout')
     @include('user.components.navbar')
 
     <!-- SECTION PESANAN -->
-    <section class="py-20 bg-[#e9ffe1] min-h-screen">
+    <section class="pt-20 sm:pt-24 pb-8 bg-[#e9ffe1] min-h-screen">
         <!-- Modal Flash Message -->
         @include('user.components.message-modal')
 
         <!-- JUDUL -->
-        <h1 class="text-center text-4xl md:text-5xl font-extrabold tracking-wide text-green-800 mb-8 mt-8">
+        <h1
+            class="text-center text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-wide text-green-800 mb-6 sm:mb-8 mt-4 sm:mt-8">
             RIWAYAT PESANAN
         </h1>
 
         <!-- SEARCH + FILTER + DELETE -->
-        <div class="flex items-center justify-center gap-3 px-10 mb-12">
-
-            <!-- SEARCH BAR -->
-            <div class="flex items-center rounded-xl w-full max-w-3xl overflow-hidden">
-                <div class="relative w-full">
-                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5"
-                        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M21 21l-4.35-4.35M11 19a8 8 0 1 1 0-16 8 8 0 0 1 0 16z" />
-                    </svg>
-                    <input id="pesananSearch" name="q" type="text" placeholder="Cari pesanan..."
-                        value="{{ request('q') }}"
-                        class="w-full pl-11 pr-4 py-3 text-gray-600 border-0 focus:outline-none focus:ring-0" />
+        <div class="px-4 sm:px-6 lg:px-10 mb-8 sm:mb-12">
+            <!-- Mobile: Single Row Layout -->
+            <div class="flex items-center justify-center gap-2 lg:hidden">
+                <!-- SEARCH BAR (Compact) -->
+                <div class="flex items-center rounded-lg bg-white shadow-sm flex-1 max-w-md">
+                    <div class="relative w-full">
+                        <svg class="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4"
+                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-4.35-4.35M11 19a8 8 0 1 1 0-16 8 8 0 0 1 0 16z" />
+                        </svg>
+                        <input id="pesananSearch" name="q" type="text" placeholder="Cari..."
+                            value="{{ request('q') }}"
+                            class="w-full pl-8 pr-2 py-2 text-xs text-gray-600 border-0 focus:outline-none focus:ring-0" />
+                    </div>
                 </div>
-                <button class="bg-[#4CD137] px-6 py-3 text-white hover:bg-green-600 transition flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                        stroke-linejoin="round">
-                        <circle cx="11" cy="11" r="8" />
-                        <path d="m21 21-4.3-4.3" />
+
+                <!-- FILTER STATUS (Compact) -->
+                <select id="pesananStatus" name="status"
+                    class="h-8 px-2 bg-white rounded-lg border-gray-300 text-xs text-gray-700 focus:ring-green-600 focus:border-green-600 flex-shrink-0">
+                    <option value="">Semua</option>
+                    <option value="Menunggu Verifikasi" {{ request('status') == 'Menunggu Verifikasi' ? 'selected' : '' }}>
+                        Menunggu</option>
+                    <option value="Diterima" {{ request('status') == 'Diterima' ? 'selected' : '' }}>Diterima</option>
+                    <option value="Ditolak" {{ request('status') == 'Ditolak' ? 'selected' : '' }}>Ditolak</option>
+                    <option value="Dalam Pengiriman" {{ request('status') == 'Dalam Pengiriman' ? 'selected' : '' }}>Kirim
+                    </option>
+                    <option value="Selesai" {{ request('status') == 'Selesai' ? 'selected' : '' }}>Selesai</option>
+                </select>
+
+                <!-- DELETE ALL (Compact) -->
+                <button id="bulkDeleteBtn"
+                    class="bg-red-500 hover:bg-red-600 text-white h-8 w-8 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M10 11v6" />
+                        <path d="M14 11v6" />
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+                        <path d="M3 6h18" />
+                        <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                     </svg>
-                    Cari
                 </button>
             </div>
 
-            <!-- FILTER STATUS -->
-            <select id="pesananStatus" name="status"
-                class="h-12 px-8 bg-white rounded-xl border-gray-300 text-gray-700 focus:ring-green-600 focus:border-green-600">
-                <option value="" {{ request('status') == '' ? 'selected' : '' }}>Semua Status</option>
-                <option value="Menunggu Verifikasi" {{ request('status') == 'Menunggu Verifikasi' ? 'selected' : '' }}>
-                    Menunggu Verifikasi</option>
-                <option value="Diterima" {{ request('status') == 'Diterima' ? 'selected' : '' }}>Diterima</option>
-                <option value="Ditolak" {{ request('status') == 'Ditolak' ? 'selected' : '' }}>Ditolak</option>
-                <option value="Dalam Pengiriman" {{ request('status') == 'Dalam Pengiriman' ? 'selected' : '' }}>Dalam
-                    Pengiriman
-                </option>
-                <option value="Selesai" {{ request('status') == 'Selesai' ? 'selected' : '' }}>Selesai</option>
-            </select>
+            <!-- Desktop: Original Layout -->
+            <div class="hidden lg:flex items-center justify-center gap-3">
+                <!-- SEARCH BAR -->
+                <div class="flex items-center rounded-xl w-full max-w-3xl overflow-hidden bg-white shadow-sm">
+                    <div class="relative w-full">
+                        <svg class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5"
+                            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-4.35-4.35M11 19a8 8 0 1 1 0-16 8 8 0 0 1 0 16z" />
+                        </svg>
+                        <input id="pesananSearchDesktop" name="q" type="text" placeholder="Cari pesanan..."
+                            value="{{ request('q') }}"
+                            class="w-full pl-11 pr-4 py-3 text-base text-gray-600 border-0 focus:outline-none focus:ring-0" />
+                    </div>
+                    <button class="bg-[#4CD137] px-6 py-3 text-white hover:bg-green-600 transition flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8" />
+                            <path d="m21 21-4.3-4.3" />
+                        </svg>
+                        <span>Cari</span>
+                    </button>
+                </div>
 
-            <!-- DELETE ALL -->
-            <button id="bulkDeleteBtn"
-                class="bg-red-500 hover:bg-red-600 text-white h-12 w-12 rounded-xl flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M10 11v6" />
-                    <path d="M14 11v6" />
-                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
-                    <path d="M3 6h18" />
-                    <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                </svg>
-            </button>
+                <!-- FILTER STATUS -->
+                <select id="pesananStatusDesktop" name="status"
+                    class="h-12 px-8 bg-white rounded-xl border-gray-300 text-base text-gray-700 focus:ring-green-600 focus:border-green-600">
+                    <option value="" {{ request('status') == '' ? 'selected' : '' }}>Semua Status</option>
+                    <option value="Menunggu Verifikasi" {{ request('status') == 'Menunggu Verifikasi' ? 'selected' : '' }}>
+                        Menunggu Verifikasi</option>
+                    <option value="Diterima" {{ request('status') == 'Diterima' ? 'selected' : '' }}>Diterima</option>
+                    <option value="Ditolak" {{ request('status') == 'Ditolak' ? 'selected' : '' }}>Ditolak</option>
+                    <option value="Dalam Pengiriman" {{ request('status') == 'Dalam Pengiriman' ? 'selected' : '' }}>Dalam
+                        Pengiriman
+                    </option>
+                    <option value="Selesai" {{ request('status') == 'Selesai' ? 'selected' : '' }}>Selesai</option>
+                </select>
+
+                <!-- DELETE ALL -->
+                <button id="bulkDeleteBtnDesktop"
+                    class="bg-red-500 hover:bg-red-600 text-white h-12 w-12 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M10 11v6" />
+                        <path d="M14 11v6" />
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+                        <path d="M3 6h18" />
+                        <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                    </svg>
+                </button>
+            </div>
 
             <form id="selectDestroyForm" method="POST" action="{{ route('user.pesanan.selectDestroy') }}"
                 style="display:none">
@@ -76,7 +122,7 @@
         </div>
 
         <!-- LIST PESANAN -->
-        <div id="pesananList" class="px-28 space-y-8">
+        <div id="pesananList" class="px-4 sm:px-6 lg:px-12 xl:px-28 space-y-4 sm:space-y-6 lg:space-y-8">
             @forelse ($pesanans as $pesanan)
                 @php
                     $firstItem = $pesanan->items->first();
@@ -106,7 +152,7 @@
                 @endphp
 
                 <div data-id="{{ $pesanan->id }}"
-                    class="pesanan-card bg-white rounded-2xl shadow px-10 py-6 grid grid-cols-[22rem_minmax(0,1fr)_18rem] gap-x-4 items-center">
+                    class="pesanan-card bg-white rounded-xl sm:rounded-2xl shadow px-4 sm:px-6 lg:px-10 py-4 sm:py-6 grid grid-cols-1 lg:grid-cols-[22rem_minmax(0,1fr)_18rem] gap-4 lg:gap-x-4 items-start lg:items-center">
 
                     <!-- KIRI -->
                     <div class="flex items-start gap-6 self-start">
@@ -368,5 +414,4 @@
             });
         })();
     </script>
-
-</x-app-layout>
+@endcomponent

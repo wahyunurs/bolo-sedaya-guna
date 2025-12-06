@@ -21,7 +21,7 @@ class User extends Authenticatable
         'nama',
         'alamat',
         'kabupaten',
-        'provinsi',
+        // 'provinsi',
         'nomor_telepon',
         'role',
         'google_id',

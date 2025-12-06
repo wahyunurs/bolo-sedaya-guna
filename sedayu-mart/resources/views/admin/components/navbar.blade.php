@@ -72,7 +72,7 @@
 
                 <ul class="py-2 bg-white rounded-b-lg">
                     <li>
-                        <a href="{{ route('user.profil.index') }}"
+                        <a href="{{ route('admin.profil.index') }}"
                             class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition">
                             Profil
                         </a>

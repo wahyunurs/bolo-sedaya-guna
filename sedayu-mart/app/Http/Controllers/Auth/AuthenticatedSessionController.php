@@ -8,8 +8,6 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Route;
-use App\Http\Requests\Auth\LoginRequest;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Validation\ValidationException;
 
@@ -26,42 +24,41 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): RedirectResponse
+    public function store(Request $request): RedirectResponse
     {
-        try {
-            $request->authenticate();
-        } catch (\Throwable $e) {
-            // Pastikan setiap kegagalan autentikasi mengembalikan pesan field-spesifik
-            throw ValidationException::withMessages($this->loginErrorMessage($request));
+        // Inline validate request
+        $validated = $request->validate([
+            'email' => ['required', 'string', 'email'],
+            'password' => ['required', 'string'],
+        ]);
+
+        $email = (string) $validated['email'];
+        $password = (string) $validated['password'];
+        $remember = $request->boolean('remember');
+
+        // Check email existence first for specific error placement
+        $user = User::where('email', $email)->first();
+        if (! $user) {
+            throw ValidationException::withMessages([
+                'email' => 'Email tidak terdaftar.',
+            ]);
+        }
+
+        if (! Auth::attempt(['email' => $email, 'password' => $password], $remember)) {
+            throw ValidationException::withMessages([
+                'password' => 'Kata sandi salah.',
+            ]);
         }
 
         $request->session()->regenerate();
 
         $user = Auth::user();
-        $default = $this->redirectForRole($user->role ?? null);
+        $destination = $this->redirectForRole($user);
 
-        return redirect()->intended($default);
-    }
+        // Selalu arahkan sesuai role; abaikan intended URL yang bisa mengarah ke '/'
+        $request->session()->forget('url.intended');
 
-    /**
-     * Login error message based on email existence.
-     */
-    protected function loginErrorMessage(LoginRequest $request): array
-    {
-        $email = (string) $request->input('email');
-        $emailExists = User::where('email', $email)->exists();
-
-        // Jika email tidak terdaftar, tampilkan error pada field email
-        if (! $emailExists) {
-            return [
-                'email' => 'Email tidak terdaftar.',
-            ];
-        }
-
-        // Jika email ada namun autentikasi gagal, arahkan pesan ke field password
-        return [
-            'password' => 'Kata sandi salah.',
-        ];
+        return redirect()->to($destination);
     }
 
     /**
@@ -115,20 +112,30 @@ class AuthenticatedSessionController extends Controller
 
         Auth::login($user);
 
-        $default = $this->redirectForRole($user->role ?? null);
-        return redirect()->intended($default);
+        $destination = $this->redirectForRole($user);
+        // Selalu arahkan sesuai role; abaikan intended URL yang bisa mengarah ke '/'
+        $request->session()->forget('url.intended');
+
+        return redirect()->to($destination);
     }
 
     /**
      * Return default redirect path based on role.
      */
-    protected function redirectForRole(?string $role): string
+    protected function redirectForRole(User $user): string
     {
+        $role = strtolower((string) $user->role);
+
         if ($role === 'admin') {
             return route('admin.dashboard');
         }
 
-        return route('user.beranda');
+        if ($role === 'user') {
+            return route('user.beranda');
+        }
+
+        // fallback ke halaman guest jika role tidak dikenal
+        return route('guest.beranda');
     }
 
     /**

@@ -1,46 +1,50 @@
 <!-- Pesanan detail modal (returned by controller show) -->
 <div id="pesananShowModal" onclick="if(event.target===this) this.remove()"
-    class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[1000]">
-    <div class="bg-white w-[95%] max-w-2xl p-6 rounded-2xl shadow-lg relative">
+    class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-[1000] px-4">
+    <div
+        class="bg-white w-full max-w-2xl p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-lg relative max-h-[90vh] overflow-y-auto">
         <button id="pesananShowClose" onclick="document.getElementById('pesananShowModal')?.remove()" type="button"
-            aria-label="Tutup" class="absolute top-4 right-4 p-2 rounded-md border hover:bg-gray-50">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            aria-label="Tutup"
+            class="absolute top-3 right-3 sm:top-4 sm:right-4 p-1.5 sm:p-2 rounded-md border hover:bg-gray-50">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 sm:h-5 sm:w-5 text-gray-600" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18" />
                 <line x1="6" y1="6" x2="18" y2="18" />
             </svg>
         </button>
 
         <!-- Header -->
-        <h2 class="text-2xl font-bold text-green-800 mb-3">Detail Pesanan </h2>
+        <h2 class="text-xl sm:text-2xl font-bold text-green-800 mb-3 pr-8">Detail Pesanan </h2>
 
         <!-- Divider under header (full width across modal content) -->
-        <div class="-mx-6 h-px bg-gray-200 mb-6"></div>
+        <div class="-mx-4 sm:-mx-6 h-px bg-gray-200 mb-4 sm:mb-6"></div>
 
-        <div style="max-height: calc(90vh - 6rem); overflow-y:auto;" class="mt-3">
+        <div class="mt-3">
             <div dir="ltr" class="space-y-3 text-sm text-gray-700">
                 {{-- Item cards at top --}}
                 <div>
-                    <p class="font-semibold mb-2">Item Pesanan</p>
+                    <p class="font-semibold mb-2 text-sm sm:text-base">Item Pesanan</p>
                     <div class="space-y-2">
                         @foreach ($pesanan->items as $item)
-                            <div class="flex items-center gap-3 p-3 border rounded-lg">
+                            <div
+                                class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 p-2 sm:p-3 border rounded-lg">
                                 @php
                                     $img = optional($item->produk->gambarProduks->first())->gambar ?? null;
                                     $imgPath = $img
                                         ? asset('storage/img/produk/' . $img)
                                         : asset('img/card/produk1.png');
                                 @endphp
-                                <img src="{{ $imgPath }}" class="h-16 w-16 object-cover rounded" />
-                                <div class="flex-1">
-                                    <div class="font-semibold">{{ optional($item->produk)->nama ?? '-' }}</div>
-                                    <div class="text-sm text-gray-600">Kuantitas: {{ $item->kuantitas }}
+                                <img src="{{ $imgPath }}" class="h-14 w-14 sm:h-16 sm:w-16 object-cover rounded" />
+                                <div class="flex-1 min-w-0">
+                                    <div class="font-semibold text-sm sm:text-base line-clamp-2">
+                                        {{ optional($item->produk)->nama ?? '-' }}</div>
+                                    <div class="text-xs sm:text-sm text-gray-600">Kuantitas: {{ $item->kuantitas }}
                                         {{ optional($item->produk)->satuan_produk ?? '' }}</div>
                                 </div>
-                                <div class="text-right">
-                                    <div class="font-semibold">Rp
+                                <div class="text-left sm:text-right w-full sm:w-auto">
+                                    <div class="font-semibold text-sm sm:text-base">Rp
                                         {{ number_format($item->harga_saat_pemesanan ?? 0, 0, ',', '.') }}</div>
-                                    <div class="text-sm text-gray-600">Subtotal: Rp
+                                    <div class="text-xs sm:text-sm text-gray-600">Subtotal: Rp
                                         {{ number_format($item->harga_saat_pemesanan * $item->kuantitas ?? 0, 0, ',', '.') }}
                                     </div>
                                 </div>
@@ -75,7 +79,7 @@
                 </div>
 
                 {{-- Totals: ongkir, subtotal produk, total bayar --}}
-                <div class="space-y-1">
+                <div class="space-y-1 text-sm sm:text-base">
                     <div class="flex justify-between">
                         <div><span class="font-semibold">Ongkir:</span></div>
                         <div>Rp {{ number_format($pesanan->ongkir ?? 0, 0, ',', '.') }}</div>
@@ -93,7 +97,7 @@
 
                 {{-- Bukti Pembayaran --}}
                 <div class="mt-2">
-                    <p class="font-semibold">Bukti Pembayaran</p>
+                    <p class="font-semibold text-sm sm:text-base">Bukti Pembayaran</p>
                     @if ($pesanan->bukti_pembayaran)
                         @php
                             $buktiPath = asset('storage/img/bukti_pembayaran/' . $pesanan->bukti_pembayaran);
@@ -114,20 +118,21 @@
 
                 {{-- Alamat Pengiriman --}}
                 <div>
-                    <p class="font-semibold">Alamat Pengiriman</p>
-                    <p class="text-gray-600">{{ $pesanan->alamat ?? ($pesanan->alamat_penerima ?? '-') }}</p>
+                    <p class="font-semibold text-sm sm:text-base">Alamat Pengiriman</p>
+                    <p class="text-gray-600 text-sm sm:text-base">
+                        {{ $pesanan->alamat ?? ($pesanan->alamat_penerima ?? '-') }}</p>
                 </div>
 
                 {{-- Catatan --}}
                 <div>
-                    <p class="font-semibold">Catatan</p>
-                    <p class="text-gray-600">{{ $pesanan->catatan ?? '-' }}</p>
+                    <p class="font-semibold text-sm sm:text-base">Catatan</p>
+                    <p class="text-gray-600 text-sm sm:text-base">{{ $pesanan->catatan ?? '-' }}</p>
                 </div>
 
                 {{-- Keterangan (alasan ditolak) --}}
                 <div>
-                    <p class="font-semibold">Keterangan</p>
-                    <p class="text-gray-600">{{ $pesanan->keterangan ?? '-' }}</p>
+                    <p class="font-semibold text-sm sm:text-base">Keterangan</p>
+                    <p class="text-gray-600 text-sm sm:text-base">{{ $pesanan->keterangan ?? '-' }}</p>
                 </div>
             </div>
         </div>

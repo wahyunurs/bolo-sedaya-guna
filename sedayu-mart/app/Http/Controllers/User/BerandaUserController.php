@@ -12,6 +12,10 @@ class BerandaUserController extends Controller
     {
         $user = Auth::user();
 
+        if (Auth::user()->role !== 'user') {
+            return redirect('/')->with('error', 'Anda tidak memiliki akses ke halaman ini.');
+        }
+
         return view('user.beranda.index', [
             'user' => $user,
         ]);

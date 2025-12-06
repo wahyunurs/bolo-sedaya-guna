@@ -23,7 +23,8 @@
                             <li><a href="{{ route('admin.dashboard') }}" class="hover:underline text-green-600">Admin</a>
                             </li>
                             <li><span class="text-green-400">></span></li>
-                            <li><a href="{{ route('admin.produk.index') }}" class="text-green-600 font-semibold">Produk</a></li>
+                            <li><a href="{{ route('admin.produk.index') }}"
+                                    class="text-green-600 font-semibold">Produk</a></li>
                             <li><span class="text-green-400">></span></li>
                             <li class="text-green-700">Ubah</li>
                         </ol>
@@ -31,152 +32,162 @@
                     </nav>
                 </div>
 
-                    <!-- Form Tambah / Edit Produk -->
-                    <div class="p-6 rounded-lg bg-white shadow-lg border border-gray-200">
-                        @if (isset($produk))
-                            <form action="{{ route('admin.produk.update', $produk->id) }}" method="POST"
+                <!-- Form Tambah / Edit Produk -->
+                <div class="p-6 rounded-lg bg-white shadow-lg border border-gray-200">
+                    @if (isset($produk))
+                        <form action="{{ route('admin.produk.update', $produk->id) }}" method="POST"
+                            enctype="multipart/form-data" class="space-y-6">
+                            @method('PUT')
+                        @else
+                            <form action="{{ route('admin.produk.store') }}" method="POST"
                                 enctype="multipart/form-data" class="space-y-6">
-                                @method('PUT')
-                            @else
-                                <form action="{{ route('admin.produk.store') }}" method="POST"
-                                    enctype="multipart/form-data" class="space-y-6">
-                        @endif
-                        @csrf
+                    @endif
+                    @csrf
 
-                        <!-- Nama -->
-                        <div>
-                            <label for="nama" class="block text-sm font-medium text-gray-700">Nama Produk</label>
-                            <input type="text" name="nama" id="nama" required
-                                value="{{ old('nama', $produk->nama ?? '') }}"
-                                class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                placeholder="Masukkan nama produk">
-                        </div>
+                    <!-- Nama -->
+                    <div>
+                        <label for="nama" class="block text-sm font-medium text-gray-700">Nama Produk</label>
+                        <input type="text" name="nama" id="nama" required
+                            value="{{ old('nama', $produk->nama ?? '') }}"
+                            class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                            placeholder="Masukkan nama produk">
+                    </div>
 
-                        <!-- Harga -->
-                        <div>
-                            <label for="harga" class="block text-sm font-medium text-gray-700">Harga</label>
-                            <input type="number" name="harga" id="harga" required
-                                value="{{ old('harga', $produk->harga ?? '') }}"
-                                class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                placeholder="Masukkan harga (tanpa pemisah)">
-                        </div>
+                    <!-- Harga -->
+                    <div>
+                        <label for="harga" class="block text-sm font-medium text-gray-700">Harga</label>
+                        <input type="number" name="harga" id="harga" required
+                            value="{{ old('harga', $produk->harga ?? '') }}"
+                            class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                            placeholder="Masukkan harga (tanpa pemisah)">
+                    </div>
 
-                        <!-- Berat -->
-                        <div>
-                            <label for="berat" class="block text-sm font-medium text-gray-700">Berat (gram)</label>
-                            <input type="number" name="berat" id="berat" required
-                                value="{{ old('berat', $produk->berat ?? '') }}"
-                                class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                placeholder="Berat dalam gram">
-                        </div>
+                    <!-- Berat -->
+                    <div>
+                        <label for="berat" class="block text-sm font-medium text-gray-700">Berat (gram)</label>
+                        <input type="number" name="berat" id="berat" required
+                            value="{{ old('berat', $produk->berat ?? '') }}"
+                            class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                            placeholder="Berat dalam gram">
+                    </div>
 
-                        <!-- Stok -->
-                        <div>
-                            <label for="stok" class="block text-sm font-medium text-gray-700">Stok</label>
-                            <input type="number" name="stok" id="stok" required
-                                value="{{ old('stok', $produk->stok ?? 0) }}"
-                                class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                placeholder="Jumlah stok">
-                        </div>
+                    <!-- Stok -->
+                    <div>
+                        <label for="stok" class="block text-sm font-medium text-gray-700">Stok</label>
+                        <input type="number" name="stok" id="stok" required
+                            value="{{ old('stok', $produk->stok ?? 0) }}"
+                            class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                            placeholder="Jumlah stok">
+                    </div>
 
-                        <!-- Satuan -->
-                        <div>
-                            <label for="satuan_produk" class="block text-sm font-medium text-gray-700">Satuan</label>
-                            <input type="text" name="satuan_produk" id="satuan_produk" required
-                                value="{{ old('satuan_produk', $produk->satuan_produk ?? '') }}"
-                                class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                placeholder="Contoh: Kg, Liter, Pcs">
-                        </div>
+                    <!-- Satuan -->
+                    <div>
+                        <label for="satuan_produk" class="block text-sm font-medium text-gray-700">Satuan</label>
+                        <input type="text" name="satuan_produk" id="satuan_produk" required
+                            value="{{ old('satuan_produk', $produk->satuan_produk ?? '') }}"
+                            class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                            placeholder="Contoh: Kg, Liter, Pcs">
+                    </div>
 
-                        <!-- Deskripsi -->
-                        <div>
-                            <label for="deskripsi" class="block text-sm font-medium text-gray-700">Deskripsi</label>
-                            <textarea name="deskripsi" id="deskripsi" rows="4"
-                                class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                placeholder="Deskripsi produk">{{ old('deskripsi', $produk->deskripsi ?? '') }}</textarea>
-                        </div>
+                    <!-- Deskripsi -->
+                    <div>
+                        <label for="deskripsi" class="block text-sm font-medium text-gray-700">Deskripsi</label>
+                        <textarea name="deskripsi" id="deskripsi" rows="4"
+                            class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                            placeholder="Deskripsi produk">{{ old('deskripsi', $produk->deskripsi ?? '') }}</textarea>
+                    </div>
 
-                        <!-- Gambar Produk (maks 5) -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Gambar Produk (maks 5)</label>
-                            <p class="text-sm italic text-gray-500 mt-1">Unggah maksimal 5 gambar. Pilih salah satu
-                                sebagai gambar utama.</p>
+                    <!-- Gambar Produk (maks 5) -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Gambar Produk (maks 5)</label>
+                        <p class="text-sm italic text-gray-500 mt-1">Unggah maksimal 5 gambar. Pilih salah satu
+                            sebagai gambar utama.</p>
 
-                            @php
-                                $existing = isset($produk) ? $produk->gambarProduks->values() : collect();
-                            @endphp
-                            <div class="grid grid-cols-5 gap-3 mt-3">
-                                @for ($i = 0; $i < 5; $i++)
-                                    @php
-                                        $slot = $existing->get($i);
-                                        $slotId = $slot ? $slot->id : null;
-                                        $slotUrl =
-                                            $slot && $slot->gambar
-                                                ? asset('storage/img/produk/' . $slot->gambar)
-                                                : asset('img/card/produk1.png');
-                                        $slotUtama = $slot && $slot->utama;
-                                    @endphp
-                                    <div class="border rounded p-2 text-center slot-item"
-                                        data-slot="{{ $i }}">
-                                        <div
-                                            class="w-full h-24 bg-gray-100 rounded mb-2 overflow-hidden flex items-center justify-center">
-                                            <img id="preview-{{ $i }}"
-                                                src="{{ old('slot_preview_' . $i, $slotUrl) }}" alt="preview"
-                                                class="object-cover w-full h-full">
-                                        </div>
+                        @php
+                            $existing = isset($produk) ? $produk->gambarProduks->values() : collect();
+                        @endphp
+                        <div class="grid grid-cols-5 gap-3 mt-3">
+                            @for ($i = 0; $i < 5; $i++)
+                                @php
+                                    $slot = $existing->get($i);
+                                    $slotId = $slot ? $slot->id : null;
+                                    $slotUrl =
+                                        $slot && $slot->gambar
+                                            ? asset('storage/img/produk/' . $slot->gambar)
+                                            : asset('img/card/produk1.png');
+                                    $slotUtama = $slot && $slot->utama;
+                                @endphp
+                                <div class="border rounded p-2 text-center slot-item" data-slot="{{ $i }}">
+                                    <div
+                                        class="w-full h-24 bg-gray-100 rounded mb-2 overflow-hidden flex items-center justify-center">
+                                        <img id="preview-{{ $i }}"
+                                            src="{{ $slot && $slot->gambar ? asset('storage/img/produk/' . $slot->gambar) : '' }}"
+                                            alt="preview"
+                                            class="object-cover w-full h-full {{ $slot && $slot->gambar ? '' : 'hidden' }}">
 
-                                        <input type="file" name="gambar[]" accept="image/*"
-                                            data-index="{{ $i }}" class="gambar-input text-sm w-full" />
-
-                                        {{-- hidden mapping to existing image id for this slot --}}
-                                        <input type="hidden" name="slot_existing_id[{{ $i }}]"
-                                            id="slot_existing_id_{{ $i }}" value="{{ $slotId ?? '' }}">
-
-                                        {{-- hidden delete flag for this slot --}}
-                                        <input type="hidden" name="delete_slot[{{ $i }}]"
-                                            id="delete_slot_{{ $i }}" value="0">
-
-                                        <div class="text-sm mt-2 flex items-center justify-center space-x-2">
-                                            <label class="inline-flex items-center">
-                                                <input type="radio" name="utama_gambar"
-                                                    value="{{ $slotId ? 'existing_' . $slotId : 'new_' . $i }}"
-                                                    class="mr-2"
-                                                    {{ (old('utama_gambar') ? old('utama_gambar') == ($slotId ? 'existing_' . $slotId : 'new_' . $i) : ($slotUtama ? true : $i == 0 && !$existing->count())) ? 'checked' : '' }}>
-                                                Utama
-                                            </label>
-
-                                            <button type="button"
-                                                class="hapus-slot text-red-500 {{ $slotId ? '' : 'hidden' }}"
-                                                data-slot="{{ $i }}"
-                                                aria-label="Hapus slot {{ $i }}">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4"
-                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                    stroke-width="2">
-                                                    <line x1="18" y1="6" x2="6"
-                                                        y2="18" />
-                                                    <line x1="6" y1="6" x2="18"
-                                                        y2="18" />
-                                                </svg>
-                                            </button>
+                                        <div id="placeholder-{{ $i }}"
+                                            class="flex items-center justify-center w-full h-full text-gray-400 {{ $slot && $slot->gambar ? 'hidden' : '' }}">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                class="lucide lucide-upload">
+                                                <path d="M12 3v12" />
+                                                <path d="m17 8-5-5-5 5" />
+                                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                            </svg>
                                         </div>
                                     </div>
-                                @endfor
-                            </div>
+
+                                    <input type="file" name="gambar[]" accept="image/*"
+                                        data-index="{{ $i }}" class="gambar-input text-sm w-full" />
+
+                                    {{-- hidden mapping to existing image id for this slot --}}
+                                    <input type="hidden" name="slot_existing_id[{{ $i }}]"
+                                        id="slot_existing_id_{{ $i }}" value="{{ $slotId ?? '' }}">
+
+                                    {{-- hidden delete flag for this slot --}}
+                                    <input type="hidden" name="delete_slot[{{ $i }}]"
+                                        id="delete_slot_{{ $i }}" value="0">
+
+                                    <div class="text-sm mt-2 flex items-center justify-center space-x-2">
+                                        <label class="inline-flex items-center">
+                                            <input type="radio" name="utama_gambar"
+                                                value="{{ $slotId ? 'existing_' . $slotId : 'new_' . $i }}"
+                                                class="mr-2"
+                                                {{ (old('utama_gambar') ? old('utama_gambar') == ($slotId ? 'existing_' . $slotId : 'new_' . $i) : ($slotUtama ? true : $i == 0 && !$existing->count())) ? 'checked' : '' }}>
+                                            Utama
+                                        </label>
+
+                                        <button type="button"
+                                            class="hapus-slot text-red-500 {{ $slotId ? '' : 'hidden' }}"
+                                            data-slot="{{ $i }}"
+                                            aria-label="Hapus slot {{ $i }}">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                stroke-width="2">
+                                                <line x1="18" y1="6" x2="6" y2="18" />
+                                                <line x1="6" y1="6" x2="18" y2="18" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            @endfor
                         </div>
-
-                        {{-- existing images are shown inside the 5 slots above; no separate block needed --}}
-
-                        <!-- Tombol Submit -->
-                        <div class="flex justify-end space-x-4">
-                            <a href="{{ route('admin.produk.index') }}"
-                                class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition duration-200">Batal</a>
-                            <button type="submit"
-                                class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700 transition duration-200">{{ isset($produk) ? 'Perbarui' : 'Simpan' }}</button>
-                        </div>
-
-                        </form>
                     </div>
+
+                    {{-- existing images are shown inside the 5 slots above; no separate block needed --}}
+
+                    <!-- Tombol Submit -->
+                    <div class="flex justify-end space-x-4">
+                        <a href="{{ route('admin.produk.index') }}"
+                            class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition duration-200">Batal</a>
+                        <button type="submit"
+                            class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700 transition duration-200">{{ isset($produk) ? 'Perbarui' : 'Simpan' }}</button>
+                    </div>
+
+                    </form>
                 </div>
+            </div>
             </div>
         </section>
     </main>
@@ -188,17 +199,30 @@
 <script>
     // Preview selected images for the 5 upload boxes
     (function() {
+        function togglePreview(idx, fileUrl) {
+            const preview = document.getElementById('preview-' + idx);
+            const placeholder = document.getElementById('placeholder-' + idx);
+            if (!preview || !placeholder) return;
+
+            if (fileUrl) {
+                preview.src = fileUrl;
+                preview.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+            } else {
+                preview.src = '';
+                preview.classList.add('hidden');
+                placeholder.classList.remove('hidden');
+            }
+        }
+
         function onFileChange(e) {
             const input = e.currentTarget;
             const idx = input.dataset.index;
-            const preview = document.getElementById('preview-' + idx);
-            if (!preview) return;
             const file = input.files && input.files[0];
             if (file) {
-                preview.src = URL.createObjectURL(file);
+                togglePreview(idx, URL.createObjectURL(file));
             } else {
-                // reset to placeholder
-                preview.src = '{{ asset('img/card/produk1.png') }}';
+                togglePreview(idx, '');
             }
         }
 
@@ -219,7 +243,7 @@
                         } else {
                             // if there is still an existing id input, keep button visible, otherwise hide
                             const exist = document.getElementById('slot_existing_id_' +
-                            idx);
+                                idx);
                             if (!exist || !exist.value) btn.classList.add('hidden');
                         }
                     }
@@ -260,8 +284,7 @@
                         fileInput.value = '';
                     }
                     // reset preview to placeholder
-                    const preview = document.getElementById('preview-' + slot);
-                    if (preview) preview.src = '{{ asset('img/card/produk1.png') }}';
+                    togglePreview(slot, '');
                     // if utama radio pointed to this existing, clear it and set to 'new_{i}'
                     const radio = document.querySelector(
                         'input[name="utama_gambar"][value="existing_' + existingId +

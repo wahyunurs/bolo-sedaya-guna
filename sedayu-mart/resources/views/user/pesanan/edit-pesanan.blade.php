@@ -1,31 +1,31 @@
-<x-app-layout>
+@component('user.components.user-layout')
     @include('user.components.navbar')
 
-    <section class="py-16 bg-[#e9ffe1] min-h-screen">
+    <section class="pt-20 sm:pt-24 pb-8 bg-[#e9ffe1] min-h-screen">
 
         <!-- Modal Flash Message -->
         @include('user.components.message-modal')
 
-        <div class="max-w-4xl mx-auto px-6">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6">
 
             <!-- SINGLE CARD -->
-            <div class="bg-white p-8 rounded-2xl shadow mt-8">
+            <div class="bg-white p-4 sm:p-6 md:p-8 rounded-xl sm:rounded-2xl shadow mt-4 sm:mt-6 md:mt-8">
 
-                <div class="flex items-center gap-3 mb-6">
+                <div class="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
                     <a href="{{ route('user.pesanan.index') }}" aria-label="Kembali ke detail"
                         class="text-green-700 hover:text-green-900 p-1 rounded">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" class="sm:w-6 sm:h-6"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                             stroke-linejoin="round" class="lucide lucide-arrow-left-icon lucide-arrow-left">
                             <path d="m12 19-7-7 7-7" />
                             <path d="M19 12H5" />
                         </svg>
                     </a>
-                    <h2 class="text-3xl font-extrabold text-green-800">Ubah Pesanan</h2>
+                    <h2 class="text-xl sm:text-2xl md:text-3xl font-extrabold text-green-800">Ubah Pesanan</h2>
                 </div>
 
-                <form action="{{ route('user.pesanan.update', $pesanan->id) }}" method="POST"
-                    enctype="multipart/form-data" id="checkoutForm">
+                <form action="{{ route('user.pesanan.update', $pesanan->id) }}" method="POST" enctype="multipart/form-data"
+                    id="checkoutForm">
                     @csrf
                     @method('PUT')
                     @csrf
@@ -104,8 +104,8 @@
                         <button type="button"
                             onclick="(function(m){m.classList.remove('hidden');m.classList.add('flex');})(document.getElementById('modalEditAlamat'))"
                             class="absolute right-3 top-3 text-green-700 hover:text-green-900 text-sm font-semibold">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-                                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                                 class="lucide lucide-pen-icon lucide-pen inline-block mr-1 w-4 h-4">
                                 <path
                                     d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
@@ -171,11 +171,27 @@
                         </div>
                     </div>
 
+                    <!-- DAFTAR REKENING -->
+                    <div class="mt-6 mb-4 p-4 border rounded-xl bg-white">
+                        <h3 class="font-extrabold text-green-800 mb-3">Rekening Pembayaran</h3>
+                        <div class="grid grid-cols-1 gap-3">
+                            @forelse ($rekening as $rek)
+                                <div class="border rounded-lg p-3 bg-gray-50">
+                                    <p class="font-semibold text-green-900">{{ $rek->nama_bank }}</p>
+                                    <p class="text-sm text-gray-800">No. Rekening: {{ $rek->nomor_rekening }}</p>
+                                    <p class="text-sm text-gray-600">a.n. {{ $rek->atas_nama }}</p>
+                                </div>
+                            @empty
+                                <p class="text-sm text-gray-600">Tidak ada rekening yang tersedia.</p>
+                            @endforelse
+                        </div>
+                    </div>
+
                     <!-- INPUT BUKTI PEMBAYARAN -->
                     <div class="mt-6 mb-4">
                         <label class="font-semibold text-gray-700">Upload Bukti Pembayaran</label>
-                        <input type="file" name="bukti_pembayaran"
-                            class="w-full mt-1 p-3 border rounded-lg bg-white" accept="image/*" required>
+                        <input type="file" name="bukti_pembayaran" class="w-full mt-1 p-3 border rounded-lg bg-white"
+                            accept="image/*" required>
                     </div>
 
                     <!-- CATATAN -->
@@ -300,5 +316,4 @@
             });
         })();
     </script>
-
-</x-app-layout>
+@endcomponent

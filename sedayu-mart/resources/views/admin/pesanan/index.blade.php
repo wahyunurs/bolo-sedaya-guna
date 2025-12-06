@@ -30,41 +30,36 @@
 
                 <div class="p-4 rounded-lg bg-white border border-gray-200">
                     <div class="flex items-center justify-between space-x-4 mb-4">
-                        <!-- Search form (left) -->
+                        <!-- Search form with status filter -->
                         <form id="filterForm" method="GET" action="{{ route('admin.pesanan.index') }}"
-                            class="flex items-center w-full max-w-xl">
-                            <div class="relative w-full">
+                            class="flex items-center w-full gap-3">
+                            <div class="relative flex-1 max-w-xl">
                                 <input id="searchInput" type="search" name="search" value="{{ request('search') }}"
-                                    placeholder="Cari nama pesanan..."
+                                    placeholder="Cari nama pengguna atau produk..."
                                     class="mt-1 block w-full p-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" />
                                 <button id="clearSearchBtn" type="button"
                                     class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 hidden"
                                     aria-label="Clear search">&times;</button>
                             </div>
-                            <button type="submit"
-                                class="ml-3 px-3 py-2 bg-green-500 text-white rounded-md hidden sm:inline-block">Cari</button>
-                        </form>
 
-                        <!-- Filter Status Pesanan -->
-                        <form id="statusFilterForm" method="GET" action="{{ route('admin.pesanan.index') }}">
+                            <!-- Status filter -->
                             <select name="status" id="statusFilter"
-                                class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                                class="block p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                                 <option value="">Semua Status</option>
                                 <option value="Menunggu Verifikasi"
                                     {{ request('status') == 'Menunggu Verifikasi' ? 'selected' : '' }}>Menunggu
-                                    Verifikasi
-                                </option>
+                                    Verifikasi</option>
                                 <option value="Diterima" {{ request('status') == 'Diterima' ? 'selected' : '' }}>
-                                    Diterima
-                                </option>
-                                <option value="Ditolak" {{ request('status') == 'Ditolak' ? 'selected' : '' }}>Ditolak
-                                </option>
+                                    Diterima</option>
+                                <option value="Ditolak" {{ request('status') == 'Ditolak' ? 'selected' : '' }}>
+                                    Ditolak</option>
                                 <option value="Dalam Pengiriman"
                                     {{ request('status') == 'Dalam Pengiriman' ? 'selected' : '' }}>Dalam Pengiriman
                                 </option>
                                 <option value="Selesai" {{ request('status') == 'Selesai' ? 'selected' : '' }}>
                                     Selesai</option>
                             </select>
+                        </form>
                     </div>
 
                     <!-- Tabel Pesanan -->
@@ -104,7 +99,9 @@
                             </thead>
                             <tbody class="divide-y divide-gray-200">
                                 @forelse ($pesanans as $index => $pesanan)
-                                    <tr class="hover:bg-green-50 hover:shadow-md transition duration-200 ease-in-out">
+                                    <tr class="hover:bg-green-50 hover:shadow-md transition duration-200 ease-in-out cursor-pointer pesanan-row"
+                                        data-pesanan-id="{{ $pesanan->id }}"
+                                        data-show-url="{{ route('admin.pesanan.show', $pesanan->id) }}">
                                         <td class="px-6 py-4 text-center text-sm text-gray-700">{{ $index + 1 }}
                                         </td>
                                         <td class="px-6 py-4 text-sm text-gray-700">{{ $pesanan->user->nama }}</td>
@@ -116,19 +113,42 @@
                                         <td class="px-6 py-4 text-sm text-gray-700">
                                             {{ $firstItem ? $firstItem->kuantitas : '-' }}</td>
                                         <td class="px-6 py-4 text-sm text-gray-700">{{ $pesanan->total_bayar }}</td>
-                                        <td class="px-6 py-4 text-sm text-gray-700">{{ $pesanan->status }}</td>
+                                        <td class="px-6 py-4 text-sm text-gray-700">
+                                            @php
+                                                $badgeClass = '';
+                                                if ($pesanan->status === 'Menunggu Verifikasi') {
+                                                    $badgeClass = 'bg-gray-200 text-gray-800';
+                                                } elseif ($pesanan->status === 'Ditolak') {
+                                                    $badgeClass = 'bg-red-100 text-red-800';
+                                                } elseif ($pesanan->status === 'Diterima') {
+                                                    $badgeClass = 'bg-blue-100 text-blue-800';
+                                                } elseif ($pesanan->status === 'Dalam Pengiriman') {
+                                                    $badgeClass = 'bg-yellow-300 text-yellow-800';
+                                                } elseif ($pesanan->status === 'Selesai') {
+                                                    $badgeClass = 'bg-green-100 text-green-800';
+                                                }
+                                            @endphp
+                                            <span
+                                                class="px-3 py-1 rounded-full font-medium {{ $badgeClass }} whitespace-nowrap">
+                                                {{ $pesanan->status }}
+                                            </span>
+                                        </td>
                                         <td class="h-full px-6 py-4 text-sm text-gray-700">
                                             <div class="flex items-center justify-center space-x-4 h-full">
                                                 @if ($pesanan->status === 'Menunggu Verifikasi')
-                                                    <a href="{{ route('admin.pesanan.verifikasi', $pesanan->id) }}"
-                                                        class="px-3 py-1 bg-yellow-500 text-white rounded-md hover:bg-yellow-600">
+                                                    <button type="button"
+                                                        class="verifikasiButton px-3 py-1 text-yellow-500 hover:text-yellow-600 rounded-md "
+                                                        data-id="{{ $pesanan->id }}"
+                                                        data-url="{{ route('admin.pesanan.showVerifikasi', $pesanan->id) }}">
                                                         Verifikasi
-                                                    </a>
+                                                    </button>
                                                 @elseif(in_array($pesanan->status, ['Diterima', 'Dalam Pengiriman']))
-                                                    <a href="{{ route('admin.pesanan.perbaruiStatus', $pesanan->id) }}"
-                                                        class="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+                                                    <button type="button"
+                                                        class="updateStatusButton px-3 py-1 text-blue-500 rounded-md hover:text-blue-600 whitespace-nowrap"
+                                                        data-id="{{ $pesanan->id }}"
+                                                        data-url="{{ route('admin.pesanan.showUpdateStatus', $pesanan->id) }}">
                                                         Perbarui Status
-                                                    </a>
+                                                    </button>
                                                 @else
                                                     <span class="px-3 py-1 text-gray-500 rounded-md">-</span>
                                                 @endif
@@ -164,13 +184,20 @@
             </style>
 
             <!-- Script Chart.js -->
+            <!-- Show Modal -->
+            @include('admin.pesanan.show-modal')
+
+            <!-- Update Status Modal -->
+            @include('admin.pesanan.update-status')
+
+            <!-- Verifikasi Modal -->
+            @include('admin.pesanan.verifikasi-modal')
+
             <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-            <!-- Produk JavaScript -->
-            @vite('resources/js/admin/produk/index.js')
+            <!-- Pesanan JavaScript -->
+            @vite(['resources/js/admin/pesanan/index.js', 'resources/js/admin/pesanan/show-modal.js', 'resources/js/admin/pesanan/verifikasi-modal.js', 'resources/js/admin/pesanan/update-status.js'])
 
-            {{-- Konfirmasi Hapus Modal --}}
-            @include('admin.produk.konfirmasi-hapus')
         </section>
     </main>
 </x-app-layout>

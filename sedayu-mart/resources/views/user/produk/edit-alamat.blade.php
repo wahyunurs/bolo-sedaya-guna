@@ -1,8 +1,9 @@
 <!-- MODAL EDIT ALAMAT -->
 <div id="modalEditAlamat"
-    class="fixed inset-0 bg-black bg-opacity-50 {{ session('error') ? 'flex' : 'hidden' }} justify-center items-center z-[999]">
+    class="fixed inset-0 bg-black bg-opacity-50 {{ session('error') ? 'flex' : 'hidden' }} justify-center items-center z-[999] px-4">
 
-    <div class="bg-white w-[90%] max-w-md p-8 rounded-2xl shadow-xl relative">
+    <div
+        class="bg-white w-full max-w-md p-6 sm:p-8 rounded-xl sm:rounded-2xl shadow-xl relative max-h-[90vh] overflow-y-auto">
 
         <!-- Close icon top-right -->
         <button id="btnCloseModalTop" type="button" aria-label="Tutup"

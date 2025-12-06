@@ -103,8 +103,18 @@
                                         </td>
                                         <td class="px-6 py-4 text-sm text-gray-700">
                                             @php $thumb = optional($produk->gambarProduks->first())->gambar; @endphp
-                                            <img src="{{ $thumb ? asset('/storage/img/produk/' . $thumb) : '' }}"
-                                                alt="{{ $produk->nama }}" class="w-16 h-16 object-cover rounded">
+                                            <div class="w-16 h-16 rounded border flex items-center justify-center overflow-hidden bg-gray-50">
+                                                @if ($thumb)
+                                                    <img src="{{ asset('/storage/img/produk/' . $thumb) }}"
+                                                        alt="{{ $produk->nama }}" class="w-full h-full object-cover">
+                                                @else
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400">
+                                                        <path d="M12 3v12" />
+                                                        <path d="m17 8-5-5-5 5" />
+                                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                                    </svg>
+                                                @endif
+                                            </div>
                                         </td>
                                         <td class="px-6 py-4 text-sm text-gray-700">{{ $produk->nama }}</td>
                                         <td class="px-6 py-4 text-sm text-gray-700">{{ $produk->harga }}</td>

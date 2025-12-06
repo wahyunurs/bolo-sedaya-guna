@@ -4,15 +4,16 @@ namespace App\Http\Controllers\User;
 
 use App\Models\Produk;
 use App\Models\Pesanan;
+use App\Models\Rekening;
 use App\Models\Keranjang;
 use App\Models\ItemPesanan;
 use Illuminate\Http\Request;
 use App\Models\TarifPengiriman;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Log;
 
 class ProdukUserController extends Controller
 {
@@ -148,6 +149,7 @@ class ProdukUserController extends Controller
     public function checkout(Request $request)
     {
         $produk = Produk::findOrFail($request->produk_id);
+        $rekening = Rekening::all();
         $user = Auth::user();
 
         // request values with sensible defaults
@@ -199,6 +201,9 @@ class ProdukUserController extends Controller
             'tarif_per_kg' => $tarif_per_kg,
             'totalBeratGram' => $totalBeratGram,
             'berat_gram' => $produk->berat ?? 0,
+
+            'rekening' => $rekening,
+            'user' => $user,
         ]);
     }
 

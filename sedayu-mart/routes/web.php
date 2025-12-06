@@ -66,9 +66,11 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
         // Pesanan
         Route::prefix('pesanan')->group(function () {
             Route::get('/', [PesananAdminController::class, 'index'])->name('admin.pesanan.index');
+            Route::get('/show/{id}', [PesananAdminController::class, 'show'])->name('admin.pesanan.show');
             Route::get('/verifikasi/{id}', [PesananAdminController::class, 'showVerifikasi'])->name('admin.pesanan.showVerifikasi');
             Route::post('/verifikasi/{id}', [PesananAdminController::class, 'verifikasi'])->name('admin.pesanan.verifikasi');
-            Route::put('/update-status/{id}', [PesananAdminController::class, 'updateStatus'])->name('admin.pesanan.updateStatus');
+            Route::get('/update-status/{id}', [PesananAdminController::class, 'showUpdateStatus'])->name('admin.pesanan.showUpdateStatus');
+            Route::post('/update-status/{id}', [PesananAdminController::class, 'updateStatus'])->name('admin.pesanan.updateStatus');
         });
 
         // Tarif Pengiriman

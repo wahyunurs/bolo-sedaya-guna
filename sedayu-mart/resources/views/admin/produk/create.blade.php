@@ -108,9 +108,19 @@
                                 <div class="border rounded p-2 text-center">
                                     <div
                                         class="w-full h-24 bg-gray-100 rounded mb-2 overflow-hidden flex items-center justify-center">
-                                        <img id="preview-{{ $i }}"
-                                            src="{{ asset('img/card/produk1.png') }}" alt="preview"
-                                            class="object-cover w-full h-full">
+                                        <img id="preview-{{ $i }}" src="" alt="preview"
+                                            class="object-cover w-full h-full hidden">
+                                        <div id="placeholder-{{ $i }}"
+                                            class="flex items-center justify-center w-full h-full text-gray-400">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                class="lucide lucide-upload">
+                                                <path d="M12 3v12" />
+                                                <path d="m17 8-5-5-5 5" />
+                                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                            </svg>
+                                        </div>
                                     </div>
 
                                     <input type="file" name="gambar[]" accept="image/*"
@@ -118,8 +128,9 @@
 
                                     <div class="text-sm mt-2">
                                         <label class="inline-flex items-center">
-                                            <input type="radio" name="utama_gambar" value="new_{{ $i }}"
-                                                class="mr-2" {{ $i === 0 ? 'checked' : '' }}>
+                                            <input type="radio" name="utama_gambar"
+                                                value="new_{{ $i }}" class="mr-2"
+                                                {{ $i === 0 ? 'checked' : '' }}>
                                             Utama
                                         </label>
                                     </div>

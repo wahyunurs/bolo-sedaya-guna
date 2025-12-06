@@ -1,45 +1,47 @@
 @extends('auth.components.layout')
 @section('content')
     <!-- Wrapper -->
-    <section class="min-h-screen flex items-center justify-center bg-[#e5ffda]"
+    <section class="min-h-screen flex items-center justify-center bg-[#e5ffda] px-4 sm:px-6 py-8 sm:py-12"
         style="background-size: cover; background-position: center; background-repeat: no-repeat;">
         <!-- Main container -->
-        <div class="flex w-full max-w-4xl bg-[#ffffff] rounded-3xl shadow-lg overflow-hidden h-[560px]">
-            <!-- Right side (image) - moved to first column -->
-            <div class="w-1/2 flex items-center justify-center p-8">
+        <div
+            class="flex flex-col lg:flex-row w-full max-w-2xl lg:max-w-5xl bg-[#ffffff] rounded-2xl sm:rounded-3xl shadow-lg overflow-hidden">
+            <!-- Right side (image) - hidden on mobile, visible on lg -->
+            <div
+                class="hidden lg:flex lg:w-1/2 items-center justify-center p-6 sm:p-8 bg-gradient-to-br from-green-50 to-green-100">
                 <div class="relative w-full h-full flex items-center justify-center">
-
                     <div class="relative">
                         <img src="{{ asset('img/card/auth.png') }}" alt="Register Illustration"
-                            class="rounded-3xl w-[400px] h-auto object-contain animate-blink-slow">
+                            class="rounded-2xl sm:rounded-3xl w-64 sm:w-72 lg:w-80 h-auto object-contain animate-blink-slow">
                     </div>
                 </div>
             </div>
 
-            <!-- Left side (form) - moved to second column -->
-            <div class="w-1/2 p-10 overflow-y-auto" style="direction: rtl;">
+            <!-- Left side (form) - full width on mobile, half on lg -->
+            <div class="w-full lg:w-1/2 p-4 sm:p-6 lg:p-8 overflow-y-auto" style="direction: rtl;">
                 <!-- Logo -->
-                <div class="flex items-center justify-center mb-4 gap-3">
-                    <div class="text-xl font-bold">
+                <div class="flex items-center justify-center mb-3 sm:mb-4 gap-2 sm:gap-3">
+                    <div class="text-base sm:text-lg lg:text-xl font-bold">
                         <span class="text-[#065f46]">Sedayu</span><span class="text-[#FBBF24]">Mart</span>
                     </div>
-                    <img src="{{ asset('img/logo/sedayumart.png') }}" alt="SedayuMart" class="w-10 h-auto">
+                    <img src="{{ asset('img/logo/sedayumart.png') }}" alt="SedayuMart" class="w-8 sm:w-10 h-auto">
                 </div>
 
                 <!-- Title -->
-                <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Buat Akun Baru</h2>
+                <h2 class="text-xl sm:text-2xl lg:text-3xl font-bold text-center text-gray-800 mb-4 sm:mb-6">Buat Akun Baru
+                </h2>
 
                 <!-- Session Status -->
-                <x-auth-session-status class="mb-4" :status="session('status')" />
+                <x-auth-session-status class="mb-3 sm:mb-4" :status="session('status')" />
 
                 <form method="POST" action="{{ route('register') }}" style="direction: ltr;">
                     @csrf
 
                     <!-- Name -->
-                    <div class="mb-5">
+                    <div class="mb-4 sm:mb-5">
                         <div class="relative mt-1">
                             <span id="nameIconWrap" class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                     stroke-linejoin="round" class="lucide lucide-user-icon lucide-user">
                                     <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
@@ -48,19 +50,19 @@
                             </span>
                             <input id="nama" name="nama" type="text" value="{{ old('nama') }}" required
                                 autofocus autocomplete="name"
-                                class="block w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm"
+                                class="block w-full pl-9 pr-3 py-2 sm:py-2.5 border border-gray-300 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 text-xs sm:text-sm"
                                 placeholder="Nama Lengkap" />
                         </div>
-                        <x-input-error :messages="$errors->get('nama')" class="mt-2" />
+                        <x-input-error :messages="$errors->get('nama')" class="mt-2 text-xs sm:text-sm" />
                     </div>
 
                     <!-- Alamat -->
-                    <div class="mb-5">
+                    <div class="mb-4 sm:mb-5">
                         <div class="relative mt-1 text-gray-400 focus-within:text-green-500 transition-colors duration-200">
                             <span id="alamatIconWrap" class="absolute inset-y-0 left-0 flex items-center pl-3">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-current" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 sm:w-5 sm:h-5 text-current"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
                                     <path
                                         d="M15 22a1 1 0 0 1-1-1v-4a1 1 0 0 1 .445-.832l3-2a1 1 0 0 1 1.11 0l3 2A1 1 0 0 1 22 17v4a1 1 0 0 1-1 1z" />
                                     <path d="M18 10a8 8 0 0 0-16 0c0 4.993 5.539 10.193 7.399 11.799a1 1 0 0 0 .601.2" />
@@ -69,21 +71,21 @@
                                 </svg>
                             </span>
                             <input id="alamat" name="alamat" type="text" value="{{ old('alamat') }}" required
-                                class="block w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm"
+                                class="block w-full pl-9 pr-3 py-2 sm:py-2.5 border border-gray-300 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 text-xs sm:text-sm"
                                 placeholder="Alamat Rumah" />
                         </div>
-                        <x-input-error :messages="$errors->get('alamat')" class="mt-2" />
+                        <x-input-error :messages="$errors->get('alamat')" class="mt-2 text-xs sm:text-sm" />
                     </div>
 
                     <!-- Kabupaten & Provinsi -->
-                    <div class="mb-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="mb-4 sm:mb-5 grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
                         <div>
                             <div
                                 class="relative mt-1 text-gray-400 focus-within:text-green-500 transition-colors duration-200">
                                 <span id="kabupatenIconWrap" class="absolute inset-y-0 left-0 flex items-center pl-3">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-current" viewBox="0 0 24 24"
-                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 sm:w-5 sm:h-5 text-current"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round">
                                         <path
                                             d="M19.914 11.105A7.298 7.298 0 0 0 20 10a8 8 0 0 0-16 0c0 4.993 5.539 10.193 7.399 11.799a1 1 0 0 0 1.202 0 32 32 0 0 0 .824-.738" />
                                         <circle cx="12" cy="10" r="3" />
@@ -97,9 +99,10 @@
 
                                     <span id="kabupatenIconWrap"
                                         class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                            stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 text-current">
+                                            stroke-linecap="round" stroke-linejoin="round"
+                                            class="w-4 h-4 sm:w-5 sm:h-5 text-current">
                                             <path d="M17.97 9.304A8 8 0 0 0 2 10c0 4.69 4.887 9.562 7.022 11.468" />
                                             <path
                                                 d="M21.378 16.626a1 1 0 0 0-3.004-3.004l-4.01 4.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z" />
@@ -108,7 +111,7 @@
                                     </span>
 
                                     <input id="kabupatenSearch" type="text" autocomplete="off"
-                                        class="block w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm bg-white"
+                                        class="block w-full pl-9 pr-3 py-2 sm:py-2.5 border border-gray-300 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 text-xs sm:text-sm bg-white"
                                         placeholder="Pilih Kabupaten/Kota" value="{{ old('kabupaten') }}">
 
                                     <ul id="kabupatenList"
@@ -116,22 +119,22 @@
                                         @if (isset($kabupatens) && $kabupatens->count())
                                             @foreach ($kabupatens as $kabupaten)
                                                 <li data-value="{{ $kabupaten }}"
-                                                    class="px-3 py-2 text-sm text-black hover:bg-green-500 hover:text-white cursor-pointer">
+                                                    class="px-3 py-2 text-xs sm:text-sm text-black hover:bg-green-500 hover:text-white cursor-pointer">
                                                     {{ $kabupaten }}</li>
                                             @endforeach
                                         @endif
                                     </ul>
                                 </div>
                             </div>
-                            <x-input-error :messages="$errors->get('kabupaten')" class="mt-2" />
+                            <x-input-error :messages="$errors->get('kabupaten')" class="mt-2 text-xs sm:text-sm" />
                         </div>
 
-                        <!-- Provinsi -->
+                        {{-- <!-- Provinsi -->
                         <div>
                             <div
                                 class="relative mt-1 text-gray-400 focus-within:text-green-500 transition-colors duration-200">
                                 <span id="provinsiIconWrap" class="absolute inset-y-0 left-0 flex items-center pl-3">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-current"
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 sm:w-5 sm:h-5 text-current"
                                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                         stroke-linecap="round" stroke-linejoin="round">
                                         <path
@@ -143,19 +146,19 @@
                                 </span>
                                 <input id="provinsi" name="provinsi" type="text" value="{{ old('provinsi') }}"
                                     required
-                                    class="block w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm"
+                                    class="block w-full pl-9 pr-3 py-2 sm:py-2.5 border border-gray-300 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 text-xs sm:text-sm"
                                     placeholder="Provinsi" />
                             </div>
-                            <x-input-error :messages="$errors->get('provinsi')" class="mt-2" />
-                        </div>
+                            <x-input-error :messages="$errors->get('provinsi')" class="mt-2 text-xs sm:text-sm" />
+                        </div> --}}
                     </div>
 
                     <!-- Nomor Telepon -->
-                    <div class="mb-5">
+                    <div class="mb-4 sm:mb-5">
                         <div class="relative mt-1">
                             <span id="nomorTeleponIconWrap"
                                 class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                     stroke-linecap="round" stroke-linejoin="round"
                                     class="lucide lucide-phone-icon lucide-phone">
@@ -165,18 +168,18 @@
                             </span>
                             <input id="nomor_telepon" name="nomor_telepon" type="text"
                                 value="{{ old('nomor_telepon') }}" required
-                                class="block w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm"
+                                class="block w-full pl-9 pr-3 py-2 sm:py-2.5 border border-gray-300 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 text-xs sm:text-sm"
                                 placeholder="Nomor Telepon" />
                         </div>
-                        <x-input-error :messages="$errors->get('nomor_telepon')" class="mt-2" />
+                        <x-input-error :messages="$errors->get('nomor_telepon')" class="mt-2 text-xs sm:text-sm" />
                     </div>
 
                     <!-- Email Address -->
-                    <div class="mb-5">
+                    <div class="mb-4 sm:mb-5">
                         <div class="relative mt-1">
                             <span id="emailIconWrap"
                                 class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400 transition-colors duration-150">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                     stroke-linecap="round" stroke-linejoin="round"
                                     class="lucide lucide-mail-icon lucide-mail">
@@ -186,18 +189,18 @@
                             </span>
                             <input id="email" name="email" type="email" value="{{ old('email') }}" required
                                 autocomplete="username"
-                                class="block w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm"
+                                class="block w-full pl-9 pr-3 py-2 sm:py-2.5 border border-gray-300 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 text-xs sm:text-sm"
                                 placeholder="Alamat Email" />
                         </div>
-                        <x-input-error :messages="$errors->get('email')" class="mt-2" />
+                        <x-input-error :messages="$errors->get('email')" class="mt-2 text-xs sm:text-sm" />
                     </div>
 
                     <!-- Password -->
-                    <div class="mb-3">
+                    <div class="mb-3 sm:mb-4">
                         <div class="relative mt-1">
                             <span id="passwordIconWrap"
                                 class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                     stroke-linecap="round" stroke-linejoin="round"
                                     class="lucide lucide-lock-keyhole-icon lucide-lock-keyhole">
@@ -208,20 +211,20 @@
                             </span>
 
                             <input id="password" name="password" type="password" required autocomplete="new-password"
-                                class="block w-full pl-9 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm"
+                                class="block w-full pl-9 pr-10 py-2 sm:py-2.5 border border-gray-300 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 text-xs sm:text-sm"
                                 placeholder="Kata Sandi" />
 
                             <!-- Icon kanan (toggle visibility) -->
                             <button type="button" id="togglePassword"
-                                class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 focus:outline-none">
-                                <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 focus:outline-none hover:text-gray-600">
+                                <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
                                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                     stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye">
                                     <path
                                         d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" />
                                     <circle cx="12" cy="12" r="3" />
                                 </svg>
-                                <svg id="eyeClosedIcon" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                <svg id="eyeClosedIcon" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
                                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                     stroke-linecap="round" stroke-linejoin="round"
                                     class="lucide lucide-eye-closed hidden">
@@ -233,14 +236,14 @@
                                 </svg>
                             </button>
                         </div>
-                        <x-input-error :messages="$errors->get('password')" class="mt-2" />
+                        <x-input-error :messages="$errors->get('password')" class="mt-2 text-xs sm:text-sm" />
                     </div>
 
                     <!-- Confirm Password -->
-                    <div class="mb-5">
+                    <div class="mb-4 sm:mb-5">
                         <div class="relative mt-1">
                             <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                     viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                     stroke-linecap="round" stroke-linejoin="round"
                                     class="lucide lucide-lock-keyhole-icon lucide-lock-keyhole">
@@ -251,35 +254,36 @@
                             </span>
                             <input id="password_confirmation" name="password_confirmation" type="password" required
                                 autocomplete="new-password"
-                                class="block w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-sm"
+                                class="block w-full pl-9 pr-3 py-2 sm:py-2.5 border border-gray-300 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 text-xs sm:text-sm"
                                 placeholder="Konfirmasi Kata Sandi" />
                         </div>
-                        <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
+                        <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2 text-xs sm:text-sm" />
                     </div>
 
-                    <div class="mt-6">
+                    <div class="mt-5 sm:mt-6 lg:mt-7">
                         <button type="submit"
-                            class="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded-lg font-semibold shadow-sm transition duration-200">
+                            class="w-full bg-green-500 hover:bg-green-600 text-white py-2 sm:py-2.5 rounded-lg sm:rounded-xl font-semibold shadow-sm transition duration-200 text-sm sm:text-base">
                             Daftar
                         </button>
                     </div>
 
-                    <div class="my-4 flex items-center">
+                    <!-- GOOGLE -->
+                    {{-- <div class="my-3 sm:my-4 flex items-center gap-2 sm:gap-3">
                         <div class="flex-1 h-px bg-gray-300"></div>
-                        <div class="px-4 text-center text-gray-500 text-sm">Atau mendaftar dengan</div>
+                        <div class="text-center text-gray-500 text-xs sm:text-sm px-2">Atau mendaftar dengan</div>
                         <div class="flex-1 h-px bg-gray-300"></div>
                     </div>
 
-                    <div class="space-y-3">
+                    <div class="space-y-2 sm:space-y-3">
                         <a href="{{ route('auth.redirect') }}"
-                            class="w-full flex items-center justify-center gap-2 border border-gray-300 rounded-lg py-2 hover:bg-gray-50 transition">
-                            <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-5 h-5"
+                            class="w-full flex items-center justify-center gap-2 border border-gray-300 rounded-lg sm:rounded-xl py-2 sm:py-2.5 hover:bg-gray-50 transition">
+                            <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="w-4 sm:w-5 h-4 sm:h-5"
                                 alt="google">
-                            <span class="text-sm text-gray-700">Daftar dengan Google</span>
+                            <span class="text-xs sm:text-sm text-gray-700">Daftar dengan Google</span>
                         </a>
-                    </div>
+                    </div> --}}
 
-                    <div class="text-center mt-6 text-sm text-gray-600">
+                    <div class="text-center mt-6 sm:mt-8 text-xs sm:text-sm text-gray-600">
                         Sudah memiliki Akun? <a href="{{ route('login') }}"
                             class="text-green-600 hover:underline font-medium">Masuk</a>
                     </div>
@@ -287,8 +291,7 @@
             </div>
 
             @vite('resources/js/auth/register.js')
-            <script>
-            </script>
+            <script></script>
         </div>
     </section>
 @endsection

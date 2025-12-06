@@ -1,9 +1,9 @@
 <!-- MODAL BELI SEKARANG -->
 <div id="modalBeliSekarang" data-produk-id="{{ $produk->id }}" data-price="{{ $produk->harga }}"
     data-checkout-route="{{ route('user.produk.checkout') }}"
-    class="fixed inset-0 bg-black bg-opacity-50 hidden justify-center items-center z-[999]">
+    class="fixed inset-0 bg-black bg-opacity-50 hidden justify-center items-center z-[999] px-4">
 
-    <div class="bg-white w-[90%] max-w-md p-8 rounded-2xl shadow-xl relative">
+    <div class="bg-white w-full max-w-md p-6 sm:p-8 rounded-xl sm:rounded-2xl shadow-xl relative">
 
         <!-- Close button -->
         <button id="btnCloseModalBeli" type="button" aria-label="Tutup"
@@ -18,16 +18,16 @@
         <h2 class="text-xl font-bold text-green-800 mb-4">Beli Sekarang</h2>
         <div class="-mx-8 h-px bg-gray-200 mb-6"></div>
 
-        <div class="flex items-center gap-4 mb-4">
-            <img src="{{ $imgUtama }}" class="w-20 h-20 rounded-lg object-cover border">
+        <div class="flex items-center gap-3 sm:gap-4 mb-4">
+            <img src="{{ $imgUtama }}" class="w-16 h-16 sm:w-20 sm:h-20 rounded-lg object-cover border">
             <div>
-                <p class="font-semibold text-green-900 text-lg">{{ $produk->nama }}</p>
-                <p class="text-gray-600">Rp {{ number_format($produk->harga, 0, ',', '.') }}</p>
+                <p class="font-semibold text-green-900 text-base sm:text-lg line-clamp-2">{{ $produk->nama }}</p>
+                <p class="text-gray-600 text-sm sm:text-base">Rp {{ number_format($produk->harga, 0, ',', '.') }}</p>
             </div>
         </div>
 
         <!-- Input Kuantitas -->
-        <label class="font-semibold text-gray-700">Jumlah</label>
+        <label class="font-semibold text-gray-700 text-sm sm:text-base">Jumlah</label>
         <div class="flex items-center gap-2 mt-1 mb-4">
             <button type="button" id="btnDecreaseBeli" class="w-10 h-10 bg-gray-200 rounded-lg">-</button>
 
