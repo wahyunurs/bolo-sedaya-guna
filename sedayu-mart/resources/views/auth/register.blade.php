@@ -78,7 +78,7 @@
                     </div>
 
                     <!-- Kabupaten & Provinsi -->
-                    <div class="mb-4 sm:mb-5 grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                    <div class="mb-4 sm:mb-5">
                         <div>
                             <div
                                 class="relative mt-1 text-gray-400 focus-within:text-green-500 transition-colors duration-200">

@@ -105,14 +105,14 @@
                     </div>
 
                     <!-- Forgot Password Link -->
-                    @if (Route::has('password.request'))
+                    {{-- @if (Route::has('password.request'))
                         <div class="text-right mb-3 sm:mb-4">
                             <a href="{{ route('password.request') }}"
                                 class="text-xs sm:text-sm text-green-500 hover:text-green-800 font-medium">
                                 Lupa Kata Sandi?
                             </a>
                         </div>
-                    @endif
+                    @endif --}}
 
                     <!-- Login Button -->
                     <div class="mt-5 sm:mt-6 lg:mt-7">
