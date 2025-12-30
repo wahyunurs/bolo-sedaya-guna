@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Produk;
+use App\Models\Varian;
 use Illuminate\Support\Str;
 use App\Models\GambarProduk;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -13,6 +15,9 @@ use Illuminate\Support\Facades\Storage;
 
 class ProdukAdminController extends Controller
 {
+    /**
+     * PRODUK
+     */
     public function index(Request $request)
     {
         if (Auth::user()->role !== 'admin') {
@@ -51,6 +56,7 @@ class ProdukAdminController extends Controller
 
     public function create()
     {
+
         return view('admin.produk.create');
     }
 
@@ -58,26 +64,64 @@ class ProdukAdminController extends Controller
     {
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
-            'harga' => 'required|integer|min:0',
-            'berat' => 'required|integer|min:0',
-            'stok' => 'required|integer|min:0',
             'satuan_produk' => 'required|string|max:50',
             'deskripsi' => 'nullable|string',
             'gambar.*' => 'nullable|image|mimes:jpg,jpeg,png,gif,webp|max:5120',
             'utama_gambar' => 'nullable',
+            // Validasi varian
+            'varian' => 'required|array|min:1',
+            'varian.*.nama' => 'required|string|max:255',
+            'varian.*.harga' => 'required|integer|min:0',
+            'varian.*.berat' => 'required|integer|min:0',
+            'varian.*.stok' => 'required|integer|min:0',
+            'varian.*.is_default' => 'required|boolean',
+            'varian_gambar.*' => 'nullable|image|mimes:jpg,jpeg,png,gif,webp|max:5120',
+        ], [
+            'varian.*.is_default.required' => 'Setiap varian harus dipilih salah satu sebagai default.',
         ]);
 
-        // Use transaction to ensure atomicity
         DB::beginTransaction();
         try {
             $produk = Produk::create([
                 'nama' => $validated['nama'],
-                'harga' => $validated['harga'],
-                'berat' => $validated['berat'],
-                'stok' => $validated['stok'],
                 'satuan_produk' => $validated['satuan_produk'],
                 'deskripsi' => $validated['deskripsi'] ?? null,
             ]);
+
+            // Validasi hanya satu is_default
+            $defaultCount = 0;
+            $defaultIdx = null;
+            foreach ($validated['varian'] as $idx => $varian) {
+                if (isset($varian['is_default']) && $varian['is_default']) {
+                    $defaultCount++;
+                    $defaultIdx = $idx;
+                }
+            }
+            if ($defaultCount !== 1) {
+                DB::rollBack();
+                return back()->withInput()->withErrors(['varian' => 'Hanya boleh satu varian default untuk setiap produk.']);
+            }
+
+            // Create multiple varian
+            $varianFiles = $request->file('varian_gambar', []);
+            foreach ($validated['varian'] as $idx => $varian) {
+                $varianGambarName = null;
+                if (isset($varianFiles[$idx]) && $varianFiles[$idx] instanceof UploadedFile) {
+                    $orig = $varianFiles[$idx]->getClientOriginalName();
+                    $varianGambarName = time() . '_varian_' . $idx . '_' . preg_replace('/[^A-Za-z0-9\._-]/', '_', $orig);
+                    $path = 'img/varian/' . $varianGambarName;
+                    Storage::disk('public')->put($path, file_get_contents($varianFiles[$idx]));
+                }
+                Varian::create([
+                    'produk_id' => $produk->id,
+                    'nama' => $varian['nama'],
+                    'harga' => $varian['harga'],
+                    'berat' => $varian['berat'],
+                    'stok' => $varian['stok'],
+                    'is_default' => ($idx === $defaultIdx) ? 1 : 0,
+                    'gambar' => $varianGambarName,
+                ]);
+            }
 
             $files = $request->file('gambar', []);
             $utamaIndexRaw = $request->input('utama_gambar');
@@ -91,7 +135,7 @@ class ProdukAdminController extends Controller
             if (is_array($files) && count($files)) {
                 foreach ($files as $idx => $file) {
                     if (!$file) continue;
-                    if (!($file instanceof \Illuminate\Http\UploadedFile)) continue;
+                    if (!($file instanceof UploadedFile)) continue;
 
                     $orig = $file->getClientOriginalName();
                     $name = time() . '_' . $idx . '_' . preg_replace('/[^A-Za-z0-9\._-]/', '_', $orig);
@@ -109,10 +153,9 @@ class ProdukAdminController extends Controller
 
             DB::commit();
 
-            return redirect()->route('admin.produk.index')->with('success', 'Produk berhasil dibuat.');
+            return redirect()->route('admin.produk.index')->with('success', 'Produk & varian berhasil dibuat.');
         } catch (\Exception $e) {
             DB::rollBack();
-            // optionally log the error
             report($e);
             return back()->withInput()->with('error', 'Terjadi kesalahan saat menyimpan produk.');
         }
@@ -127,48 +170,12 @@ class ProdukAdminController extends Controller
         ]);
     }
 
-    public function destroy($id)
-    {
-        $produk = Produk::with('gambarProduks')->findOrFail($id);
-
-        // If product exists in any cart, prevent deletion
-        if ($produk->keranjang()->exists()) {
-            return redirect()->route('admin.produk.index')->with('error', 'Produk ada dalam keranjang pengguna.');
-        }
-
-        DB::beginTransaction();
-        try {
-            // delete files from storage
-            foreach ($produk->gambarProduks as $g) {
-                if ($g->gambar) {
-                    $path = 'img/produk/' . $g->gambar;
-                    if (Storage::disk('public')->exists($path)) {
-                        Storage::disk('public')->delete($path);
-                    }
-                }
-            }
-
-            // delete produk (gambar_produk rows will cascade)
-            $produk->delete();
-
-            DB::commit();
-            return redirect()->route('admin.produk.index')->with('success', 'Produk berhasil dihapus.');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            report($e);
-            return back()->with('error', 'Terjadi kesalahan saat menghapus produk.');
-        }
-    }
-
     public function update(Request $request, $id)
     {
         $produk = Produk::findOrFail($id);
 
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
-            'harga' => 'required|integer|min:0',
-            'berat' => 'required|integer|min:0',
-            'stok' => 'required|integer|min:0',
             'satuan_produk' => 'required|string|max:50',
             'deskripsi' => 'nullable|string',
             'gambar.*' => 'nullable|image|mimes:jpg,jpeg,png,gif,webp|max:5120',
@@ -179,9 +186,6 @@ class ProdukAdminController extends Controller
         try {
             $produk->update([
                 'nama' => $validated['nama'],
-                'harga' => $validated['harga'],
-                'berat' => $validated['berat'],
-                'stok' => $validated['stok'],
                 'satuan_produk' => $validated['satuan_produk'],
                 'deskripsi' => $validated['deskripsi'] ?? null,
             ]);
@@ -295,6 +299,191 @@ class ProdukAdminController extends Controller
             DB::rollBack();
             report($e);
             return back()->withInput()->with('error', 'Terjadi kesalahan saat memperbarui produk.');
+        }
+    }
+
+    public function destroy($id)
+    {
+        $produk = Produk::with('gambarProduks')->findOrFail($id);
+
+        // If product exists in any cart, prevent deletion
+        if ($produk->keranjang()->exists()) {
+            return redirect()->route('admin.produk.index')->with('error', 'Produk ada dalam keranjang pengguna.');
+        }
+
+        DB::beginTransaction();
+        try {
+            // delete files from storage
+            foreach ($produk->gambarProduks as $g) {
+                if ($g->gambar) {
+                    $path = 'img/produk/' . $g->gambar;
+                    if (Storage::disk('public')->exists($path)) {
+                        Storage::disk('public')->delete($path);
+                    }
+                }
+            }
+
+            // delete all varian for this produk
+            Varian::where('produk_id', $produk->id)->delete();
+
+            // delete produk (gambar_produk rows will cascade)
+            $produk->delete();
+
+            DB::commit();
+            return redirect()->route('admin.produk.index')->with('success', 'Produk berhasil dihapus.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            report($e);
+            return back()->with('error', 'Terjadi kesalahan saat menghapus produk.');
+        }
+    }
+
+    /**
+     * VARIAN
+     */
+    public function indexVarian($produkId)
+    {
+        $produk = Produk::findOrFail($produkId);
+        $gambarProduks = $produk->gambarProduks()->where('utama', 1)->first();
+        $varians = Varian::where('produk_id', $produkId)->get();
+
+        return view('admin.produk.varian.index', [
+            'produk' => $produk,
+            'varians' => $varians,
+            'gambarProduks' => $gambarProduks,
+        ]);
+    }
+
+    public function storeVarian(Request $request, $produkId)
+    {
+        $produk = Produk::findOrFail($produkId);
+
+        $validated = $request->validate([
+            'nama' => 'required|string|max:255',
+            'harga' => 'required|integer|min:0',
+            'berat' => 'required|integer|min:0',
+            'stok' => 'required|integer|min:0',
+            'is_default' => 'required|boolean',
+            'gambar' => 'nullable|image|mimes:jpg,jpeg,png,gif,webp|max:5120',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            if ($validated['is_default']) {
+                // reset existing default
+                Varian::where('produk_id', $produk->id)->update(['is_default' => 0]);
+            }
+
+            $varianGambarName = null;
+            if (isset($validated['gambar']) && $validated['gambar'] instanceof UploadedFile) {
+                $orig = $validated['gambar']->getClientOriginalName();
+                $varianGambarName = time() . '_varian_' . preg_replace('/[^A-Za-z0-9\._-]/', '_', $orig);
+                $path = 'img/varian/' . $varianGambarName;
+                Storage::disk('public')->put($path, file_get_contents($validated['gambar']));
+            }
+
+            Varian::create([
+                'produk_id' => $produk->id,
+                'nama' => $validated['nama'],
+                'harga' => $validated['harga'],
+                'berat' => $validated['berat'],
+                'stok' => $validated['stok'],
+                'is_default' => $validated['is_default'] ? 1 : 0,
+                'gambar' => $varianGambarName,
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('admin.produk.varian.index', $produk->id)->with('success', 'Varian berhasil ditambahkan.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            report($e);
+            return back()->withInput()->with('error', 'Terjadi kesalahan saat menyimpan varian.');
+        }
+    }
+
+    public function updateVarian(Request $request, $produkId, $varianId)
+    {
+        $varian = Varian::findOrFail($varianId);
+
+        $validated = $request->validate([
+            'nama' => 'required|string|max:255',
+            'harga' => 'required|integer|min:0',
+            'berat' => 'required|integer|min:0',
+            'stok' => 'required|integer|min:0',
+            'is_default' => 'required|boolean',
+            'gambar' => 'nullable|image|mimes:jpg,jpeg,png,gif,webp|max:5120',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            // Validasi: jika varian ini default dan admin ingin ubah jadi non-default, tolak
+            if ($varian->is_default == 1 && $validated['is_default'] == 0) {
+                DB::rollBack();
+                return back()->with('error', 'Varian default tidak boleh diubah menjadi non-default. Silakan pilih varian lain sebagai default terlebih dahulu.');
+            }
+
+            if ($validated['is_default']) {
+                // reset existing default
+                Varian::where('produk_id', $produkId)->update(['is_default' => 0]);
+            }
+
+            if (isset($validated['gambar']) && $validated['gambar'] instanceof UploadedFile) {
+                // delete old file
+                if ($varian->gambar) {
+                    $oldPath = 'img/varian/' . $varian->gambar;
+                    if (Storage::disk('public')->exists($oldPath)) {
+                        Storage::disk('public')->delete($oldPath);
+                    }
+                }
+                // store new file
+                $orig = $validated['gambar']->getClientOriginalName();
+                $varianGambarName = time() . '_varian_' . preg_replace('/[^A-Za-z0-9\._-]/', '_', $orig);
+                $path = 'img/varian/' . $varianGambarName;
+                Storage::disk('public')->put($path, file_get_contents($validated['gambar']));
+                $varian->gambar = $varianGambarName;
+            }
+
+            $varian->update([
+                'nama' => $validated['nama'],
+                'harga' => $validated['harga'],
+                'berat' => $validated['berat'],
+                'stok' => $validated['stok'],
+                'is_default' => $validated['is_default'] ? 1 : 0,
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('admin.produk.varian.index', $varian->produk_id)->with('success', 'Varian berhasil diperbarui.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            report($e);
+            return back()->withInput()->with('error', 'Terjadi kesalahan saat memperbarui varian.');
+        }
+    }
+
+    public function destroyVarian($produkId, $varianId)
+    {
+        $varian = Varian::where('id', $varianId)->firstOrFail();
+
+        DB::beginTransaction();
+        try {
+            // delete varian image file
+            if ($varian->gambar) {
+                $path = 'img/varian/' . $varian->gambar;
+                if (Storage::disk('public')->exists($path)) {
+                    Storage::disk('public')->delete($path);
+                }
+            }
+
+            $varian->delete();
+
+            DB::commit();
+            return redirect()->route('admin.produk.varian.index', $produkId)->with('success', 'Varian berhasil dihapus.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            report($e);
+            return back()->with('error', 'Terjadi kesalahan saat menghapus varian.');
         }
     }
 }

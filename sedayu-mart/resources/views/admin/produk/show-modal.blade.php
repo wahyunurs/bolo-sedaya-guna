@@ -34,28 +34,6 @@
                 <p class="text-lg font-semibold text-gray-900">{{ $produk->nama ?? '-' }}</p>
             </div>
 
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <p class="text-sm text-gray-500">Harga</p>
-                    <p class="font-medium text-gray-800">Rp {{ number_format($produk->harga ?? 0, 0, ',', '.') }}</p>
-                </div>
-                <div>
-                    <p class="text-sm text-gray-500">Stok</p>
-                    <p class="font-medium text-gray-800">{{ $produk->stok ?? 0 }} {{ $produk->satuan_produk ?? '' }}</p>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <p class="text-sm text-gray-500">Berat</p>
-                    <p class="font-medium text-gray-800">{{ $produk->berat ?? 0 }} gram</p>
-                </div>
-                <div>
-                    <p class="text-sm text-gray-500">Satuan</p>
-                    <p class="font-medium text-gray-800">{{ $produk->satuan_produk ?? '-' }}</p>
-                </div>
-            </div>
-
             <div>
                 <p class="text-sm text-gray-500">Deskripsi</p>
                 <p class="text-gray-700">{{ $produk->deskripsi ?? '-' }}</p>

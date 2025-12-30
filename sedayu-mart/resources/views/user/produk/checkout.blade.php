@@ -68,17 +68,19 @@
 
                             <!-- KUANTITAS + SUBTOTAL -->
                             <div class="ml-auto flex flex-col items-end gap-2">
-                                <div class="flex items-center gap-1">
+                                <div class="flex items-center gap-1 flex-col sm:flex-row">
                                     <span class="text-sm text-gray-700">Jumlah : </span>
 
-                                    <button type="button" id="decreaseBtn"
-                                        class="w-6 h-6 flex items-center justify-center bg-gray-100 rounded-sm text-green-700 hover:bg-gray-200 text-xs">-</button>
+                                    <div class="flex flex-row">
+                                        <button type="button" id="decreaseBtn"
+                                            class="w-6 h-6 flex items-center justify-center bg-gray-100 rounded-sm text-green-700 hover:bg-gray-200 text-xs">-</button>
 
-                                    <input type="text" id="kuantitasInput" value="{{ $kuantitas }}"
-                                        class="w-12 text-center p-0.5 border rounded-sm text-sm" />
+                                        <input type="text" id="kuantitasInput" value="{{ $kuantitas }}"
+                                            class="w-12 text-center p-0.5 border rounded-sm text-sm" />
 
-                                    <button type="button" id="increaseBtn"
-                                        class="w-6 h-6 flex items-center justify-center bg-gray-100 rounded-sm text-green-700 hover:bg-gray-200 text-xs">+</button>
+                                        <button type="button" id="increaseBtn"
+                                            class="w-6 h-6 flex items-center justify-center bg-gray-100 rounded-sm text-green-700 hover:bg-gray-200 text-xs">+</button>
+                                    </div>
                                 </div>
 
                                 {{-- Error message shown under jumlah when stok tidak mencukupi or other modal errors --}}

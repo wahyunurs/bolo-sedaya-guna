@@ -1,21 +1,19 @@
 @component('user.components.user-layout')
     @include('user.components.navbar')
 
-    <section class="pt-20 sm:pt-24 pb-8 bg-[#e9ffe1] min-h-screen px-4 sm:px-6 lg:px-10">
+    <section
+        class="pt-24 pb-10 min-h-screen bg-gradient-to-br from-gray-50 via-green-50 to-emerald-50 px-4 sm:px-6 lg:px-10">
 
-        <!-- Modal Flash Message -->
+        {{-- Flash Message --}}
         @include('user.components.message-modal')
 
+        <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 mt-6">
 
-        <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-10 mt-4 sm:mt-8 lg:mt-14">
-
-            <!-- KOLOM KIRI (GAMBAR) -->
+            {{-- ================= KOLOM KIRI : GAMBAR ================= --}}
             <div>
-
-                {{-- Gambar Utama --}}
-                <div class="relative mx-auto w-full flex justify-center">
+                <div class="relative mx-auto max-w-lg">
                     <div
-                        class="relative rounded-lg sm:rounded-xl overflow-hidden shadow-md w-full max-w-sm sm:max-w-md lg:max-w-lg aspect-square">
+                        class="relative aspect-square rounded-2xl overflow-hidden bg-white shadow-xl border border-gray-100">
 
                         @php
                             $gambarUtama = optional($produk->gambarProduks->where('utama', true)->first())->gambar;
@@ -25,110 +23,167 @@
 
                             $totalGambar = $produk->gambarProduks->count();
                             $posisiGambarUtama =
-                                $produk->gambarProduks->values()->search(function ($g) use ($gambarUtama) {
-                                    return $g->gambar === $gambarUtama;
-                                }) + 1;
+                                $produk->gambarProduks->values()->search(fn($g) => $g->gambar === $gambarUtama) + 1;
                         @endphp
 
                         <img id="mainProductImage" src="{{ $imgUtama }}"
                             data-current-index="{{ ($posisiGambarUtama ?? 1) - 1 }}"
-                            class="absolute inset-0 w-full h-full object-contain p-2 cursor-pointer"
+                            class="absolute inset-0 w-full h-full object-contain p-4 cursor-pointer transition-transform duration-300 hover:scale-105"
                             alt="{{ $produk->nama }}">
 
-                        <!-- Click zones: left and right transparent overlays to navigate prev/next -->
-                        <div id="imgPrevZone" class="absolute inset-y-0 left-0 w-1/3 cursor-pointer" aria-hidden="true">
-                        </div>
-                        <div id="imgNextZone" class="absolute inset-y-0 right-0 w-1/3 cursor-pointer" aria-hidden="true">
+                        {{-- Click Zones (JS Compatible) --}}
+                        <div id="imgPrevZone"
+                            class="absolute inset-y-0 left-0 w-1/3 flex items-center justify-start cursor-pointer group">
+                            <div
+                                class="ml-3 w-10 h-10 rounded-full bg-white/80 backdrop-blur shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-700" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                                </svg>
+                            </div>
                         </div>
 
-                        {{-- Card posisi gambar --}}
+                        <div id="imgNextZone"
+                            class="absolute inset-y-0 right-0 w-1/3 flex items-center justify-end cursor-pointer group">
+                            <div
+                                class="mr-3 w-10 h-10 rounded-full bg-white/80 backdrop-blur shadow-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-700" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                                </svg>
+                            </div>
+                        </div>
+
+
+
+                        {{-- Counter --}}
                         <div
-                            class="absolute top-2 left-2 sm:top-3 sm:left-3 bg-white px-2 sm:px-3 py-1 rounded-md sm:rounded-lg shadow text-xs sm:text-sm font-semibold text-gray-700">
+                            class="absolute top-3 left-3 bg-white/90 backdrop-blur px-3 py-1.5 rounded-lg shadow text-sm font-semibold text-gray-700">
                             {{ $posisiGambarUtama }} / {{ $totalGambar }}
                         </div>
                     </div>
                 </div>
 
+                {{-- Thumbnail --}}
+                <div class="flex gap-3 mt-5 overflow-x-auto pb-2" id="thumbnailsContainer">
 
-
-                {{-- Gambar Thumbnail --}}
-                <div class="flex gap-2 sm:gap-3 md:gap-4 mt-3 sm:mt-4 overflow-x-auto pb-2" id="thumbnailsContainer">
                     @foreach ($produk->gambarProduks as $g)
                         <div data-index="{{ $loop->index }}"
-                            class="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 rounded-md sm:rounded-lg overflow-hidden flex-shrink-0 thumbnail-item cursor-pointer {{ $loop->iteration == $posisiGambarUtama ? 'border-2 border-green-500' : 'border border-gray-200' }}">
-                            <img src="{{ asset('storage/img/produk/' . $g->gambar) }}" class="w-full h-full object-cover"
-                                alt="gambar produk">
+                            class="thumbnail-item
+                   w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 cursor-pointer
+                   transition-all duration-300
+                   {{ $loop->iteration == $posisiGambarUtama
+                       ? 'border-2 border-green-500 shadow-lg'
+                       : 'border border-gray-200 hover:border-green-400 hover:shadow-md' }}">
+
+                            <img src="{{ asset('storage/img/produk/' . $g->gambar) }}"
+                                class="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                                alt="thumbnail">
                         </div>
                     @endforeach
                 </div>
 
+
             </div>
 
-            <!-- KOLOM KANAN (DETAIL PRODUK) -->
-            <div class="flex flex-col justify-start">
+            {{-- ================= KOLOM KANAN : DETAIL ================= --}}
+            <div class="flex flex-col">
 
                 {{-- Judul --}}
-                <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-green-900 mb-3 sm:mb-4">
+                <h1 class="text-3xl lg:text-4xl font-extrabold text-gray-900 mb-4">
                     {{ $produk->nama }}
                 </h1>
 
                 {{-- Deskripsi --}}
-                <p class="text-sm sm:text-base text-gray-700 leading-relaxed mb-4 sm:mb-6">
+                <p class="text-gray-700 leading-relaxed mb-6">
                     {{ $produk->deskripsi }}
                 </p>
 
-                {{-- Stok --}}
-                <p class="text-gray-700 text-base sm:text-lg mb-2 sm:mb-3">
-                    <span class="font-bold text-green-700">Stok:</span>
-                    {{ $produk->stok }} {{ $produk->satuan_produk }}
-                </p>
+                {{-- ================= VARIAN ================= --}}
+                <div class="mb-8">
+                    <h2 class="text-lg font-bold text-gray-900 mb-4">
+                        Varian Produk
+                    </h2>
 
-                {{-- Harga --}}
-                <p class="text-xl sm:text-2xl font-extrabold text-green-700 mb-6 sm:mb-8">
-                    Rp {{ number_format($produk->harga, 0, ',', '.') }},-
-                </p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        @forelse ($varians as $varian)
+                            <div
+                                class="group bg-white rounded-2xl border border-gray-100 shadow-lg hover:shadow-xl transition-all duration-300 p-4 flex gap-4">
 
-                {{-- Tombol Aksi --}}
-                <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                                {{-- Gambar --}}
+                                <div class="flex-shrink-0">
+                                    @if ($varian->gambar)
+                                        <img src="{{ asset('storage/img/varian/' . $varian->gambar) }}"
+                                            class="w-16 h-16 rounded-xl object-cover border shadow">
+                                    @else
+                                        <div
+                                            class="w-16 h-16 rounded-xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                                            <svg class="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24"
+                                                stroke="currentColor">
+                                                <rect x="3" y="3" width="18" height="18" rx="2" />
+                                            </svg>
+                                        </div>
+                                    @endif
+                                </div>
 
-                    {{-- Tombol Tambah Keranjang --}}
-                    <button id="openTambahKeranjang" data-price="{{ $produk->harga }}"
-                        class="flex items-center justify-center gap-2 bg-[#ff7700] text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg sm:rounded-xl hover:bg-[#e66a00] transition font-semibold shadow text-sm sm:text-base">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                            class="sm:w-[18px] sm:h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                            class="lucide lucide-shopping-cart">
-                            <circle cx="8" cy="21" r="1" />
-                            <circle cx="19" cy="21" r="1" />
-                            <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
-                        </svg>
-                        <span>Tambah Keranjang</span>
+                                {{-- Info --}}
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <p class="font-bold text-gray-900 truncate">
+                                            {{ $varian->nama }}
+                                        </p>
+
+                                        {{-- @if ($varian->is_default)
+                                            <span
+                                                class="text-xs font-semibold px-2 py-0.5 rounded bg-gradient-to-r from-green-600 to-emerald-500 text-white shadow">
+                                                Default
+                                            </span>
+                                        @endif --}}
+                                    </div>
+
+                                    <div class="text-sm text-gray-600 space-y-0.5">
+                                        <p class="font-semibold text-green-700">
+                                            Rp {{ number_format($varian->harga, 0, ',', '.') }}
+                                        </p>
+                                        <p>Stok: <span class="font-semibold">{{ $varian->stok }}</span></p>
+                                        <p>Berat: {{ $varian->berat ?? '-' }} g</p>
+                                    </div>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="col-span-2 text-center py-10 bg-white rounded-2xl border border-gray-100 shadow">
+                                <p class="text-gray-500 italic">
+                                    Tidak ada varian tersedia.
+                                </p>
+                            </div>
+                        @endforelse
+                    </div>
+                </div>
+
+                {{-- ================= AKSI ================= --}}
+                <div class="flex flex-col sm:flex-row gap-4">
+
+                    <button id="openTambahKeranjang"
+                        class="flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-xl
+                        bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold shadow-lg
+                        hover:from-orange-600 hover:to-orange-700 transition">
+                        🛒 Tambah Keranjang
                     </button>
 
-                    {{-- Tombol Beli Sekarang --}}
-                    <button id="openBeliSekarang" data-price="{{ $produk->harga }}"
-                        class="flex items-center justify-center gap-2 bg-[#2fca00] text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg sm:rounded-xl hover:bg-[#06b900] transition font-semibold shadow text-sm sm:text-base">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" class="sm:w-6 sm:h-6"
-                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                            stroke-linejoin="round" class="lucide lucide-wallet-icon lucide-wallet">
-                            <path
-                                d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1" />
-                            <path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4" />
-                        </svg>
-                        <span>Beli Sekarang</span>
+                    <button id="openBeliSekarang"
+                        class="flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-xl
+                        bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold shadow-lg
+                        hover:from-green-700 hover:to-emerald-700 transition">
+                        ⚡ Beli Sekarang
                     </button>
-
                 </div>
             </div>
-
         </div>
-
     </section>
 
     @include('user.produk.tambah-keranjang')
     @include('user.produk.beli-sekarang')
 
-    <!-- Detail Produk JavaScript -->
     @vite('resources/js/user/produk/detail.js')
     @vite('resources/js/user/produk/beli-sekarang.js')
 @endcomponent

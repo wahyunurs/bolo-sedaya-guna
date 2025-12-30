@@ -76,19 +76,11 @@
                                     </th>
                                     <th
                                         class="px-6 py-3 text-center text-sm font-medium uppercase tracking-wider border-b">
-                                        Harga
-                                    </th>
-                                    <th
-                                        class="px-6 py-3 text-center text-sm font-medium uppercase tracking-wider border-b">
-                                        Berat
-                                    </th>
-                                    <th
-                                        class="px-6 py-3 text-center text-sm font-medium uppercase tracking-wider border-b">
-                                        Stok
-                                    </th>
-                                    <th
-                                        class="px-6 py-3 text-center text-sm font-medium uppercase tracking-wider border-b">
                                         Satuan
+                                    </th>
+                                    <th
+                                        class="px-6 py-3 text-center text-sm font-medium uppercase tracking-wider border-b">
+                                        Varian
                                     </th>
                                     <th
                                         class="px-6 py-3 text-center text-sm font-medium uppercase tracking-wider border-b">
@@ -103,12 +95,16 @@
                                         </td>
                                         <td class="px-6 py-4 text-sm text-gray-700">
                                             @php $thumb = optional($produk->gambarProduks->first())->gambar; @endphp
-                                            <div class="w-16 h-16 rounded border flex items-center justify-center overflow-hidden bg-gray-50">
+                                            <div
+                                                class="w-16 h-16 rounded border flex items-center justify-center overflow-hidden bg-gray-50">
                                                 @if ($thumb)
                                                     <img src="{{ asset('/storage/img/produk/' . $thumb) }}"
                                                         alt="{{ $produk->nama }}" class="w-full h-full object-cover">
                                                 @else
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="32"
+                                                        height="32" viewBox="0 0 24 24" fill="none"
+                                                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                        stroke-linejoin="round" class="text-gray-400">
                                                         <path d="M12 3v12" />
                                                         <path d="m17 8-5-5-5 5" />
                                                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -117,10 +113,26 @@
                                             </div>
                                         </td>
                                         <td class="px-6 py-4 text-sm text-gray-700">{{ $produk->nama }}</td>
-                                        <td class="px-6 py-4 text-sm text-gray-700">{{ $produk->harga }}</td>
-                                        <td class="px-6 py-4 text-sm text-gray-700">{{ $produk->berat }} g</td>
-                                        <td class="px-6 py-4 text-sm text-gray-700">{{ $produk->stok }}</td>
                                         <td class="px-6 py-4 text-sm text-gray-700">{{ $produk->satuan_produk }}</td>
+                                        <td class="px-6 py-4 text-sm>{<div class="flex items-center justify-center">
+                                                <a href="{{ route('admin.produk.varian.index', $produk->id) }}"
+                                                    class="inline-flex items-center px-3 py-1 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold text-xs transition-all duration-200 shadow-sm border border-indigo-200 hover:border-indigo-400"
+                                                    title="Kelola Varian Produk">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16"
+                                                        height="16" fill="none" viewBox="0 0 24 24"
+                                                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                        stroke-linejoin="round" class="mr-1">
+                                                        <circle cx="12" cy="12" r="10" />
+                                                        <path d="m14.31 8 5.74 9.94" />
+                                                        <path d="M9.69 8h11.48" />
+                                                        <path d="m7.38 12 5.74-9.94" />
+                                                        <path d="M9.69 16 3.95 6.06" />
+                                                        <path d="M14.31 16H2.83" />
+                                                        <path d="m16.62 12-5.74 9.94" />
+                                                    </svg>
+                                                    Kelola Varian
+                                                </a>
+                                            </div></td>
                                         <td class="h-full px-6 py-4 text-sm text-gray-700">
                                             <div class="flex items-center justify-center space-x-4 h-full">
                                                 <!-- Tombol Show (button triggers AJAX modal) -->

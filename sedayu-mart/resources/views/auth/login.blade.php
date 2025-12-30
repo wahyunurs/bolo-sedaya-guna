@@ -1,25 +1,24 @@
 <!-- Auth Layout -->
 @extends('auth.components.layout')
+
 @section('content')
     <!-- Wrapper -->
-    <section class="min-h-screen flex items-center justify-center bg-[#e5ffda] px-4 sm:px-6 py-8 sm:py-12"
-        style="background-size: cover; background-position: center; background-repeat: no-repeat;">
+    <div class="min-h-screen h-screen flex items-center justify-center bg-[#e5ffda] overflow-hidden px-4 sm:px-6">
+
         <!-- Main container -->
-        <div
-            class="flex flex-col lg:flex-row w-full max-w-2xl lg:max-w-5xl bg-[#ffffff] rounded-2xl sm:rounded-3xl shadow-lg overflow-hidden">
-            <!-- Right side (image) - hidden on mobile, visible on lg -->
+        <div class="flex w-[900px] max-w-[95%] h-[80vh] bg-white rounded-3xl shadow-lg overflow-hidden">
+            <!-- Left side (image) - hidden on mobile, visible on lg -->
             <div
-                class="hidden lg:flex lg:w-1/2 items-center justify-center p-6 sm:p-8 bg-gradient-to-br from-green-50 to-green-100">
+                class="hidden lg:flex lg:w-1/2 min-h-full items-stretch justify-center p-0 bg-gradient-to-br from-green-50 to-green-100">
                 <div class="relative w-full h-full flex items-center justify-center">
-                    <div class="relative">
-                        <img src="{{ asset('img/card/auth.png') }}" alt="Login Illustration"
-                            class="rounded-2xl sm:rounded-3xl w-64 sm:w-72 lg:w-80 h-auto object-contain animate-blink-slow">
-                    </div>
+                    <img src="{{ asset('img/card/auth.png') }}" alt="Login Illustration"
+                        class="w-full h-full object-cover rounded-l-2xl sm:rounded-l-3xl rounded-tr-none rounded-br-none animate-blink-slow">
                 </div>
             </div>
 
-            <!-- Left side (form) - full width on mobile, half on lg -->
-            <div class="w-full lg:w-1/2 p-4 sm:p-6 lg:p-8 overflow-y-auto" style="direction: rtl;">
+            <!-- Right side (form) - full width on mobile, half on lg -->
+            <div class="w-full lg:w-1/2 p-4 sm:p-6 lg:p-8 overflow-y-auto min-h-full flex flex-col justify-center"
+                style="direction: rtl;">
                 <!-- Logo -->
                 <div class="flex items-center justify-center mb-3 sm:mb-4 gap-2 sm:gap-3">
                     <img src="{{ asset('img/logo/sedayumart.png') }}" alt="SedayuMart" class="w-8 sm:w-10 h-auto">
@@ -123,7 +122,7 @@
                     </div>
 
                     <!-- GOOGLE -->
-                    {{-- <div class="my-3 sm:my-4 flex items-center gap-2 sm:gap-3">
+                    <div class="my-3 sm:my-4 flex items-center gap-2 sm:gap-3">
                         <div class="flex-1 h-px bg-gray-300"></div>
                         <div class="text-center text-gray-500 text-xs sm:text-sm px-2">Atau masuk dengan</div>
                         <div class="flex-1 h-px bg-gray-300"></div>
@@ -136,7 +135,7 @@
                                 alt="google">
                             <span class="text-xs sm:text-sm text-gray-700">Masuk dengan Google</span>
                         </a>
-                    </div> --}}
+                    </div>
 
                     <div class="text-center mt-6 sm:mt-8 text-xs sm:text-sm text-gray-600">
                         Belum memiliki Akun? <a href="{{ route('register') }}"
@@ -146,6 +145,7 @@
             </div>
 
             @vite('resources/js/auth/login.js')
+
         </div>
-    </section>
-@endsection
+        </section>
+    @endsection

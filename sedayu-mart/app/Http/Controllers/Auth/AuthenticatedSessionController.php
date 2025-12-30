@@ -7,9 +7,12 @@ use Illuminate\View\View;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Http\RedirectResponse;
-use Laravel\Socialite\Facades\Socialite;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
+use Laravel\Socialite\Facades\Socialite;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Str;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -22,131 +25,123 @@ class AuthenticatedSessionController extends Controller
     }
 
     /**
-     * Handle an incoming authentication request.
+     * Handle login request (secured).
      */
     public function store(Request $request): RedirectResponse
     {
-        // Inline validate request
-        $validated = $request->validate([
-            'email' => ['required', 'string', 'email'],
+        $request->validate([
+            'email' => ['required', 'email'],
             'password' => ['required', 'string'],
         ]);
 
-        $email = (string) $validated['email'];
-        $password = (string) $validated['password'];
-        $remember = $request->boolean('remember');
+        $throttleKey = Str::lower($request->input('email')) . '|' . $request->ip();
 
-        // Check email existence first for specific error placement
-        $user = User::where('email', $email)->first();
-        if (! $user) {
+        // ⛔ Rate limit login
+        if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
             throw ValidationException::withMessages([
-                'email' => 'Email tidak terdaftar.',
+                'email' => __('Terlalu banyak percobaan login. Coba lagi beberapa saat.'),
             ]);
         }
 
-        if (! Auth::attempt(['email' => $email, 'password' => $password], $remember)) {
+        if (! Auth::attempt($request->only('email', 'password'))) {
+            RateLimiter::hit($throttleKey, 60);
+
             throw ValidationException::withMessages([
-                'password' => 'Kata sandi salah.',
+                'email' => __('Email atau kata sandi salah.'), // unified error
             ]);
         }
+
+        RateLimiter::clear($throttleKey);
 
         $request->session()->regenerate();
 
         $user = Auth::user();
-        $destination = $this->redirectForRole($user);
 
-        // Selalu arahkan sesuai role; abaikan intended URL yang bisa mengarah ke '/'
+        // ⛔ Optional: cek status user
+        if ($user->status === 'blokir') {
+            Auth::logout();
+            throw ValidationException::withMessages([
+                'email' => 'Akun Anda diblokir. Hubungi admin.',
+            ]);
+        }
+
         $request->session()->forget('url.intended');
 
-        return redirect()->to($destination);
+        return redirect()->to($this->redirectForRole($user));
     }
 
     /**
-     * Redirect the user to the Google authentication page.
+     * Redirect to Google OAuth.
      */
     public function redirect()
     {
-        return Socialite::driver('google')->redirect();
+        return Socialite::driver('google')
+            ->stateless()
+            ->redirect();
     }
 
     /**
-     * Handle callback from Google and authenticate the user locally.
+     * Handle Google OAuth callback.
      */
     public function callback(Request $request)
     {
         try {
-            $googleUser = Socialite::driver('google')->user();
-        } catch (\Exception $e) {
-            return redirect()->route('login')->with('error', 'Google authentication failed.');
+            $googleUser = Socialite::driver('google')
+                ->stateless()
+                ->user();
+        } catch (\Throwable $e) {
+            return redirect()->route('login')
+                ->withErrors(['email' => 'Login Google gagal.']);
         }
 
-        // find existing user by google_id or email, create if not found
-        $user = User::where('google_id', $googleUser->id)
-            ->orWhere('email', $googleUser->email)
-            ->first();
+        $user = User::where('email', $googleUser->email)->first();
 
         if (! $user) {
-            // Note: migration requires 'alamat' and 'nomor_telepon' non-nullable.
-            // Provide safe defaults here; consider making the columns nullable instead.
             $user = User::create([
                 'nama' => $googleUser->name,
                 'email' => $googleUser->email,
+                // 'password' => Hash::make(Str::random(32)), // important
+                'password' => Hash::make(Str::before($googleUser->email, '@')),
+                'role' => 'user',
                 'google_id' => $googleUser->id,
-                'google_token' => $googleUser->token,
-                'google_refresh_token' => $googleUser->refreshToken ?? null,
-                'avatar' => $googleUser->avatar ?? null,
-                'alamat' => '',
-                'nomor_telepon' => '',
+                'avatar' => $googleUser->avatar,
+                'status' => 'aktif',
             ]);
         } else {
-            // ensure google fields are set
-            $user->google_id = $googleUser->id;
-            $user->google_token = $googleUser->token;
-            $user->google_refresh_token = $googleUser->refreshToken ?? null;
-            // update avatar if provided by Google
-            if (! empty($googleUser->avatar)) {
-                $user->avatar = $googleUser->avatar;
-            }
-            $user->save();
+            $user->update([
+                'google_id' => $googleUser->id,
+                'avatar' => $googleUser->avatar ?? $user->avatar,
+            ]);
         }
 
-        Auth::login($user);
+        Auth::login($user, true);
 
-        $destination = $this->redirectForRole($user);
-        // Selalu arahkan sesuai role; abaikan intended URL yang bisa mengarah ke '/'
+        $request->session()->regenerate();
         $request->session()->forget('url.intended');
 
-        return redirect()->to($destination);
+        return redirect()->to($this->redirectForRole($user));
     }
 
     /**
-     * Return default redirect path based on role.
+     * Role-based redirect.
      */
     protected function redirectForRole(User $user): string
     {
-        $role = strtolower((string) $user->role);
-
-        if ($role === 'admin') {
-            return route('admin.dashboard');
-        }
-
-        if ($role === 'user') {
-            return route('user.beranda');
-        }
-
-        // fallback ke halaman guest jika role tidak dikenal
-        return route('guest.beranda');
+        return match ($user->role) {
+            'admin' => route('admin.dashboard'),
+            'user' => route('user.beranda'),
+            default => route('guest.beranda'),
+        };
     }
 
     /**
-     * Destroy an authenticated session.
+     * Logout.
      */
     public function destroy(Request $request): RedirectResponse
     {
-        Auth::guard('web')->logout();
+        Auth::logout();
 
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
 
         return redirect('/');

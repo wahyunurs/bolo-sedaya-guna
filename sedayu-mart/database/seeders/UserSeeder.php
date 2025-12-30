@@ -32,6 +32,8 @@ class UserSeeder extends Seeder
                 'role' => 'admin',
                 'avatar' => null,
                 'password' => Hash::make('password'),
+                'status' => 'aktif',
+                'onboarded' => true,
             ],
             [
                 'email' => 'test@gmail.com',
@@ -43,6 +45,8 @@ class UserSeeder extends Seeder
                 'role' => 'user',
                 'avatar' => null,
                 'password' => Hash::make('password'),
+                'status' => 'aktif',
+                'onboarded' => true,
             ],
         ];
 

@@ -26,6 +26,8 @@ return new class extends Migration
             $table->text('google_token')->nullable();
             $table->text('google_refresh_token')->nullable();
             $table->string('avatar')->nullable();
+            $table->enum('status', ['aktif', 'blokir'])->default('aktif');
+            $table->boolean('onboarded')->default(false);
             $table->rememberToken();
             $table->timestamps();
         });

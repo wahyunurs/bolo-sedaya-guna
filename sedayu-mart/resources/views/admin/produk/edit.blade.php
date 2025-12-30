@@ -53,33 +53,6 @@
                             placeholder="Masukkan nama produk">
                     </div>
 
-                    <!-- Harga -->
-                    <div>
-                        <label for="harga" class="block text-sm font-medium text-gray-700">Harga</label>
-                        <input type="number" name="harga" id="harga" required
-                            value="{{ old('harga', $produk->harga ?? '') }}"
-                            class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                            placeholder="Masukkan harga (tanpa pemisah)">
-                    </div>
-
-                    <!-- Berat -->
-                    <div>
-                        <label for="berat" class="block text-sm font-medium text-gray-700">Berat (gram)</label>
-                        <input type="number" name="berat" id="berat" required
-                            value="{{ old('berat', $produk->berat ?? '') }}"
-                            class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                            placeholder="Berat dalam gram">
-                    </div>
-
-                    <!-- Stok -->
-                    <div>
-                        <label for="stok" class="block text-sm font-medium text-gray-700">Stok</label>
-                        <input type="number" name="stok" id="stok" required
-                            value="{{ old('stok', $produk->stok ?? 0) }}"
-                            class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                            placeholder="Jumlah stok">
-                    </div>
-
                     <!-- Satuan -->
                     <div>
                         <label for="satuan_produk" class="block text-sm font-medium text-gray-700">Satuan</label>
@@ -162,9 +135,8 @@
                                             class="hapus-slot text-red-500 {{ $slotId ? '' : 'hidden' }}"
                                             data-slot="{{ $i }}"
                                             aria-label="Hapus slot {{ $i }}">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4"
-                                                viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                stroke-width="2">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24"
+                                                fill="none" stroke="currentColor" stroke-width="2">
                                                 <line x1="18" y1="6" x2="6" y2="18" />
                                                 <line x1="6" y1="6" x2="18" y2="18" />
                                             </svg>

@@ -152,76 +152,83 @@
                 @endphp
 
                 <div data-id="{{ $pesanan->id }}"
-                    class="pesanan-card bg-white rounded-xl sm:rounded-2xl shadow px-4 sm:px-6 lg:px-10 py-4 sm:py-6 grid grid-cols-1 lg:grid-cols-[22rem_minmax(0,1fr)_18rem] gap-4 lg:gap-x-4 items-start lg:items-center">
+                    class="pesanan-card bg-white rounded-xl sm:rounded-2xl shadow px-3 sm:px-4 lg:px-10 py-3 sm:py-4 lg:py-6 grid grid-cols-1 lg:grid-cols-[22rem_minmax(0,1fr)_18rem] gap-3 sm:gap-4 lg:gap-x-4 items-start lg:items-center">
 
                     <!-- KIRI -->
-                    <div class="flex items-start gap-6 self-start">
+                    <div class="flex items-start gap-2 sm:gap-3 lg:gap-6 self-start">
 
                         <!-- CHECKBOX -->
                         <input type="checkbox"
-                            class="pesanan-checkbox self-center w-7 h-7 rounded-lg {{ $isDisabled ? 'opacity-50 cursor-not-allowed' : '' }}"
+                            class="pesanan-checkbox self-center w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 rounded flex-shrink-0 {{ $isDisabled ? 'opacity-50 cursor-not-allowed' : '' }}"
                             value="{{ $pesanan->id }}" {{ $isDisabled ? 'disabled' : '' }}>
 
                         <!-- FOTO PRODUK -->
-                        <img src="{{ $imgPath }}" class="h-24 w-24 rounded-xl object-cover">
+                        <img src="{{ $imgPath }}"
+                            class="h-16 w-16 sm:h-20 sm:w-20 lg:h-24 lg:w-24 rounded-lg sm:rounded-xl object-cover flex-shrink-0">
 
                         <!-- INFO PESANAN -->
-                        <div>
-                            <p class="font-bold text-2xl text-gray-800 truncate max-w-[14rem]">
+                        <div class="flex-1 min-w-0">
+                            <p class="font-bold text-sm sm:text-lg lg:text-2xl text-gray-800 truncate">
                                 {{ optional($firstItem->produk)->nama ?? 'Produk' }}</p>
 
-                            <p class="text-gray-600 mt-1">
+                            <p class="text-xs sm:text-sm lg:text-base text-gray-600 mt-0.5 sm:mt-1">
                                 Jumlah: <span class="font-semibold">{{ $totalJumlah }}</span>
                                 {{ optional($firstItem->produk)->satuan_produk ?? '' }}
                             </p>
 
                             <!-- STATUS PESANAN -->
-                            <span class="inline-block mt-2 {{ $badgeClass }} font-semibold px-3 py-1 rounded-lg">
+                            <span
+                                class="inline-block mt-1 sm:mt-2 {{ $badgeClass }} font-semibold px-2 py-0.5 sm:px-3 sm:py-1 rounded text-xs sm:text-sm lg:text-base">
                                 {{ $pesanan->status ?? '-' }}
                             </span>
                         </div>
                     </div>
+
                     <!-- MIDDLE COLUMN: rejection message centered between left and right -->
-                    <div class="px-4 min-w-0 flex items-center border-l border-r border-gray-100">
+                    <div class="px-0 lg:px-4 min-w-0 flex items-center lg:border-l lg:border-r border-gray-100">
                         @if ($status === 'Ditolak')
                             <p
-                                class="text-sm text-red-600 font-medium text-left break-words break-all whitespace-normal max-w-full">
+                                class="text-xs sm:text-sm text-red-600 font-medium text-left break-words whitespace-normal w-full">
                                 Pesan: {{ $pesanan->keterangan ?? '-' }}</p>
                         @endif
                     </div>
 
                     <!-- KANAN (TOTAL HARGA + DELETE) -->
-                    <div class="flex items-center gap-10 justify-end">
+                    <div class="flex items-center gap-2 sm:gap-3 lg:gap-10 justify-between lg:justify-end">
 
                         <!-- TOTAL HARGA -->
-                        <p class="text-green-700 font-bold text-2xl whitespace-nowrap">
+                        <p class="text-green-700 font-bold text-base sm:text-xl lg:text-2xl whitespace-nowrap">
                             Rp {{ number_format($pesanan->total_bayar ?? 0, 0, ',', '.') }},-
                         </p>
 
-                        <!-- EDIT DELIVERY (visible only when Ditolak) -->
-                        @if ($status === 'Ditolak')
-                            <a href="{{ route('user.pesanan.edit', $pesanan->id) }}" title="Ubah pesanan"
-                                class="editDeliveryBtn p-2 rounded-lg text-blue-600 border border-blue-600 hover:bg-blue-600 hover:text-white transition mr-2 inline-flex items-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M12 20h9" />
-                                    <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
-                                </svg>
-                            </a>
-                        @endif
+                        <div class="flex items-center gap-1 sm:gap-2">
+                            <!-- EDIT DELIVERY (visible only when Ditolak) -->
+                            @if ($status === 'Ditolak')
+                                <a href="{{ route('user.pesanan.edit', $pesanan->id) }}" title="Ubah pesanan"
+                                    class="editDeliveryBtn p-1.5 sm:p-2 rounded-lg text-blue-600 border border-blue-600 hover:bg-blue-600 hover:text-white transition inline-flex items-center flex-shrink-0">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                        class="sm:w-5 sm:h-5 lg:w-5 lg:h-5" viewBox="0 0 24 24" fill="none"
+                                        stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <path d="M12 20h9" />
+                                        <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
+                                    </svg>
+                                </a>
+                            @endif
 
-                        <!-- ICON DELETE (opens confirmation modal) -->
-                        <button type="button" data-id="{{ $pesanan->id }}" {{ $isDisabled ? 'disabled' : '' }}
-                            class="singleDeleteBtn p-2 rounded-lg transition {{ $isDisabled ? 'text-gray-400 border-gray-200 cursor-not-allowed bg-transparent' : 'text-red-600 border border-red-600 hover:bg-red-600 hover:text-white' }}">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
-                                <path d="M3 6h18" />
-                                <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                            </svg>
-                        </button>
+                            <!-- ICON DELETE (opens confirmation modal) -->
+                            <button type="button" data-id="{{ $pesanan->id }}" {{ $isDisabled ? 'disabled' : '' }}
+                                class="singleDeleteBtn p-1.5 sm:p-2 rounded-lg transition flex-shrink-0 {{ $isDisabled ? 'text-gray-400 border-gray-200 cursor-not-allowed bg-transparent' : 'text-red-600 border border-red-600 hover:bg-red-600 hover:text-white' }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                    class="sm:w-5 sm:h-5 lg:w-6 lg:h-6" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" />
+                                    <path d="M3 6h18" />
+                                    <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                </svg>
+                            </button>
+                        </div>
 
                     </div>
                 </div>

@@ -75,7 +75,7 @@
                             <div class="flex-1">
                                 <a href="{{ route('user.produk.detail', $produk->id) }}"
                                     class="text-green-600 font-semibold text-xs sm:text-sm md:text-base">Rp
-                                    {{ number_format($produk->harga ?? 0, 0, ',', '.') }},-</a>
+                                    {{ number_format(optional($produk->varians->first())->harga ?? 0, 0, ',', '.') }},-</a>
                             </div>
                             <div>
                                 <button aria-label="show-modal" type="button"

@@ -27,9 +27,18 @@ class ProdukUserController extends Controller
 
         $search = $request->input('search');
 
-        $query = Produk::with(['gambarProduks' => function ($q) {
-            $q->where('utama', 1)->limit(1);
-        }]);
+        $query = Produk::with([
+            'gambarProduks' => function ($q) {
+                $q->where('utama', 1)->limit(1);
+            },
+            'varians' => function ($q) {
+                $q->where('is_default', 1)->limit(1);
+            },
+        ])
+            // hanya produk yang punya minimal satu varian stok >= 10
+            ->whereHas('varians', function ($q) {
+                $q->where('stok', '>=', 10);
+            });
 
         if ($search) {
             $query->where('nama', 'like', '%' . $search . '%');
@@ -52,11 +61,14 @@ class ProdukUserController extends Controller
 
         $produk = Produk::with('gambarProduks')->findOrFail($id);
 
+        $varians = $produk->varians()->get();
+
         $user = Auth::user();
 
         return view('user.produk.detail', [
             'produk' => $produk,
             'user' => $user,
+            'varians' => $varians,
         ]);
     }
 

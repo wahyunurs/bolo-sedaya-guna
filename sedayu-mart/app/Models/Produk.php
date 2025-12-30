@@ -13,18 +13,14 @@ class Produk extends Model
 
     protected $fillable = [
         'nama',
-        'harga',
-        'berat',
-        'stok',
         'satuan_produk',
         'deskripsi',
     ];
 
-    protected $casts = [
-        'harga' => 'integer',
-        'berat' => 'integer',
-        'stok' => 'integer',
-    ];
+    public function varians()
+    {
+        return $this->hasMany(Varian::class, 'produk_id');
+    }
 
     public function gambarProduks()
     {

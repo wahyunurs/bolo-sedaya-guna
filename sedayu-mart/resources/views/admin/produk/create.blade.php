@@ -53,40 +53,22 @@
                             placeholder="Masukkan nama produk">
                     </div>
 
-                    <!-- Harga -->
-                    <div>
-                        <label for="harga" class="block text-sm font-medium text-gray-700">Harga</label>
-                        <input type="number" name="harga" id="harga" required
-                            value="{{ old('harga', $produk->harga ?? '') }}"
-                            class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                            placeholder="Masukkan harga (tanpa pemisah)">
-                    </div>
-
-                    <!-- Berat -->
-                    <div>
-                        <label for="berat" class="block text-sm font-medium text-gray-700">Berat (gram)</label>
-                        <input type="number" name="berat" id="berat" required
-                            value="{{ old('berat', $produk->berat ?? '') }}"
-                            class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                            placeholder="Berat dalam gram">
-                    </div>
-
-                    <!-- Stok -->
-                    <div>
-                        <label for="stok" class="block text-sm font-medium text-gray-700">Stok</label>
-                        <input type="number" name="stok" id="stok" required
-                            value="{{ old('stok', $produk->stok ?? 0) }}"
-                            class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                            placeholder="Jumlah stok">
-                    </div>
-
                     <!-- Satuan -->
                     <div>
                         <label for="satuan_produk" class="block text-sm font-medium text-gray-700">Satuan</label>
-                        <input type="text" name="satuan_produk" id="satuan_produk" required
-                            value="{{ old('satuan_produk', $produk->satuan_produk ?? '') }}"
-                            class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                            placeholder="Contoh: Kg, Liter, Pcs">
+                        <select name="satuan_produk" id="satuan_produk" required
+                            class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                            @php
+                                $satuanOptions = ['Pcs', 'Kg', 'Gram', 'Liter', 'Ml'];
+                                $selectedSatuan = old('satuan_produk', $produk->satuan_produk ?? '');
+                            @endphp
+                            <option value="" disabled {{ $selectedSatuan == '' ? 'selected' : '' }}>Pilih satuan
+                            </option>
+                            @foreach ($satuanOptions as $opt)
+                                <option value="{{ $opt }}" {{ $selectedSatuan == $opt ? 'selected' : '' }}>
+                                    {{ $opt }}</option>
+                            @endforeach
+                        </select>
                     </div>
 
                     <!-- Deskripsi -->
@@ -128,9 +110,8 @@
 
                                     <div class="text-sm mt-2">
                                         <label class="inline-flex items-center">
-                                            <input type="radio" name="utama_gambar"
-                                                value="new_{{ $i }}" class="mr-2"
-                                                {{ $i === 0 ? 'checked' : '' }}>
+                                            <input type="radio" name="utama_gambar" value="new_{{ $i }}"
+                                                class="mr-2" {{ $i === 0 ? 'checked' : '' }}>
                                             Utama
                                         </label>
                                     </div>
@@ -150,9 +131,8 @@
                                             class="mx-auto mb-2 h-24 w-24 object-cover rounded" />
                                         <div class="text-sm">
                                             <label class="inline-flex items-center">
-                                                <input type="radio" name="utama_gambar"
-                                                    value="{{ $gambar->id }}" {{ $gambar->utama ? 'checked' : '' }}
-                                                    class="mr-2">
+                                                <input type="radio" name="utama_gambar" value="{{ $gambar->id }}"
+                                                    {{ $gambar->utama ? 'checked' : '' }} class="mr-2">
                                                 Utama
                                             </label>
                                         </div>
@@ -162,8 +142,21 @@
                         </div>
                     @endif
 
+                    <!-- Varian Produk (dinamis) -->
+                    <div id="varian-section">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Varian Produk</label>
+                        <!-- varian error removed -->
+                        <div id="varian-list">
+                            <!-- Varian form items will be inserted here by JS -->
+                        </div>
+                        <button type="button" id="add-varian-btn"
+                            class="mt-2 px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-sm">+ Tambah
+                            Varian</button>
+                        <p class="text-xs text-gray-500 mt-1">Setiap produk harus memiliki minimal 1 varian.</p>
+                    </div>
+
                     <!-- Tombol Submit -->
-                    <div class="flex justify-end space-x-4">
+                    <div class="flex justify-end space-x-4 mt-6">
                         <a href="{{ route('admin.produk.index') }}"
                             class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition duration-200">Batal</a>
                         <button type="submit"
@@ -180,3 +173,153 @@
 
 <!-- Create Produk JavaScript -->
 @vite('resources/js/admin/produk/create.js')
+<script>
+    // Dynamic varian form logic
+    document.addEventListener('DOMContentLoaded', function() {
+        const varianList = document.getElementById('varian-list');
+        const addBtn = document.getElementById('add-varian-btn');
+
+        // Template for a varian form group
+        function varianForm(idx, data = {}) {
+            // First varian: checked by default if not set
+            const checked = (typeof data.is_default !== 'undefined') ? data.is_default : (idx === 0);
+            return `
+                <div class="varian-item border rounded p-3 mb-3 relative bg-gray-50" data-index="${idx}">
+                    <div class="grid grid-cols-1 md:grid-cols-6 gap-2">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600">Nama Varian</label>
+                            <input type="text" name="varian[${idx}][nama]" required class="mt-1 block w-full p-2 border border-gray-300 rounded-md text-sm" placeholder="Contoh: Original" value="${data.nama || ''}">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600">Harga</label>
+                            <input type="number" name="varian[${idx}][harga]" required class="mt-1 block w-full p-2 border border-gray-300 rounded-md text-sm" placeholder="Harga" value="${data.harga || ''}">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600">Berat (gram)</label>
+                            <input type="number" name="varian[${idx}][berat]" required class="mt-1 block w-full p-2 border border-gray-300 rounded-md text-sm" placeholder="Berat" value="${data.berat || ''}">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600">Stok</label>
+                            <input type="number" name="varian[${idx}][stok]" required class="mt-1 block w-full p-2 border border-gray-300 rounded-md text-sm" placeholder="Stok" value="${data.stok || ''}">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600">Gambar Varian</label>
+                            <input type="file" name="varian_gambar[${idx}]" accept="image/*" class="mt-1 block w-full text-sm border border-gray-300 rounded-md">
+                        </div>
+                        <div class="flex flex-col items-center justify-center">
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Default?</label>
+                            <input type="hidden" name="varian[${idx}][is_default]" value="0">
+                            <input type="checkbox" class="is-default-checkbox" name="varian[${idx}][is_default]" value="1" ${checked ? 'checked' : ''}>
+                            <button type="button" class="remove-varian-btn mt-2 px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-xs" title="Hapus Varian">-</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // State: list of varian data
+        let varianData = [];
+
+        // Helper: get all current input values from DOM, and preserve file input nodes
+        function collectVarianInputs() {
+            const items = document.querySelectorAll('.varian-item');
+            let arr = [];
+            let fileInputs = [];
+            items.forEach((item, idx) => {
+                arr.push({
+                    nama: item.querySelector(`[name="varian[${idx}][nama]"]`)?.value || '',
+                    harga: item.querySelector(`[name="varian[${idx}][harga]"]`)?.value || '',
+                    berat: item.querySelector(`[name="varian[${idx}][berat]"]`)?.value || '',
+                    stok: item.querySelector(`[name="varian[${idx}][stok]"]`)?.value || '',
+                    is_default: item.querySelector(`[name="varian[${idx}][is_default]"]`)
+                        ?.checked || false
+                });
+                // Save file input node for this varian
+                const fileInput = item.querySelector(
+                    `[name="varian_gambar[${idx}]"], [name='varian_gambar[${idx}]']`);
+                fileInputs.push(fileInput ? fileInput : null);
+            });
+            return {
+                arr,
+                fileInputs
+            };
+        }
+
+        // Add a new varian form, preserving current input values and file inputs
+        function addVarian(data = {}) {
+            const {
+                arr,
+                fileInputs
+            } = collectVarianInputs();
+            varianData = arr;
+            varianFileInputs = fileInputs;
+            varianData.push(data);
+            varianFileInputs.push(null); // new varian, no file input yet
+            renderVarian();
+        }
+
+        // Remove a varian form by index, preserving current input values and file inputs
+        function removeVarian(idx) {
+            const {
+                arr,
+                fileInputs
+            } = collectVarianInputs();
+            varianData = arr;
+            varianFileInputs = fileInputs;
+            if (varianData.length <= 1) return; // minimal 1 varian
+            varianData.splice(idx, 1);
+            varianFileInputs.splice(idx, 1);
+            renderVarian();
+        }
+
+        // Render all varian forms, reattaching file input nodes
+        let varianFileInputs = [];
+
+        function renderVarian() {
+            varianList.innerHTML = '';
+            varianData.forEach((data, idx) => {
+                // Insert HTML for varian
+                varianList.insertAdjacentHTML('beforeend', varianForm(idx, data));
+            });
+            // Reattach file input nodes
+            varianData.forEach((data, idx) => {
+                if (varianFileInputs[idx]) {
+                    const wrapper = varianList.querySelector(
+                        `.varian-item[data-index='${idx}'] [name="varian_gambar[${idx}]"], .varian-item[data-index='${idx}'] [name='varian_gambar[${idx}]']`
+                    );
+                    if (wrapper && wrapper.parentNode) {
+                        wrapper.parentNode.replaceChild(varianFileInputs[idx], wrapper);
+                    }
+                }
+            });
+            // Attach remove event
+            document.querySelectorAll('.remove-varian-btn').forEach((btn, i) => {
+                btn.onclick = function() {
+                    removeVarian(i);
+                };
+            });
+            // Attach single-check logic for is_default checkboxes
+            varianList.querySelectorAll('.is-default-checkbox').forEach((cb, i, arr) => {
+                cb.onchange = function() {
+                    if (cb.checked) {
+                        arr.forEach((other, j) => {
+                            if (other !== cb) other.checked = false;
+                        });
+                    }
+                };
+            });
+        }
+
+        // Initial: at least 1 varian
+        if (varianData.length === 0) {
+            addVarian();
+        }
+
+        addBtn.onclick = function(e) {
+            e.stopPropagation();
+            addVarian();
+        };
+
+        // varian error validation removed
+    });
+</script>

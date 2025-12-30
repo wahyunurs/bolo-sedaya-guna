@@ -69,18 +69,20 @@
                             </div>
 
                             <!-- KUANTITAS + SUBTOTAL -->
-                            <div class="flex flex-col items-end gap-1.5 sm:gap-2">
-                                <div class="flex items-center gap-1">
-                                    <span class="text-xs sm:text-sm text-gray-700">Jumlah : </span>
+                            <div class="ml-auto flex flex-col items-end gap-2">
+                                <div class="flex items-center gap-1 flex-col sm:flex-row">
+                                    <span class="text-sm text-gray-700">Jumlah : </span>
 
-                                    <button type="button" id="decreaseBtn"
-                                        class="w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center bg-gray-100 rounded-sm text-green-700 hover:bg-gray-200 text-xs">-</button>
+                                    <div class="flex flex-row">
+                                        <button type="button" id="decreaseBtn"
+                                            class="w-6 h-6 flex items-center justify-center bg-gray-100 rounded-sm text-green-700 hover:bg-gray-200 text-xs">-</button>
 
-                                    <input type="text" id="kuantitasInput" value="{{ $kuantitas }}"
-                                        class="w-10 sm:w-12 text-center p-0.5 border rounded-sm text-xs sm:text-sm" />
+                                        <input type="text" id="kuantitasInput" value="{{ $kuantitas }}"
+                                            class="w-10 sm:w-12 text-center p-0.5 border rounded-sm text-xs sm:text-sm" />
 
-                                    <button type="button" id="increaseBtn"
-                                        class="w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center bg-gray-100 rounded-sm text-green-700 hover:bg-gray-200 text-xs">+</button>
+                                        <button type="button" id="increaseBtn"
+                                            class="w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center bg-gray-100 rounded-sm text-green-700 hover:bg-gray-200 text-xs">+</button>
+                                    </div>
                                 </div>
 
                                 {{-- Error message shown under jumlah when stok tidak mencukupi or other modal errors --}}
@@ -130,7 +132,8 @@
                             Ubah Alamat
                         </button>
 
-                        <h3 class="font-bold text-green-800 text-base sm:text-lg mb-2 pr-20 sm:pr-24">Alamat Pengiriman</h3>
+                        <h3 class="font-bold text-green-800 text-base sm:text-lg mb-2 pr-20 sm:pr-24">Alamat Pengiriman
+                        </h3>
 
                         <p class="text-sm sm:text-base text-gray-800 font-medium break-words">{{ $alamat_tujuan }}</p>
                         <p class="text-xs sm:text-sm text-gray-600 mt-1">{{ $kabupaten_tujuan }}</p>
@@ -143,7 +146,8 @@
 
                     <!-- RINGKASAN TOTAL -->
                     <div class="p-3 sm:p-4 mt-4 sm:mt-6 lg:mt-8 border rounded-lg sm:rounded-xl bg-gray-50">
-                        <h3 class="font-extrabold text-base sm:text-lg text-green-800 mb-3 sm:mb-4">Ringkasan Pesanan</h3>
+                        <h3 class="font-extrabold text-base sm:text-lg text-green-800 mb-3 sm:mb-4">Ringkasan Pesanan
+                        </h3>
 
                         <div class="mb-2 sm:mb-3 flex justify-between text-sm sm:text-base text-gray-700">
                             <span>Subtotal produk</span>
@@ -197,8 +201,10 @@
                         <div class="grid grid-cols-1 gap-2 sm:gap-3">
                             @forelse ($rekening as $rek)
                                 <div class="border rounded-lg p-2.5 sm:p-3 bg-gray-50">
-                                    <p class="font-semibold text-sm sm:text-base text-green-900">{{ $rek->nama_bank }}</p>
-                                    <p class="text-xs sm:text-sm text-gray-800">No. Rekening: {{ $rek->nomor_rekening }}
+                                    <p class="font-semibold text-sm sm:text-base text-green-900">{{ $rek->nama_bank }}
+                                    </p>
+                                    <p class="text-xs sm:text-sm text-gray-800">No. Rekening:
+                                        {{ $rek->nomor_rekening }}
                                     </p>
                                     <p class="text-xs sm:text-sm text-gray-600">a.n. {{ $rek->atas_nama }}</p>
                                 </div>

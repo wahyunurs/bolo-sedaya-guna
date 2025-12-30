@@ -11,11 +11,11 @@ use App\Http\Controllers\Guest\GuestController;
 /*
 * ADMIN CONTROLLERS
 */
+use App\Http\Controllers\User\OnboardingController;
 use App\Http\Controllers\User\ProdukUserController;
-use App\Http\Controllers\Admin\PenggunaAdminController;
-use App\Http\Controllers\Admin\RekeningAdminController;
-use App\Http\Controllers\Admin\DashboardAdminController;
-use App\Http\Controllers\Admin\TarifPengirimanAdminController;
+use App\Http\Controllers\User\ProfilUserController;
+use App\Http\Controllers\User\BerandaUserController;
+use App\Http\Controllers\User\PesananUserController;
 use App\Http\Controllers\Admin\ProdukAdminController;
 use App\Http\Controllers\Admin\ProfilAdminController;
 use App\Http\Controllers\Admin\PesananAdminController;
@@ -23,10 +23,11 @@ use App\Http\Controllers\Admin\PesananAdminController;
 /*
 * USER CONTROLLERS
 */
-use App\Http\Controllers\User\ProfilUserController;
-use App\Http\Controllers\User\BerandaUserController;
-use App\Http\Controllers\User\PesananUserController;
 use App\Http\Controllers\User\KeranjangUserController;
+use App\Http\Controllers\Admin\PenggunaAdminController;
+use App\Http\Controllers\Admin\RekeningAdminController;
+use App\Http\Controllers\Admin\DashboardAdminController;
+use App\Http\Controllers\Admin\TarifPengirimanAdminController;
 
 require __DIR__ . '/auth.php';
 
@@ -61,6 +62,14 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
             Route::get('/edit/{id}', [ProdukAdminController::class, 'edit'])->name('admin.produk.edit');
             Route::put('/update/{id}', [ProdukAdminController::class, 'update'])->name('admin.produk.update');
             Route::delete('/destroy/{id}', [ProdukAdminController::class, 'destroy'])->name('admin.produk.destroy');
+
+            // Varian Produk
+            Route::prefix('varian-produk')->group(function () {
+                Route::get('/{produkId}/varian', [ProdukAdminController::class, 'indexVarian'])->name('admin.produk.varian.index');
+                Route::post('/{produkId}/varian', [ProdukAdminController::class, 'storeVarian'])->name('admin.produk.varian.store');
+                Route::put('/{produkId}/varian/{varianId}', [ProdukAdminController::class, 'updateVarian'])->name('admin.produk.varian.update');
+                Route::delete('/{produkId}/varian/{varianId}', [ProdukAdminController::class, 'destroyVarian'])->name('admin.produk.varian.destroy');
+            });
         });
 
         // Pesanan
@@ -104,67 +113,81 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 * USER ROUTES
 */
 Route::middleware(['auth', 'role:user'])->group(function () {
-    Route::prefix('user')->group(function () {
+    // Onboarding
+    Route::prefix('onboarding')->group(function () {
 
-        // Beranda
-        Route::get('/', [BerandaUserController::class, 'index'])->name('user.beranda');
+        // 1️⃣ Tampilkan form onboarding
+        Route::get('/', [OnboardingController::class, 'index'])
+            ->name('user.onboarding');
 
-        // Produk
-        Route::prefix('produk')->group(function () {
-            Route::get('/checkout', [ProdukUserController::class, 'checkout'])
-                ->name('user.produk.checkout');
-            Route::post('/bayar-sekarang', [ProdukUserController::class, 'bayarSekarang'])
-                ->name('user.produk.bayarSekarang');
-            Route::post('/beli-sekarang', [ProdukUserController::class, 'beliSekarang'])
-                ->name('user.produk.beliSekarang');
-            Route::get('/', [ProdukUserController::class, 'index'])
-                ->name('user.produk.index');
-            Route::get('/detail/{id}', [ProdukUserController::class, 'detail'])
-                ->name('user.produk.detail');
-            Route::post('/tambah-keranjang', [ProdukUserController::class, 'tambahKeranjang'])
-                ->name('user.produk.tambahKeranjang');
-        });
+        // 2️⃣ Submit data onboarding
+        Route::post('/', [OnboardingController::class, 'store'])
+            ->name('user.onboarding.store');
+    });
 
-        // Keranjang
-        Route::prefix('keranjang')->group(function () {
-            Route::get('/', [KeranjangUserController::class, 'index'])
-                ->name('user.keranjang.index');
-            Route::post('/select-destroy', [KeranjangUserController::class, 'selectDestroy'])
-                ->name('user.keranjang.selectDestroy');
-            Route::post('/update', [KeranjangUserController::class, 'update'])
-                ->name('user.keranjang.update');
-            Route::delete('/destroy/{id}', [KeranjangUserController::class, 'destroy'])
-                ->name('user.keranjang.destroy');
-            Route::post('/checkout', [KeranjangUserController::class, 'checkout'])
-                ->name('user.keranjang.checkout');
-        });
+    Route::middleware('onboarded.web')->group(function () {
+        Route::prefix('user')->group(function () {
 
-        // Pesanan
-        Route::prefix('pesanan')->group(function () {
-            Route::get('/', [PesananUserController::class, 'index'])
-                ->name('user.pesanan.index');
-            Route::post('/select-destroy', [PesananUserController::class, 'selectDestroy'])
-                ->name('user.pesanan.selectDestroy');
-            Route::delete('/destroy/{id}', [PesananUserController::class, 'destroy'])
-                ->name('user.pesanan.destroy');
-            Route::get('/{id}', [PesananUserController::class, 'show'])
-                ->name('user.pesanan.show');
-            // Edit pesanan (show edit form)
-            Route::get('/{id}/edit', [PesananUserController::class, 'edit'])
-                ->name('user.pesanan.edit');
-            // Update pesanan (address, bukti_pembayaran, catatan, item quantities)
-            Route::put('/{id}', [PesananUserController::class, 'update'])
-                ->name('user.pesanan.update');
-        });
+            // Beranda
+            Route::get('/', [BerandaUserController::class, 'index'])->name('user.beranda');
 
-        // Profil
-        Route::prefix('profil')->group(function () {
-            Route::get('/edit', [ProfilUserController::class, 'edit'])
-                ->name('user.profil.edit');
-            Route::put('/update', [ProfilUserController::class, 'update'])
-                ->name('user.profil.update');
-            Route::get('/', [ProfilUserController::class, 'index'])
-                ->name('user.profil.index');
+            // Produk
+            Route::prefix('produk')->group(function () {
+                Route::get('/checkout', [ProdukUserController::class, 'checkout'])
+                    ->name('user.produk.checkout');
+                Route::post('/bayar-sekarang', [ProdukUserController::class, 'bayarSekarang'])
+                    ->name('user.produk.bayarSekarang');
+                Route::post('/beli-sekarang', [ProdukUserController::class, 'beliSekarang'])
+                    ->name('user.produk.beliSekarang');
+                Route::get('/', [ProdukUserController::class, 'index'])
+                    ->name('user.produk.index');
+                Route::get('/detail/{id}', [ProdukUserController::class, 'detail'])
+                    ->name('user.produk.detail');
+                Route::post('/tambah-keranjang', [ProdukUserController::class, 'tambahKeranjang'])
+                    ->name('user.produk.tambahKeranjang');
+            });
+
+            // Keranjang
+            Route::prefix('keranjang')->group(function () {
+                Route::get('/', [KeranjangUserController::class, 'index'])
+                    ->name('user.keranjang.index');
+                Route::post('/select-destroy', [KeranjangUserController::class, 'selectDestroy'])
+                    ->name('user.keranjang.selectDestroy');
+                Route::post('/update', [KeranjangUserController::class, 'update'])
+                    ->name('user.keranjang.update');
+                Route::delete('/destroy/{id}', [KeranjangUserController::class, 'destroy'])
+                    ->name('user.keranjang.destroy');
+                Route::get('/checkout', [KeranjangUserController::class, 'checkout'])
+                    ->name('user.keranjang.checkout');
+            });
+
+            // Pesanan
+            Route::prefix('pesanan')->group(function () {
+                Route::get('/', [PesananUserController::class, 'index'])
+                    ->name('user.pesanan.index');
+                Route::post('/select-destroy', [PesananUserController::class, 'selectDestroy'])
+                    ->name('user.pesanan.selectDestroy');
+                Route::delete('/destroy/{id}', [PesananUserController::class, 'destroy'])
+                    ->name('user.pesanan.destroy');
+                Route::get('/{id}', [PesananUserController::class, 'show'])
+                    ->name('user.pesanan.show');
+                // Edit pesanan (show edit form)
+                Route::get('/{id}/edit', [PesananUserController::class, 'edit'])
+                    ->name('user.pesanan.edit');
+                // Update pesanan (address, bukti_pembayaran, catatan, item quantities)
+                Route::put('/{id}', [PesananUserController::class, 'update'])
+                    ->name('user.pesanan.update');
+            });
+
+            // Profil
+            Route::prefix('profil')->group(function () {
+                Route::get('/edit', [ProfilUserController::class, 'edit'])
+                    ->name('user.profil.edit');
+                Route::put('/update', [ProfilUserController::class, 'update'])
+                    ->name('user.profil.update');
+                Route::get('/', [ProfilUserController::class, 'index'])
+                    ->name('user.profil.index');
+            });
         });
     });
 });

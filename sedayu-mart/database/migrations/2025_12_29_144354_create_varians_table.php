@@ -11,11 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('produk', function (Blueprint $table) {
+        Schema::create('varian', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('produk_id')->constrained('produk')->onDelete('cascade');
+            $table->string('gambar')->nullable();
             $table->string('nama');
-            $table->enum('satuan_produk', ['Pcs', 'Kg', 'Gram', 'Liter', 'Ml']);
-            $table->text('deskripsi')->nullable();
+            $table->integer('harga');
+            $table->integer('berat'); // dalam gram per varian produk
+            $table->integer('stok');
+            $table->boolean('is_default')->default(false);
             $table->timestamps();
         });
     }
@@ -25,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('produk');
+        Schema::dropIfExists('varian');
     }
 };

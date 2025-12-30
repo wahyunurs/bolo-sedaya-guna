@@ -21,7 +21,7 @@
                 <!-- Avatar on the right -->
                 <div class="absolute right-3 sm:right-4 lg:right-6 top-1/2 -translate-y-1/2 flex items-center">
                     @if (!empty($user->avatar))
-                        <img src="{{ asset('storage/' . $user->avatar) }}" alt="avatar"
+                        <img src="{{ asset('storage/img/avatars' . $user->avatar) }}" alt="avatar"
                             class="w-16 h-16 sm:w-20 sm:h-20 lg:w-28 lg:h-28 rounded-full object-cover border-2 sm:border-3 lg:border-4 border-white shadow-lg">
                     @else
                         <div

@@ -159,8 +159,9 @@
                                 </button>
 
                                 <!-- ICON KERANJANG -->
-                                <button
-                                    class="p-1.5 sm:p-2 rounded text-green-700 border border-green-700 hover:bg-green-700 hover:text-white transition">
+                                <a href="{{ route('user.keranjang.checkout', ['keranjang_id' => $keranjang->id]) }}"
+                                    class="p-1.5 sm:p-2 rounded text-green-700 border border-green-700 hover:bg-green-700 hover:text-white transition"
+                                    aria-label="Checkout item">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                                         class="sm:w-5 sm:h-5 lg:w-6 lg:h-6" viewBox="0 0 24 24" fill="none"
                                         stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -171,7 +172,7 @@
                                         <path
                                             d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" />
                                     </svg>
-                                </button>
+                                </a>
                             </div>
                         </div>
                     </div>

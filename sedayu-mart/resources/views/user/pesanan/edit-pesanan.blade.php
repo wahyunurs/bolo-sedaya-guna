@@ -53,35 +53,41 @@
                                     ? asset('storage/img/produk/' . $gambar)
                                     : asset('img/card/produk1.png');
                             @endphp
-                            <div class="flex items-center gap-4 mb-4">
+                            <div class="flex items-center gap-4 mb-4 last:mb-0">
+                                <!-- GAMBAR PRODUK -->
                                 <div class="w-24 h-24 bg-gray-50 rounded-lg overflow-hidden flex-shrink-0">
                                     <img src="{{ $imgPath }}" alt="{{ $produk->nama }}"
                                         class="w-full h-full object-cover">
                                 </div>
+
+                                <!-- INFO PRODUK -->
                                 <div class="flex-1">
                                     <p class="font-semibold text-green-900">{{ $produk->nama }}</p>
                                     <p class="text-sm text-gray-600">Rp
                                         {{ number_format($item->harga_saat_pemesanan ?? ($produk->harga ?? 0), 0, ',', '.') }},-
                                     </p>
                                 </div>
+
                                 <!-- KUANTITAS + SUBTOTAL -->
                                 <div class="ml-auto flex flex-col items-end gap-2">
-                                    <div class="flex items-center gap-1">
+                                    <div class="flex items-center gap-1 flex-col sm:flex-row">
                                         <span class="text-sm text-gray-700">Jumlah : </span>
 
-                                        <button type="button"
-                                            class="decreaseBtn w-6 h-6 flex items-center justify-center bg-gray-100 rounded-sm text-green-700 hover:bg-gray-200 text-xs">-</button>
+                                        <div class="flex flex-row">
+                                            <button type="button"
+                                                class="decreaseBtn w-6 h-6 flex items-center justify-center bg-gray-100 rounded-sm text-green-700 hover:bg-gray-200 text-xs">-</button>
 
-                                        <input type="text" inputmode="numeric" pattern="[0-9]*"
-                                            name="items[{{ $item->id }}][kuantitas]" value="{{ $item->kuantitas }}"
-                                            class="qty-input w-16 text-center p-1 border rounded-sm text-sm"
-                                            data-item-id="{{ $item->id }}"
-                                            data-price="{{ $item->harga_saat_pemesanan ?? ($produk->harga ?? 0) }}"
-                                            data-weight="{{ $produk->berat ?? 0 }}"
-                                            oninput="this.value = this.value.replace(/[^0-9]/g, ''); if (this.value === '') this.value = 1;" />
+                                            <input type="text" inputmode="numeric" pattern="[0-9]*"
+                                                name="items[{{ $item->id }}][kuantitas]" value="{{ $item->kuantitas }}"
+                                                class="qty-input w-12 text-center p-0.5 border rounded-sm text-sm"
+                                                data-item-id="{{ $item->id }}"
+                                                data-price="{{ $item->harga_saat_pemesanan ?? ($produk->harga ?? 0) }}"
+                                                data-weight="{{ $produk->berat ?? 0 }}"
+                                                oninput="this.value = this.value.replace(/[^0-9]/g, ''); if (this.value === '') this.value = 1;" />
 
-                                        <button type="button"
-                                            class="increaseBtn w-6 h-6 flex items-center justify-center bg-gray-100 rounded-sm text-green-700 hover:bg-gray-200 text-xs">+</button>
+                                            <button type="button"
+                                                class="increaseBtn w-6 h-6 flex items-center justify-center bg-gray-100 rounded-sm text-green-700 hover:bg-gray-200 text-xs">+</button>
+                                        </div>
                                     </div>
 
                                     <div class="text-right">
@@ -92,6 +98,7 @@
                                     </div>
                                 </div>
                             </div>
+
                             <input type="hidden" name="items[{{ $item->id }}][id]" value="{{ $item->id }}">
                             <input type="hidden" name="items[{{ $item->id }}][harga_saat_pemesanan]"
                                 value="{{ $item->harga_saat_pemesanan }}">
