@@ -132,13 +132,6 @@
                                         <p class="font-bold text-gray-900 truncate">
                                             {{ $varian->nama }}
                                         </p>
-
-                                        {{-- @if ($varian->is_default)
-                                            <span
-                                                class="text-xs font-semibold px-2 py-0.5 rounded bg-gradient-to-r from-green-600 to-emerald-500 text-white shadow">
-                                                Default
-                                            </span>
-                                        @endif --}}
                                     </div>
 
                                     <div class="text-sm text-gray-600 space-y-0.5">
@@ -146,10 +139,21 @@
                                             Rp {{ number_format($varian->harga, 0, ',', '.') }}
                                         </p>
                                         <p>Stok: <span class="font-semibold">{{ $varian->stok }}</span></p>
-                                        <p>Berat: {{ $varian->berat ?? '-' }} g</p>
                                     </div>
                                 </div>
                             </div>
+
+                            <!-- Incluede Tambah Keranjang Modal -->
+                            @include('user.produk.detail.tambah-keranjang', [
+                                'produk' => $produk,
+                                'varian' => $varian,
+                            ])
+
+                            <!-- Include Beli Sekarang Modal -->
+                            @include('user.produk.detail.beli-sekarang', [
+                                'produk' => $produk,
+                                'varian' => $varian,
+                            ])
                         @empty
                             <div class="col-span-2 text-center py-10 bg-white rounded-2xl border border-gray-100 shadow">
                                 <p class="text-gray-500 italic">
@@ -163,14 +167,16 @@
                 {{-- ================= AKSI ================= --}}
                 <div class="flex flex-col sm:flex-row gap-4">
 
-                    <button id="openTambahKeranjang"
+                    <button type="button" data-modal-target="tambah-keranjang-modal-{{ $produk->id }}"
+                        data-modal-toggle="tambah-keranjang-modal-{{ $produk->id }}" title="Tambah Keranjang"
                         class="flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-xl
                         bg-gradient-to-r from-orange-500 to-orange-600 text-white font-semibold shadow-lg
                         hover:from-orange-600 hover:to-orange-700 transition">
                         🛒 Tambah Keranjang
                     </button>
 
-                    <button id="openBeliSekarang"
+                    <button type="button" data-modal-target="beli-sekarang-modal-{{ $produk->id }}"
+                        data-modal-toggle="beli-sekarang-modal-{{ $produk->id }}" title="Beli Sekarang"
                         class="flex-1 flex items-center justify-center gap-2 px-6 py-3 rounded-xl
                         bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold shadow-lg
                         hover:from-green-700 hover:to-emerald-700 transition">
@@ -180,10 +186,4 @@
             </div>
         </div>
     </section>
-
-    @include('user.produk.tambah-keranjang')
-    @include('user.produk.beli-sekarang')
-
-    @vite('resources/js/user/produk/detail.js')
-    @vite('resources/js/user/produk/beli-sekarang.js')
 @endcomponent

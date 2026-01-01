@@ -17,7 +17,7 @@ class AlamatPengiriman extends Model
         'provinsi',
         'kode_pos',
         'keterangan',
-        'is_default',
+        'utama',
     ];
 
     // Relasi dengan User

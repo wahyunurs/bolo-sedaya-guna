@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('provinsi');
             $table->string('kode_pos')->nullable();
             $table->longText('keterangan')->nullable();
-            $table->boolean('is_default')->default(false);
+            $table->boolean('utama')->default(false);
             $table->timestamps();
         });
     }

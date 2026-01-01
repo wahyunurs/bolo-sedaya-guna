@@ -15,11 +15,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('produk_id')->constrained('produk')->onDelete('cascade');
+            $table->foreignId('varian_id')->constrained('varian')->onDelete('cascade');
             $table->integer('kuantitas')->default(1);
-            $table->decimal('subtotal', 15, 2);
+            $table->integer('subtotal');
             $table->timestamps();
-
-            $table->unique(['user_id', 'produk_id']);
         });
     }
 
@@ -28,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('keranjang');
+        Schema::dropIfExists('keranjangs');
     }
 };

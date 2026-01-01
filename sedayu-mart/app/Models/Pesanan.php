@@ -18,6 +18,7 @@ class Pesanan extends Model
         'ongkir',
         'subtotal_produk',
         'total_bayar',
+        'rekening_id',
         'bukti_pembayaran',
         'status',
         'catatan',
@@ -27,6 +28,11 @@ class Pesanan extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function rekening()
+    {
+        return $this->belongsTo(Rekening::class, 'rekening_id');
     }
 
     public function items()

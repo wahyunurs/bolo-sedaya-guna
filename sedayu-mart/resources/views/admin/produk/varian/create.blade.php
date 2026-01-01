@@ -232,12 +232,12 @@
                                     Sebagai Default</label>
                                 <div class="flex items-center gap-4">
                                     <label class="flex items-center cursor-pointer">
-                                        <input type="radio" name="is_default" value="1"
+                                        <input type="radio" name="is_default" value="1" checked
                                             class="w-4 h-4 text-blue-600 focus:ring-2 focus:ring-blue-500">
                                         <span class="ml-2 text-sm text-gray-700">Ya</span>
                                     </label>
                                     <label class="flex items-center cursor-pointer">
-                                        <input type="radio" name="is_default" value="0" checked
+                                        <input type="radio" name="is_default" value="0" 
                                             class="w-4 h-4 text-blue-600 focus:ring-2 focus:ring-blue-500">
                                         <span class="ml-2 text-sm text-gray-700">Tidak</span>
                                     </label>

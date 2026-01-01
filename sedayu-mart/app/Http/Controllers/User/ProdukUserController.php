@@ -12,6 +12,7 @@ use App\Models\TarifPengiriman;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use App\Models\Varian;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
@@ -46,8 +47,11 @@ class ProdukUserController extends Controller
 
         $produks = $query->get();
 
+        $varians = Varian::whereIn('produk_id', $produks->pluck('id'))->get()->groupBy('produk_id');
+
         return view('user.produk.index', [
             'produks' => $produks,
+            'varians' => $varians,
             'user' => $user,
             'search' => $search,
         ]);
@@ -65,7 +69,7 @@ class ProdukUserController extends Controller
 
         $user = Auth::user();
 
-        return view('user.produk.detail', [
+        return view('user.produk.detail.index', [
             'produk' => $produk,
             'user' => $user,
             'varians' => $varians,
@@ -76,34 +80,37 @@ class ProdukUserController extends Controller
     {
         $request->validate([
             'produk_id' => 'required',
+            'varian_id' => 'required',
             'jumlah' => 'required|integer|min:1',
+            'subtotal' => 'required|integer|min:0',
         ]);
-
-        if (Auth::user()->role !== 'user') {
-            return redirect('/')->with('error', 'Akses ditolak.');
-        }
 
         $userId = Auth::id();
         $produkId = $request->produk_id;
+        $varianId = $request->varian_id;
         $jumlah = (int) $request->jumlah;
+        $subtotal = (int) $request->subtotal;
 
         try {
-            DB::transaction(function () use ($userId, $produkId, $jumlah) {
+            DB::transaction(function () use ($userId, $produkId, $varianId, $jumlah, $subtotal) {
                 // Lock produk row for update to avoid race conditions
                 $produk = Produk::where('id', $produkId)->lockForUpdate()->first();
+                $varian = Varian::where('id', $varianId)->lockForUpdate()->first();
 
                 if (! $produk) {
                     throw new \Exception('Produk tidak ditemukan.');
                 }
-
-                if ($produk->stok < $jumlah) {
-                    throw new \Exception('Stok produk tidak mencukupi.');
+                if (! $varian) {
+                    throw new \Exception('Varian tidak ditemukan.');
                 }
 
-                $subtotal = $produk->harga * $jumlah;
+                if ($varian->stok < $jumlah) {
+                    throw new \Exception('Stok varian tidak mencukupi.');
+                }
 
                 $keranjang = Keranjang::where('user_id', $userId)
                     ->where('produk_id', $produkId)
+                    ->where('varian_id', $varianId)
                     ->first();
 
                 if ($keranjang) {
@@ -114,14 +121,15 @@ class ProdukUserController extends Controller
                     Keranjang::create([
                         'user_id' => $userId,
                         'produk_id' => $produkId,
+                        'varian_id' => $varianId,
                         'kuantitas' => $jumlah,
                         'subtotal' => $subtotal,
                     ]);
                 }
 
-                // Kurangi stok produk
-                $produk->stok = max(0, $produk->stok - $jumlah);
-                $produk->save();
+                // Kurangi stok varian
+                $varian->stok = max(0, $varian->stok - $jumlah);
+                $varian->save();
             });
 
             return redirect()->back()->with('success', 'Produk berhasil ditambahkan ke keranjang!');
@@ -135,25 +143,27 @@ class ProdukUserController extends Controller
         // Validasi input
         $request->validate([
             'produk_id' => 'required',
-            'kuantitas' => 'required|integer|min:1',
+            'varian_id' => 'required',
+            'jumlah' => 'required|integer|min:1',
+            'subtotal' => 'required|integer|min:0',
         ]);
-
-        // Cek role
-        if (Auth::user()->role !== 'user') {
-            return redirect('/')->with('error', 'Akses ditolak.');
-        }
 
         // Ambil data input
         $produkId = $request->produk_id;
-        $kuantitas = (int)$request->kuantitas;
+        $varianId = $request->varian_id;
+        $kuantitas = (int)$request->jumlah;
+        $subtotal = (int)$request->subtotal;
 
         // Pastikan produk ada
         Produk::findOrFail($produkId);
+        Varian::findOrFail($varianId);
 
         // Redirect ke checkout sambil membawa data input
         return redirect()->route('user.produk.checkout', [
             'produk_id' => $produkId,
+            'varian_id' => $varianId,
             'kuantitas' => $kuantitas,
+            'subtotal' => $subtotal,
         ]);
     }
 
@@ -161,6 +171,7 @@ class ProdukUserController extends Controller
     public function checkout(Request $request)
     {
         $produk = Produk::findOrFail($request->produk_id);
+        $varian = Varian::findOrFail($request->varian_id);
         $rekening = Rekening::all();
         $user = Auth::user();
 
@@ -199,6 +210,7 @@ class ProdukUserController extends Controller
 
         return view('user.produk.checkout', [
             'produk' => $produk,
+            'varian' => $varian,
             'kuantitas' => $kuantitas,
             'harga_saat_pemesanan' => $harga_saat_pemesanan,
             'harga_pemesanan' => $harga_pemesanan,
@@ -214,7 +226,7 @@ class ProdukUserController extends Controller
             'totalBeratGram' => $totalBeratGram,
             'berat_gram' => $produk->berat ?? 0,
 
-            'rekening' => $rekening,
+            'rekenings' => $rekening,
             'user' => $user,
         ]);
     }

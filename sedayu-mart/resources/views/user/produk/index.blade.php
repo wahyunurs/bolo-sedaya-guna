@@ -78,15 +78,13 @@
                                     {{ number_format(optional($produk->varians->first())->harga ?? 0, 0, ',', '.') }},-</a>
                             </div>
                             <div>
-                                <button aria-label="show-modal" type="button"
-                                    class="show-modal-btn text-green-600 border border-green-600 px-2 sm:px-3 py-1.5 sm:py-2 rounded-md sm:rounded-lg hover:bg-green-600 hover:text-white transition"
-                                    data-id="{{ $produk->id }}" data-price="{{ $produk->harga }}"
-                                    data-name="{{ $produk->nama }}"
-                                    data-img="{{ optional($produk->gambarProduks->first())->gambar ? asset('storage/img/produk/' . $produk->gambarProduks->first()->gambar) : asset('img/card/produk1.png') }}">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14"
-                                        class="sm:w-4 sm:h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                        class="lucide lucide-shopping-cart-icon lucide-shopping-cart">
+                                <button type="button" data-modal-target="show-produk-modal-{{ $produk->id }}"
+                                    data-modal-toggle="show-produk-modal-{{ $produk->id }}"
+                                    class="group p-2 rounded-lg bg-blue-50 hover:bg-blue-100 transition-all duration-200 hover:shadow-md"
+                                    title="Show Product Details">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
                                         <circle cx="8" cy="21" r="1" />
                                         <circle cx="19" cy="21" r="1" />
                                         <path
@@ -97,6 +95,12 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Include Show Modal -->
+                @include('user.produk.show', [
+                    'produk' => $produk,
+                    'varians' => $varians[$produk->id] ?? [],
+                ])
             @empty
                 <div class="col-span-full text-center py-12">
                     <p class="text-gray-600">Tidak ada produk yang ditemukan.</p>
@@ -104,12 +108,6 @@
             @endforelse
         </div>
     </section>
-
-    <!-- Include Show Modal -->
-    @include('user.produk.show-modal')
-
-    <!-- Produk JavaScript -->
-    @vite('resources/js/user/produk/index.js')
 
     <style>
         /* Hide native search clear/cancel icon so only our custom clear button shows */

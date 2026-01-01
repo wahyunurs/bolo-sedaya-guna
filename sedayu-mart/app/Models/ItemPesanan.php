@@ -14,8 +14,9 @@ class ItemPesanan extends Model
     protected $fillable = [
         'pesanan_id',
         'produk_id',
+        'varian_id',
         'kuantitas',
-        'harga_saat_pemesanan',
+        'subtotal',
         'berat_total',
     ];
 
@@ -27,5 +28,10 @@ class ItemPesanan extends Model
     public function produk()
     {
         return $this->belongsTo(Produk::class, 'produk_id');
+    }
+
+    public function varian()
+    {
+        return $this->belongsTo(Varian::class, 'varian_id');
     }
 }

@@ -15,8 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('pesanan_id')->constrained('pesanan')->onDelete('cascade');
             $table->foreignId('produk_id')->constrained('produk')->onDelete('cascade');
+            $table->foreignId('varian_id')->constrained('varian')->onDelete('cascade');
             $table->integer('kuantitas');
-            $table->integer('harga_saat_pemesanan'); // harga satuan pada saat checkout
+            $table->integer('subtotal'); // subtotal harga untuk item ini (harga_saat_pemesanan * kuantitas)
             $table->integer('berat_total'); // berat item (qty * berat produk) dalam gram
             $table->timestamps();
         });

@@ -181,12 +181,44 @@ Route::middleware(['auth', 'role:user'])->group(function () {
 
             // Profil
             Route::prefix('profil')->group(function () {
-                Route::get('/edit', [ProfilUserController::class, 'edit'])
-                    ->name('user.profil.edit');
-                Route::put('/update', [ProfilUserController::class, 'update'])
-                    ->name('user.profil.update');
+
+                // Profil Menu
                 Route::get('/', [ProfilUserController::class, 'index'])
                     ->name('user.profil.index');
+
+                // Data Diri
+                Route::prefix('data-diri')->group(function () {
+                    Route::get('/', [ProfilUserController::class, 'dataDiri'])
+                        ->name('user.profil.dataDiri');
+                    Route::get('/edit', [ProfilUserController::class, 'editDataDiri'])
+                        ->name('user.profil.dataDiri.edit');
+                    Route::put('/update', [ProfilUserController::class, 'updateDataDiri'])
+                        ->name('user.profil.dataDiri.update');
+                });
+
+                // Alamat Pengiriman
+                Route::prefix('alamat-pengiriman')->group(function () {
+                    Route::get('/', [ProfilUserController::class, 'alamatPengiriman'])
+                        ->name('user.profil.alamatPengiriman');
+                    Route::get('/create', [ProfilUserController::class, 'createAlamatPengiriman'])
+                        ->name('user.profil.alamatPengiriman.create');
+                    Route::post('/store', [ProfilUserController::class, 'storeAlamatPengiriman'])
+                        ->name('user.profil.alamatPengiriman.store');
+                    Route::get('/edit/{id}', [ProfilUserController::class, 'editAlamatPengiriman'])
+                        ->name('user.profil.alamatPengiriman.edit');
+                    Route::put('/update/{id}', [ProfilUserController::class, 'updateAlamatPengiriman'])
+                        ->name('user.profil.alamatPengiriman.update');
+                    Route::delete('/delete/{id}', [ProfilUserController::class, 'destroyAlamatPengiriman'])
+                        ->name('user.profil.alamatPengiriman.destroy');
+                });
+
+                // Ganti Password
+                Route::prefix('ganti-password')->group(function () {
+                    Route::get('/', [ProfilUserController::class, 'gantiPassword'])
+                        ->name('user.profil.gantiPassword');
+                    Route::put('/update', [ProfilUserController::class, 'updatePassword'])
+                        ->name('user.profil.gantiPassword.update');
+                });
             });
         });
     });

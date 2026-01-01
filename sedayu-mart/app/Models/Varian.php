@@ -22,4 +22,14 @@ class Varian extends Model
     {
         return $this->belongsTo(Produk::class, 'produk_id');
     }
+
+    public function keranjang()
+    {
+        return $this->hasMany(Keranjang::class, 'varian_id');
+    }
+
+    public function itemPesanan()
+    {
+        return $this->hasMany(ItemPesanan::class, 'varian_id');
+    }
 }

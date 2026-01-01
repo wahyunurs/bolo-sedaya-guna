@@ -13,12 +13,13 @@ return new class extends Migration
     {
         Schema::create('pesanan', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->string('alamat');
             $table->string('kabupaten_tujuan'); // untuk lookup tarif
             $table->integer('ongkir'); // rupiah
             $table->integer('subtotal_produk'); // total harga barang tanpa ongkir
             $table->integer('total_bayar'); // subtotal_produk + ongkir
+            $table->foreignId('rekening_id')->constrained('rekening')->onDelete('cascade'); // rekening tujuan pembayaran
             $table->string('bukti_pembayaran')->nullable(); // path ke file bukti pembayaran
             $table->enum('status', [
                 'Menunggu Verifikasi',
