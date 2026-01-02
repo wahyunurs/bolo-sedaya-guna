@@ -2,7 +2,6 @@
     @include('user.components.navbar')
 
     <section class="pt-16 sm:pt-20 pb-8 sm:pb-12 lg:pb-16 bg-[#e9ffe1] min-h-screen">
-        @include('user.components.message-modal')
         <div class="w-full px-0 sm:px-0">
             <!-- HEADER -->
             <div

@@ -12,6 +12,7 @@ use App\Models\TarifPengiriman;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use App\Models\AlamatPengiriman;
 use App\Models\Varian;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -170,170 +171,341 @@ class ProdukUserController extends Controller
 
     public function checkout(Request $request)
     {
-        $produk = Produk::findOrFail($request->produk_id);
-        $varian = Varian::findOrFail($request->varian_id);
-        $rekening = Rekening::all();
         $user = Auth::user();
 
-        // request values with sensible defaults
-        $kuantitas = (int) $request->input('kuantitas', 1);
-        $harga_saat_pemesanan = (int) $request->input('harga_saat_pemesanan', $produk->harga);
-        $harga_pemesanan = $harga_saat_pemesanan;
-        $subtotal = $harga_saat_pemesanan * $kuantitas;
+        $produk = Produk::findOrFail($request->produk_id);
+        $varian = Varian::findOrFail($request->varian_id);
 
-        // Kabupaten tujuan: request -> user
-        $kabupaten = $request->input('kabupaten_tujuan') ?? $user->kabupaten;
+        $alamatPengirimans = AlamatPengiriman::where('user_id', $user->id)->get();
+        $tarifPengirimans  = TarifPengiriman::all();
+        $rekenings         = Rekening::all();
 
-        // Berat total (gram) dan konversi ke kg
-        $totalBeratGram = ($produk->berat ?? 1000) * $kuantitas;
-        $totalBeratKg = $totalBeratGram / 1000;
+        // ================= QTY =================
+        $kuantitas = max(1, (int) $request->input('kuantitas', 1));
 
-        // Cari tarif pengiriman: normalisasi lalu fallback ke LIKE
-        $ongkir = 0;
+        // ================= SUBTOTAL =================
+        $harga    = (int) $varian->harga;
+        $subtotal = $harga * $kuantitas;
+
+        // ================= ALAMAT TERPILIH =================
+        if ($request->filled('alamat_id')) {
+            $alamatTerpilih = $alamatPengirimans->where('id', $request->alamat_id)->first();
+        } else {
+            $alamatTerpilih = $alamatPengirimans->where('utama', 1)->first()
+                ?? $alamatPengirimans->first();
+        }
+
+        // ================= KABUPATEN =================
+        $kabupatenTujuan = $alamatTerpilih->kabupaten ?? null;
+
+        // ================= BERAT (GRAM → KG EKSPEDISI) =================
+        $beratVarianGram = (float) ($varian->berat ?? 0); // GRAM
+        $totalBeratGram = $beratVarianGram * $kuantitas;
+
+        // ✅ ATURAN EKSPEDISI
+        $totalBeratKg = max(1, (int) ceil($totalBeratGram / 1000));
+
+        // ================= ONGKIR =================
         $tarif_per_kg = 0;
-        if ($kabupaten) {
-            $kabupatenNormalized = trim(mb_strtolower($kabupaten));
-            $tarif = TarifPengiriman::whereRaw('LOWER(TRIM(kabupaten)) = ?', [$kabupatenNormalized])->first();
-            if (! $tarif) {
-                $tarif = TarifPengiriman::where('kabupaten', 'like', '%' . trim($kabupaten) . '%')->first();
-            }
+        $ongkir = 0;
+
+        if ($kabupatenTujuan) {
+            $tarif = TarifPengiriman::whereRaw(
+                'LOWER(TRIM(kabupaten)) = ?',
+                [mb_strtolower(trim($kabupatenTujuan))]
+            )->first();
 
             if ($tarif) {
                 $tarif_per_kg = (int) $tarif->tarif_per_kg;
-                $ongkir = (int) round($tarif_per_kg * $totalBeratKg);
+                $ongkir = $tarif_per_kg * $totalBeratKg;
             }
         }
 
-        $semua_kabupaten = TarifPengiriman::all();
-        $alamat_tujuan = $request->input('alamat') ?? $user->alamat ?? '';
-        $kabupaten_tujuan = $request->input('kabupaten_tujuan') ?? $kabupaten ?? '';
+        $totalBayar = $subtotal + $ongkir;
 
         return view('user.produk.checkout', [
-            'produk' => $produk,
-            'varian' => $varian,
-            'kuantitas' => $kuantitas,
-            'harga_saat_pemesanan' => $harga_saat_pemesanan,
-            'harga_pemesanan' => $harga_pemesanan,
-            'subtotal' => $subtotal,
+            'produk'            => $produk,
+            'varian'            => $varian,
+            'alamatPengirimans' => $alamatPengirimans,
+            'tarifPengirimans'  => $tarifPengirimans,
+            'rekenings'         => $rekenings,
 
-            'kabupaten' => $kabupaten,
-            'kabupaten_tujuan' => $kabupaten_tujuan,
-            'alamat_tujuan' => $alamat_tujuan,
-            'semua_kabupaten' => $semua_kabupaten,
+            'alamatUtama'       => $alamatTerpilih,
 
-            'ongkir' => $ongkir,
-            'tarif_per_kg' => $tarif_per_kg,
-            'totalBeratGram' => $totalBeratGram,
-            'berat_gram' => $produk->berat ?? 0,
+            'kuantitas'         => $kuantitas,
+            'subtotal'          => $subtotal,
 
-            'rekenings' => $rekening,
-            'user' => $user,
+            'ongkir'            => $ongkir,
+            'tarif_per_kg'      => $tarif_per_kg,
+            'totalBeratGram'    => $totalBeratGram,
+            'totalBeratKg'      => $totalBeratKg,
+            'totalBayar'        => $totalBayar,
         ]);
     }
 
+
+
+    /**
+     * ALAMAT PENGIRIMAN
+     */
+    public function alamatPengiriman(Request $request)
+    {
+        $user = Auth::user();
+
+        $alamatPengirimans = AlamatPengiriman::where('user_id', $user->id)->get();
+
+        return view('user.produk.alamat-pengiriman.index', [
+            'user' => $user,
+            'alamatPengirimans' => $alamatPengirimans,
+        ]);
+    }
+
+    public function createAlamatPengiriman(Request $request)
+    {
+        $user = Auth::user();
+
+        $kabupatens = TarifPengiriman::orderBy('kabupaten', 'asc')->get()->pluck('kabupaten');
+
+        return view('user.produk.alamat-pengiriman.create', [
+            'user' => $user,
+            'kabupatens' => $kabupatens,
+        ]);
+    }
+
+    public function storeAlamatPengiriman(Request $request)
+    {
+        $user = Auth::user();
+
+        $request->validate([
+            'nama_penerima' => 'required|string|max:255',
+            'nomor_telepon' => 'required|string|max:20',
+            'alamat' => 'required|string|max:500',
+            'kabupaten' => 'required|string|max:255',
+            'provinsi' => 'required|string|max:255',
+            'kode_pos' => 'required|string|max:10',
+            'keterangan' => 'nullable|string|max:1000',
+            'utama' => 'nullable|boolean',
+        ]);
+
+        if ($request->utama) {
+            // Set all other addresses to not utama
+            AlamatPengiriman::where('user_id', $user->id)->update(['utama' => false]);
+        }
+
+        AlamatPengiriman::create([
+            'user_id' => $user->id,
+            'nama_penerima' => $request->nama_penerima,
+            'nomor_telepon' => $request->nomor_telepon,
+            'alamat' => $request->alamat,
+            'kabupaten' => $request->kabupaten,
+            'provinsi' => $request->provinsi,
+            'kode_pos' => $request->kode_pos,
+            'keterangan' => $request->keterangan,
+            'utama' => $request->utama ? true : false,
+        ]);
+
+        return redirect()->route('user.produk.alamatPengiriman')->with('success', 'Alamat pengiriman berhasil ditambahkan.');
+    }
+
+    public function editAlamatPengiriman($id)
+    {
+        $user = Auth::user();
+
+        $alamatPengiriman = AlamatPengiriman::where('id', $id)
+            ->where('user_id', $user->id)
+            ->firstOrFail();
+
+        return view('user.produk.alamat-pengiriman.edit', [
+            'user' => $user,
+            'alamatPengiriman' => $alamatPengiriman,
+        ]);
+    }
+
+    public function updateAlamatPengiriman(Request $request, $id)
+    {
+        $user = Auth::user();
+
+        $alamatPengiriman = AlamatPengiriman::where('id', $id)
+            ->where('user_id', $user->id)
+            ->firstOrFail();
+
+        $request->validate([
+            'nama_penerima' => 'required|string|max:255',
+            'nomor_telepon' => 'required|string|max:20',
+            'alamat' => 'required|string|max:500',
+            'kabupaten' => 'required|string|max:255',
+            'provinsi' => 'required|string|max:255',
+            'kode_pos' => 'required|string|max:10',
+            'keterangan' => 'nullable|string|max:1000',
+            'utama' => 'nullable|boolean',
+        ]);
+
+        if ($request->utama) {
+            // Set all other addresses to not utama
+            AlamatPengiriman::where('user_id', $user->id)->update(['utama' => false]);
+        }
+
+        $alamatPengiriman->update([
+            'nama_penerima' => $request->nama_penerima,
+            'nomor_telepon' => $request->nomor_telepon,
+            'alamat' => $request->alamat,
+            'kabupaten' => $request->kabupaten,
+            'provinsi' => $request->provinsi,
+            'kode_pos' => $request->kode_pos,
+            'keterangan' => $request->keterangan,
+            'utama' => $request->utama ? true : false,
+        ]);
+
+        return redirect()->route('user.produk.alamatPengiriman')->with('success', 'Alamat pengiriman berhasil diperbarui.');
+    }
+
+    public function destroyAlamatPengiriman($id)
+    {
+        $user = Auth::user();
+
+        $alamatPengiriman = AlamatPengiriman::where('id', $id)
+            ->where('user_id', $user->id)
+            ->firstOrFail();
+
+        $alamatPengiriman->delete();
+
+        return redirect()->back()->with('success', 'Alamat pengiriman berhasil dihapus.');
+    }
+
+    public function pilihAlamatPengiriman(Request $request)
+    {
+        $request->validate([
+            'alamat_id' => 'required|exists:alamat_pengiriman,id',
+        ]);
+
+        // Data WAJIB checkout
+        $checkoutData = [
+            'produk_id' => $request->produk_id,
+            'varian_id' => $request->varian_id,
+            'kuantitas' => $request->kuantitas,
+            'subtotal'  => $request->subtotal,
+        ];
+
+        // Data alamat
+        $alamatData = [
+            'alamat_id' => $request->alamat_id,
+            'nama_penerima' => $request->nama_penerima,
+            'alamat' => $request->alamat,
+            'kabupaten_tujuan' => $request->kabupaten_tujuan,
+            'provinsi' => $request->provinsi,
+            'kode_pos' => $request->kode_pos,
+            'nomor_telepon' => $request->nomor_telepon,
+            'keterangan' => $request->keterangan,
+            'utama' => $request->utama,
+        ];
+
+        // Gabungkan → jadi query string
+        return redirect()->route(
+            'user.produk.checkout',
+            array_merge($checkoutData, $alamatData)
+        );
+    }
 
     public function bayarSekarang(Request $request)
     {
         $user = Auth::user();
 
         $request->validate([
-            // Pesanan
+            'produk_id' => 'required|exists:produk,id',
+            'varian_id' => 'required|exists:varian,id',
+            'kuantitas' => 'required|integer|min:1',
+
             'alamat' => 'required|string|max:255',
             'kabupaten_tujuan' => 'required|string|max:255',
-            'total_jumlah' => 'required|integer|min:1',
-            'total_berat' => 'required|integer|min:0',
-            'ongkir' => 'nullable|integer|min:0',
-            'subtotal_produk' => 'required|integer|min:0',
-            'total_bayar' => 'required|integer|min:0',
-            'bukti_pembayaran' => 'required|image|mimes:jpeg,png,jpg|max:5120',
-            'catatan' => 'nullable|string|max:1000',
 
-            // Item Pesanan
-            'produk_id' => 'required|integer',
-            'kuantitas' => 'required|integer|min:1',
-            'harga_saat_pemesanan' => 'required|integer',
-            'berat_total' => 'required|integer|min:0',
+            'rekening_id' => 'required|exists:rekening,id',
+            'bukti_pembayaran' => 'required|image|mimes:jpeg,png,jpg|max:5120',
+
+            'catatan' => 'nullable|string|max:1000',
         ]);
 
-        // Simpan file bukti pembayaran jika ada
+        $produk = Produk::findOrFail($request->produk_id);
+        $varian = Varian::findOrFail($request->varian_id);
+
+        $qty = (int) $request->kuantitas;
+        $harga = (int) $varian->harga;
+
+        // ================= SUBTOTAL =================
+        $subtotalProduk = $harga * $qty;
+
+        // ================= BERAT =================
+        $beratProduk = (int) ($produk->berat ?? 1000);
+        $totalBeratGram = $beratProduk * $qty;
+        $totalBeratKg = (int) ceil($totalBeratGram / 1000);
+
+        // ================= ONGKIR =================
+        $tarif = TarifPengiriman::whereRaw(
+            'LOWER(TRIM(kabupaten)) = ?',
+            [mb_strtolower(trim($request->kabupaten_tujuan))]
+        )->first();
+
+        if (! $tarif) {
+            return back()->withInput()->with('error', 'Tarif pengiriman tidak tersedia.');
+        }
+
+        $ongkir = (int) ($tarif->tarif_per_kg * $totalBeratKg);
+        $totalBayar = $subtotalProduk + $ongkir;
+
+        // ================= UPLOAD BUKTI =================
         $fileName = null;
         if ($request->hasFile('bukti_pembayaran')) {
             $file = $request->file('bukti_pembayaran');
-            $fileName = date('Y-m-d-') . '_' . $file->getClientOriginalName();
-            $path = 'img/bukti_pembayaran/' . $fileName;
+            $fileName = time() . '_' . $file->getClientOriginalName();
 
-            Storage::disk('public')->put($path, file_get_contents($file));
+            Storage::disk('public')->put(
+                'img/bukti_pembayaran/' . $fileName,
+                file_get_contents($file)
+            );
         }
 
-        $produk = Produk::findOrFail($request->produk_id);
+        DB::transaction(function () use (
+            $user,
+            $request,
+            $produk,
+            $varian,
+            $qty,
+            $subtotalProduk,
+            $totalBayar,
+            $ongkir,
+            $fileName,
+            $totalBeratGram
+        ) {
+            if ($varian->stok < $qty) {
+                throw new \Exception('Stok varian tidak mencukupi');
+            }
 
-        // Find a related keranjang if provided
-        $keranjang = null;
-        if ($request->filled('keranjang_id')) {
-            $keranjang = Keranjang::where('id', $request->keranjang_id)
-                ->where('user_id', $user->id)
-                ->first();
-        }
+            $varian->decrement('stok', $qty);
 
-        try {
-            DB::transaction(function () use ($request, $user, $produk, $keranjang, $fileName) {
-                // Stock adjustments:
-                // - If checkout from cart: the cart already reserved stock when added.
-                //   We compute delta = buyQty - cartQty and adjust the product stock by that delta.
-                // - If not from cart: decrement full buy quantity.
+            $pesanan = Pesanan::create([
+                'user_id' => $user->id,
+                'alamat' => $request->alamat,
+                'kabupaten_tujuan' => $request->kabupaten_tujuan,
+                'ongkir' => $ongkir,
+                'subtotal_produk' => $subtotalProduk,
+                'total_bayar' => $totalBayar,
+                'rekening_id' => $request->rekening_id,
+                'bukti_pembayaran' => $fileName,
+                'status' => 'Menunggu Verifikasi',
+                'catatan' => $request->catatan,
+            ]);
 
-                $buyQty = (int) $request->kuantitas;
+            ItemPesanan::create([
+                'pesanan_id' => $pesanan->id,
+                'produk_id' => $request->produk_id,
+                'varian_id' => $request->varian_id,
+                'kuantitas' => $qty,
+                'subtotal' => $subtotalProduk,
+                'berat_total' => $totalBeratGram,
+            ]);
+        });
 
-                if ($keranjang) {
-                    $cartQty = (int) ($keranjang->kuantitas ?? $keranjang->jumlah ?? 0);
-                    $delta = $buyQty - $cartQty;
-
-                    if ($delta > 0) {
-                        if ($produk->stok < $delta) {
-                            throw new \Exception('Stok produk tidak mencukupi');
-                        }
-                        $produk->decrement('stok', $delta);
-                    } elseif ($delta < 0) {
-                        $produk->increment('stok', -$delta);
-                    }
-                } else {
-                    if ($produk->stok < $buyQty) {
-                        throw new \Exception('Stok produk tidak mencukupi');
-                    }
-                    $produk->decrement('stok', $buyQty);
-                }
-
-                $pesanan = Pesanan::create([
-                    'user_id' => $user->id,
-                    'alamat' => $request->alamat,
-                    'kabupaten_tujuan' => $request->kabupaten_tujuan,
-                    'ongkir' => $request->ongkir ?? 0,
-                    'subtotal_produk' => $request->subtotal_produk,
-                    'total_bayar' => $request->total_bayar,
-                    'bukti_pembayaran' => $fileName,
-                    'status' => 'Menunggu Verifikasi',
-                    'catatan' => $request->catatan,
-                ]);
-
-                ItemPesanan::create([
-                    'pesanan_id' => $pesanan->id,
-                    'produk_id' => $request->produk_id,
-                    'kuantitas' => $request->kuantitas,
-                    'harga_saat_pemesanan' => $request->harga_saat_pemesanan,
-                    'berat_total' => $request->berat_total,
-                ]);
-
-                // If checkout came from a cart item, remove that cart row now
-                if ($keranjang) {
-                    $keranjang->delete();
-                }
-            });
-
-            return redirect()
-                ->route('user.produk.index')
-                ->with('success', 'Pesanan berhasil dibuat, menunggu verifikasi pembayaran.');
-        } catch (\Exception $e) {
-            return redirect()->back()->withInput()->with('error', $e->getMessage());
-        }
+        return redirect()
+            ->route('user.produk.index')
+            ->with('success', 'Pesanan berhasil dibuat, menunggu verifikasi pembayaran.');
     }
 }

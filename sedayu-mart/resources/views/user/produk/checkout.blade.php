@@ -1,173 +1,196 @@
 @component('user.components.user-layout')
-    @include('user.components.navbar')
+@include('user.components.navbar')
 
-    <section class="pt-20 sm:pt-24 pb-8 bg-[#e9ffe1] min-h-screen">
+<section class="pt-20 sm:pt-24 pb-8 bg-[#e9ffe1] min-h-screen">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6">
 
-        @include('user.components.message-modal')
+        <div class="bg-white p-4 sm:p-6 md:p-8 rounded-2xl shadow mt-6">
 
-        <div class="max-w-4xl mx-auto px-4 sm:px-6">
+            <!-- ================= HEADER ================= -->
+            <div class="flex items-center gap-3 mb-6">
+                <a href="{{ route('user.produk.index') }}" class="text-green-700 hover:text-green-900">←</a>
+                <h2 class="text-2xl font-extrabold text-green-800">Checkout</h2>
+            </div>
 
-            <div class="bg-white p-4 sm:p-6 md:p-8 rounded-2xl shadow mt-6">
+            @php
+                /* ================= PARAM ================= */
+                $qty = max(1, (int) request('kuantitas', 1));
+                $alamatId = request('alamat_id');
 
-                <!-- ================= HEADER ================= -->
-                <div class="flex items-center gap-3 mb-6">
-                    <a href="{{ route('user.produk.index') }}" class="text-green-700 hover:text-green-900">←</a>
-                    <h2 class="text-2xl font-extrabold text-green-800">Checkout</h2>
+                /* ================= ALAMAT ================= */
+                $alamatUtama = $alamatId
+                    ? $alamatPengirimans->where('id', $alamatId)->first()
+                    : $alamatPengirimans->where('utama', 1)->first() ?? $alamatPengirimans->first();
+
+                /* ================= BERAT ================= */
+                $beratVarianGram = (int) ($varian->berat ?? 1000);
+                $totalBeratGram = $beratVarianGram * $qty;
+                $totalBeratKg = max(1, (int) ceil($totalBeratGram / 1000));
+
+                /* ================= ONGKIR ================= */
+                $tarif = $alamatUtama
+                    ? $tarifPengirimans->where('kabupaten', $alamatUtama->kabupaten)->first()
+                    : null;
+
+                $tarifPerKg = (int) ($tarif->tarif_per_kg ?? 0);
+                $ongkir = $tarifPerKg * $totalBeratKg;
+
+                /* ================= TOTAL ================= */
+                $subtotal = $qty * $varian->harga;
+                $totalBayar = $subtotal + $ongkir;
+            @endphp
+
+            <form action="{{ route('user.produk.bayarSekarang') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+
+                <!-- ================= PRODUK ================= -->
+                <div class="border rounded-xl p-4 mb-6 flex gap-4">
+                    <img src="{{ $varian->gambar
+                        ? asset('storage/img/varian/' . $varian->gambar)
+                        : asset('storage/img/produk/' . optional($produk->gambarProduks->first())->gambar) }}"
+                        class="w-24 h-24 rounded-xl object-cover border">
+
+                    <div class="flex-1">
+                        <p class="font-bold text-green-900">{{ $produk->nama }}</p>
+                        <p class="text-sm text-gray-600">Varian: {{ $varian->nama }}</p>
+                        <p class="font-semibold text-green-700">
+                            Rp {{ number_format($varian->harga, 0, ',', '.') }}
+                        </p>
+                    </div>
+
+                    <!-- ================= JUMLAH ================= -->
+                    <div class="flex flex-col items-end">
+                        <div class="flex items-center gap-1">
+                            <button type="button" id="minus" class="w-7 h-7 bg-gray-100 rounded">−</button>
+                            <input id="qty" value="{{ $qty }}" readonly class="w-12 text-center border rounded">
+                            <button type="button" id="plus" class="w-7 h-7 bg-gray-100 rounded">+</button>
+                        </div>
+
+                        <p class="text-sm text-gray-600 mt-2">
+                            Subtotal:
+                            Rp {{ number_format($subtotal, 0, ',', '.') }}
+                        </p>
+                    </div>
                 </div>
 
-                @php
-                    // ====== AMBIL DARI QUERY STRING (BELI SEKARANG) ======
-                    $qty = (int) request('kuantitas', 1);
-                    $subtotal = (int) request('subtotal', $qty * $varian->harga);
-                @endphp
+                <!-- ================= HIDDEN (WAJIB UNTUK CONTROLLER) ================= -->
+                <input type="hidden" name="produk_id" value="{{ $produk->id }}">
+                <input type="hidden" name="varian_id" value="{{ $varian->id }}">
+                <input type="hidden" name="kuantitas" value="{{ $qty }}">
+                <input type="hidden" name="alamat" value="{{ $alamatUtama->alamat ?? '' }}">
+                <input type="hidden" name="kabupaten_tujuan" value="{{ $alamatUtama->kabupaten ?? '' }}">
 
-                <form action="{{ route('user.produk.bayarSekarang') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
+                <!-- ================= ALAMAT ================= -->
+                <div class="border rounded-xl p-4 mb-6 bg-gray-50 relative flex gap-4">
+                    <span class="bg-green-100 text-green-700 rounded-xl p-3">📍</span>
 
-                    <!-- ================= PRODUK ================= -->
-                    <div class="border rounded-xl p-4 mb-6 flex gap-4">
-
-                        <img src="{{ $varian->gambar
-                            ? asset('storage/img/varian/' . $varian->gambar)
-                            : asset('storage/img/produk/' . optional($produk->gambarProduks->first())->gambar) }}"
-                            class="w-24 h-24 rounded-xl object-cover border">
-
-                        <div class="flex-1">
-                            <p class="font-bold text-green-900">{{ $produk->nama }}</p>
-                            <p class="text-sm text-gray-600">Varian: {{ $varian->nama }}</p>
-                            <p class="font-semibold text-green-700">
-                                Rp {{ number_format($varian->harga, 0, ',', '.') }}
-                            </p>
+                    <div class="flex-1">
+                        <div class="font-bold">
+                            {{ $alamatUtama->nama_penerima ?? '-' }}
+                            @if ($alamatUtama && $alamatUtama->utama)
+                                <span class="text-xs bg-green-100 text-green-700 px-2 rounded">Utama</span>
+                            @endif
                         </div>
+                        <div class="text-sm">{{ $alamatUtama->alamat ?? '-' }}</div>
+                        <div class="text-sm text-gray-500">
+                            {{ $alamatUtama->kabupaten ?? '-' }}, {{ $alamatUtama->provinsi ?? '-' }}
+                        </div>
+                        <div class="text-sm text-gray-500">
+                            Telp: {{ $alamatUtama->nomor_telepon ?? '-' }}
+                        </div>
+                        @if ($alamatUtama->keterangan)
+                            <div class="text-xs text-gray-400 italic">{{ $alamatUtama->keterangan }}</div>
+                        @endif
+                    </div>
 
-                        <!-- ================= JUMLAH ================= -->
-                        <div class="flex flex-col items-end">
-                            <div class="flex items-center gap-1">
-                                <button type="button" id="minus" class="w-7 h-7 bg-gray-100 rounded">−</button>
-                                <input id="qty" value="{{ $qty }}" readonly
-                                    class="w-12 text-center border rounded">
-                                <button type="button" id="plus" class="w-7 h-7 bg-gray-100 rounded">+</button>
+                    <a href="{{ route('user.produk.alamatPengiriman', [
+                        'produk_id' => $produk->id,
+                        'varian_id' => $varian->id,
+                        'kuantitas' => $qty,
+                    ]) }}"
+                        class="absolute top-3 right-3 text-green-700 text-sm font-semibold">
+                        Ubah
+                    </a>
+                </div>
+
+                <!-- ================= REKENING ================= -->
+                <div class="border rounded-xl p-4 mb-6">
+                    <h3 class="font-bold text-green-800 mb-3">Pilih Rekening Pembayaran</h3>
+                    @foreach ($rekenings as $rek)
+                        <label class="flex items-center gap-3 border rounded-lg p-3 cursor-pointer mb-2">
+                            <input type="radio" name="rekening_id" value="{{ $rek->id }}" required>
+                            <div>
+                                <p class="font-semibold">{{ $rek->nama_bank }}</p>
+                                <p class="text-sm text-gray-600">
+                                    {{ $rek->nomor_rekening }} a.n {{ $rek->atas_nama }}
+                                </p>
                             </div>
+                        </label>
+                    @endforeach
+                </div>
 
-                            <p class="text-sm text-gray-600 mt-2">
-                                Subtotal:
-                                <span id="subtotalText">
-                                    Rp {{ number_format($subtotal, 0, ',', '.') }}
-                                </span>
-                            </p>
-                        </div>
+                <!-- ================= TOTAL ================= -->
+                <div class="border rounded-xl p-4 bg-green-50 mb-6 space-y-2">
+                    <div class="flex justify-between">
+                        <span>Subtotal Produk</span>
+                        <span>Rp {{ number_format($subtotal, 0, ',', '.') }}</span>
                     </div>
-
-                    <!-- ================= HIDDEN ================= -->
-                    <input type="hidden" name="produk_id" value="{{ request('produk_id') }}">
-                    <input type="hidden" name="varian_id" value="{{ request('varian_id') }}">
-                    <input type="hidden" name="kuantitas" id="qtyForm" value="{{ $qty }}">
-                    <input type="hidden" name="subtotal" id="subtotalForm" value="{{ $subtotal }}">
-
-                    <!-- ================= ALAMAT ================= -->
-                    <div class="border rounded-xl p-4 mb-6 bg-gray-50 relative">
-                        <h3 class="font-bold text-green-800 mb-2">Alamat Pengiriman</h3>
-
-                        <button type="button"
-                            onclick="document.getElementById('modalEditAlamat').classList.remove('hidden')"
-                            class="absolute top-3 right-3 text-green-700 text-sm font-semibold">
-                            Ubah
-                        </button>
-
-                        <p class="font-medium">{{ $alamat_tujuan }}</p>
-                        <p class="text-sm text-gray-600">{{ $kabupaten_tujuan }}</p>
+                    <div class="flex justify-between">
+                        <span>Ongkir ({{ $totalBeratKg }} Kg)</span>
+                        <span>Rp {{ number_format($ongkir, 0, ',', '.') }}</span>
                     </div>
-
-                    <input type="hidden" name="alamat" value="{{ $alamat_tujuan }}">
-                    <input type="hidden" name="kabupaten_tujuan" value="{{ $kabupaten_tujuan }}">
-
-                    <!-- ================= REKENING ================= -->
-                    <div class="border rounded-xl p-4 mb-6">
-                        <h3 class="font-bold text-green-800 mb-3">Pilih Rekening Pembayaran</h3>
-
-                        <div class="space-y-3">
-                            @foreach ($rekenings as $rek)
-                                <label class="flex items-center gap-3 border rounded-lg p-3 cursor-pointer">
-                                    <input type="radio" name="rekening_id" value="{{ $rek->id }}"
-                                        class="accent-green-600" required>
-                                    <div>
-                                        <p class="font-semibold">{{ $rek->nama_bank }}</p>
-                                        <p class="text-sm text-gray-600">
-                                            {{ $rek->nomor_rekening }} a.n {{ $rek->atas_nama }}
-                                        </p>
-                                    </div>
-                                </label>
-                            @endforeach
-                        </div>
+                    <div class="flex justify-between font-bold text-green-800 text-lg">
+                        <span>Total Bayar</span>
+                        <span>Rp {{ number_format($totalBayar, 0, ',', '.') }}</span>
                     </div>
+                </div>
 
-                    <!-- ================= TOTAL ================= -->
-                    <div class="border rounded-xl p-4 bg-green-50 mb-6">
-                        <div class="flex justify-between font-bold text-green-800">
-                            <span>Total Bayar</span>
-                            <span id="totalText">
-                                Rp {{ number_format($subtotal, 0, ',', '.') }}
-                            </span>
-                        </div>
-                    </div>
+                <!-- ================= BUKTI ================= -->
+                <div class="mb-6">
+                    <label class="font-semibold">Upload Bukti Pembayaran</label>
+                    <input type="file" name="bukti_pembayaran" required class="w-full mt-2 border rounded-lg p-2">
+                </div>
 
-                    <!-- ================= BUKTI ================= -->
-                    <div class="mb-6">
-                        <label class="font-semibold">Upload Bukti Pembayaran</label>
-                        <input type="file" name="bukti_pembayaran" class="w-full mt-2 border rounded-lg p-2"
-                            accept="image/*" required>
-                    </div>
+                <!-- ================= CATATAN ================= -->
+                <div class="mb-6">
+                    <label class="font-semibold">Catatan</label>
+                    <textarea name="catatan" rows="3" class="w-full border rounded-lg p-3"></textarea>
+                </div>
 
-                    <!-- ================= CATATAN ================= -->
-                    <div class="mb-6">
-                        <label class="font-semibold">Catatan</label>
-                        <textarea name="catatan" rows="3" class="w-full border rounded-lg p-3" placeholder="Catatan tambahan (opsional)"></textarea>
-                    </div>
-
-                    <!-- ================= ACTION ================= -->
-                    <div class="flex justify-end">
-                        <button class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-semibold">
-                            Bayar Sekarang
-                        </button>
-                    </div>
-
-                </form>
-            </div>
+                <div class="flex justify-end">
+                    <button class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-semibold">
+                        Bayar Sekarang
+                    </button>
+                </div>
+            </form>
         </div>
-    </section>
+    </div>
+</section>
 
-    @include('user.produk.edit-alamat')
+<script>
+    const qtyEl = document.getElementById('qty');
 
-    <!-- ================= SCRIPT ================= -->
-    <script>
-        const harga = {{ (int) $varian->harga }};
-        const qtyEl = document.getElementById('qty');
-        const qtyForm = document.getElementById('qtyForm');
-        const subtotalForm = document.getElementById('subtotalForm');
-        const subtotalText = document.getElementById('subtotalText');
-        const totalText = document.getElementById('totalText');
+    function reloadWithParams(newQty) {
+        const params = new URLSearchParams();
+        params.set('produk_id', '{{ $produk->id }}');
+        params.set('varian_id', '{{ $varian->id }}');
+        params.set('kuantitas', newQty);
 
-        function recalc() {
-            const qty = parseInt(qtyEl.value) || 1;
-            const total = qty * harga;
+        @if(optional($alamatUtama)->id)
+            params.set('alamat_id', '{{ $alamatUtama->id }}');
+        @endif
 
-            qtyForm.value = qty;
-            subtotalForm.value = total;
+        window.location.href = `{{ route('user.produk.checkout') }}?${params.toString()}`;
+    }
 
-            subtotalText.textContent = 'Rp ' + total.toLocaleString('id-ID');
-            totalText.textContent = 'Rp ' + total.toLocaleString('id-ID');
-        }
+    document.getElementById('minus').onclick = () => {
+        let q = parseInt(qtyEl.value);
+        if (q > 1) reloadWithParams(q - 1);
+    };
 
-        document.getElementById('minus').onclick = () => {
-            if (qtyEl.value > 1) {
-                qtyEl.value--;
-                recalc();
-            }
-        };
-
-        document.getElementById('plus').onclick = () => {
-            qtyEl.value++;
-            recalc();
-        };
-    </script>
+    document.getElementById('plus').onclick = () => {
+        let q = parseInt(qtyEl.value);
+        reloadWithParams(q + 1);
+    };
+</script>
 @endcomponent

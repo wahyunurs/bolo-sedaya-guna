@@ -53,6 +53,8 @@
             </svg>
         </a>
     @endif
+
+    @include('user.components.message-modal')
 </body>
 
 </html>

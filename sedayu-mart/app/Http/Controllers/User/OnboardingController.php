@@ -4,6 +4,7 @@ namespace App\Http\Controllers\User;
 
 use Illuminate\Http\Request;
 use App\Models\TarifPengiriman;
+use App\Models\AlamatPengiriman;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 
@@ -45,9 +46,21 @@ class OnboardingController extends Controller
             'kabupaten'     => 'required|string|max:100',
         ]);
 
-        $user->update([
-            $validated,
+        $user->update(array_merge($validated, [
             'onboarded' => true,
+        ]));
+
+        // Buat alamat pengiriman utama
+        AlamatPengiriman::create([
+            'user_id' => $user->id,
+            'nama_penerima' => $validated['nama'],
+            'nomor_telepon' => $validated['nomor_telepon'],
+            'alamat' => $validated['alamat'],
+            'kabupaten' => $validated['kabupaten'],
+            'provinsi' => 'Jawa Tengah',
+            'kode_pos' => '',
+            'keterangan' => null,
+            'utama' => 1,
         ]);
 
         return redirect()

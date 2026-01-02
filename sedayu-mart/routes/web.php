@@ -145,6 +145,24 @@ Route::middleware(['auth', 'role:user'])->group(function () {
                     ->name('user.produk.detail');
                 Route::post('/tambah-keranjang', [ProdukUserController::class, 'tambahKeranjang'])
                     ->name('user.produk.tambahKeranjang');
+
+                // Alamat Pengiriman Saat Checkout
+                Route::prefix('alamat-pengiriman')->group(function () {
+                    Route::get('/', [ProdukUserController::class, 'alamatPengiriman'])
+                        ->name('user.produk.alamatPengiriman');
+                    Route::get('/create', [ProdukUserController::class, 'createAlamatPengiriman'])
+                        ->name('user.produk.alamatPengiriman.create');
+                    Route::post('/store', [ProdukUserController::class, 'storeAlamatPengiriman'])
+                        ->name('user.produk.alamatPengiriman.store');
+                    Route::get('/edit/{id}', [ProdukUserController::class, 'editAlamatPengiriman'])
+                        ->name('user.produk.alamatPengiriman.edit');
+                    Route::put('/update/{id}', [ProdukUserController::class, 'updateAlamatPengiriman'])
+                        ->name('user.produk.alamatPengiriman.update');
+                    Route::delete('/delete/{id}', [ProdukUserController::class, 'destroyAlamatPengiriman'])
+                        ->name('user.produk.alamatPengiriman.destroy');
+                    Route::post('/pilih-alamat', [ProdukUserController::class, 'pilihAlamatPengiriman'])
+                        ->name('user.produk.alamatPengiriman.pilihAlamat');
+                });
             });
 
             // Keranjang
