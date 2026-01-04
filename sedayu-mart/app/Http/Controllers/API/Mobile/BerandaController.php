@@ -43,9 +43,7 @@ class BerandaController extends Controller
 
             $query = Produk::with([
                 'gambarUtama',
-                'varians' => function ($q) {
-                    $q->where('is_default', 1)->limit(1);
-                },
+                'varians',
             ])
                 // hanya produk yang punya minimal satu varian stok >= 10
                 ->whereHas('varians', function ($q) {
@@ -57,15 +55,20 @@ class BerandaController extends Controller
             }
 
             $produks = $query->get()->map(function ($produk) {
+                // Hitung total stok semua varian produk
+                $totalStok = $produk->varians->sum('stok');
+                // Cari varian default (is_default == 1)
+                $varianDefault = $produk->varians->where('is_default', 1)->first();
                 return [
                     'id'    => $produk->id,
                     'nama'  => $produk->nama,
+                    'stok'  => $totalStok,
+                    'satuan' => $produk->satuan_produk,
                     'gambar_utama' => 'storage/img/produk/' . ($produk->gambarUtama ? $produk->gambarUtama->gambar : null),
-                    'varian_default' => $produk->varians->first() ? [
-                        'id' => $produk->varians->first()->id,
-                        'nama' => $produk->varians->first()->nama,
-                        'harga' => $produk->varians->first()->harga,
-                        'stok' => $produk->varians->first()->stok,
+                    'varian_default' => $varianDefault ? [
+                        'id' => $varianDefault->id,
+                        'nama' => $varianDefault->nama,
+                        'harga' => $varianDefault->harga,
                     ] : null,
                 ];
             });
@@ -118,6 +121,8 @@ class BerandaController extends Controller
                         'nama' => $varian->nama,
                         'harga' => $varian->harga,
                         'stok' => $varian->stok,
+                        'is_default' => $varian->is_default,
+                        'satuan' => $varian->produk->satuan_produk,
                     ];
                 }),
             ];

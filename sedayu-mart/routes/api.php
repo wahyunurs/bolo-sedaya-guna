@@ -62,12 +62,20 @@ Route::prefix('mobile')->group(function () {
             // Profil
             Route::prefix('profil')->group(function () {
                 Route::get('/', [ProfilController::class, 'index']);
+                Route::get('kabupaten-dropdown', [ProfilController::class, 'kabupatenDropdown']);
 
                 // Edit Profil
-                Route::prefix('edit')->group(function () {
+                Route::prefix('edit-profil')->group(function () {
                     Route::get('/', [ProfilController::class, 'profil']);
                     Route::put('/update', [ProfilController::class, 'updateProfil']);
-                    Route::put('/update-password', [ProfilController::class, 'updatePassword']);
+                });
+
+                // Alamat Pengiriman
+                Route::prefix('alamat-pengiriman')->group(function () {
+                    Route::get('/', [ProfilController::class, 'alamatPengiriman']);
+                    Route::post('/tambah', [ProfilController::class, 'tambahAlamatPengiriman']);
+                    Route::put('/update/{alamatId}', [ProfilController::class, 'updateAlamatPengiriman']);
+                    Route::delete('/hapus/{alamatId}', [ProfilController::class, 'hapusAlamatPengiriman']);
                 });
             });
 
