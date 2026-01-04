@@ -60,7 +60,7 @@ class BerandaController extends Controller
                 return [
                     'id'    => $produk->id,
                     'nama'  => $produk->nama,
-                    'gambar_utama' => $produk->gambarUtama ? $produk->gambarUtama->gambar : null,
+                    'gambar_utama' => 'storage/img/produk/' . ($produk->gambarUtama ? $produk->gambarUtama->gambar : null),
                     'varian_default' => $produk->varians->first() ? [
                         'id' => $produk->varians->first()->id,
                         'nama' => $produk->varians->first()->nama,
@@ -108,12 +108,13 @@ class BerandaController extends Controller
                 'gambar_produks' => $produk->gambarProduks->map(function ($gambar) {
                     return [
                         'id' => $gambar->id,
-                        'gambar' => $gambar->gambar,
+                        'gambar' => 'storage/img/produk/' . $gambar->gambar,
                     ];
                 }),
                 'varians' => $produk->varians->map(function ($varian) {
                     return [
                         'id' => $varian->id,
+                        'gambar' => 'storage/img/varian/' . $varian->gambar,
                         'nama' => $varian->nama,
                         'harga' => $varian->harga,
                         'stok' => $varian->stok,
