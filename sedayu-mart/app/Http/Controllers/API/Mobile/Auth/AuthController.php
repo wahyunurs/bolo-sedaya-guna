@@ -20,6 +20,10 @@ class AuthController extends Controller
     {
         $request->validate([
             'nama'      => 'required|string|max:255',
+            'alamat'    => 'required|string|max:500',
+            'kabupaten' => 'required|string|max:255',
+            // 'provinsi'  => 'required|string|max:255',
+            'nomor_telepon' => 'required|string|max:50',
             'email'     => 'required|email|unique:users,email',
             'password'  => 'required|min:8|confirmed',
         ]);

@@ -2,9 +2,10 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\API\Mobile\ProfilController;
 use App\Http\Controllers\API\Mobile\BerandaController;
-use App\Http\Controllers\API\Mobile\Auth\AuthController;
 use App\Http\Controllers\API\Mobile\CheckoutController;
+use App\Http\Controllers\API\Mobile\Auth\AuthController;
 use App\Http\Controllers\API\Mobile\OnboardingController;
 
 Route::get('/', function () {
@@ -55,6 +56,18 @@ Route::prefix('mobile')->group(function () {
                         Route::delete('/hapus/{alamatId}', [CheckoutController::class, 'hapusAlamatPengiriman']);
                         Route::post('/pilih/{alamatId}', [CheckoutController::class, 'pilihAlamatPengiriman']);
                     });
+                });
+            });
+
+            // Profil
+            Route::prefix('profil')->group(function () {
+                Route::get('/', [ProfilController::class, 'index']);
+
+                // Edit Profil
+                Route::prefix('edit')->group(function () {
+                    Route::get('/', [ProfilController::class, 'profil']);
+                    Route::put('/update', [ProfilController::class, 'updateProfil']);
+                    Route::put('/update-password', [ProfilController::class, 'updatePassword']);
                 });
             });
 

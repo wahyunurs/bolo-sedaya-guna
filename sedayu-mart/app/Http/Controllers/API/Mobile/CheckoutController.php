@@ -13,6 +13,7 @@ use App\Models\AlamatPengiriman;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class CheckoutController extends Controller
 {
@@ -117,12 +118,11 @@ class CheckoutController extends Controller
             $ongkir = (int) ($tarif->tarif_per_kg * $totalBeratKg);
             $totalBayar = $subtotalProduk + $ongkir;
 
-            // Upload bukti pembayaran
             $fileName = null;
             if ($request->hasFile('bukti_pembayaran')) {
                 $file = $request->file('bukti_pembayaran');
-                $fileName = time() . '_' . $file->getClientOriginalName();
-                $file->storeAs('public/img/bukti_pembayaran', $fileName);
+                $fileName = time() . '-' . $file->getClientOriginalName();
+                Storage::disk('public')->putFileAs('img/bukti_pembayaran', $file, $fileName);
             }
 
             DB::transaction(function () use (
@@ -183,11 +183,13 @@ class CheckoutController extends Controller
                     'atas_nama' => $rekening->atas_nama,
                 ],
                 'kuantitas' => $kuantitas,
+                'alamat_pengiriman' => $alamat->alamat,
+                'kabupaten_tujuan' => $alamat->kabupaten,
                 'subtotal_produk' => $subtotalProduk,
                 'ongkir' => $ongkir,
                 'total_bayar' => $totalBayar,
-                'alamat_pengiriman' => $alamat->alamat,
-                'kabupaten_tujuan' => $alamat->kabupaten,
+                'bukti_pembayaran' => $fileName,
+                'catatan' => $catatan,
             ];
 
             return $this->successResponse([
