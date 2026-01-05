@@ -61,6 +61,12 @@ class User extends Authenticatable
         return $this->hasMany(AlamatPengiriman::class, 'user_id');
     }
 
+    // Relasi dengan Keranjang
+    public function keranjang()
+    {
+        return $this->hasMany(Keranjang::class, 'user_id');
+    }
+
     // Relasi dengan Pesanan
     public function pesanan()
     {

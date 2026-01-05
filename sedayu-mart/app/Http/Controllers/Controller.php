@@ -40,7 +40,7 @@ abstract class Controller
         return response()->json([
             'success' => false,
             'message' => $e->getMessage(),
-            'errors' => 'Exception Error : ' . $exception,
+            'errors' => $exception,
         ], $status);
     }
 

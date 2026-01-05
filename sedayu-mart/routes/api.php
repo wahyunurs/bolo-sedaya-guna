@@ -6,6 +6,7 @@ use App\Http\Controllers\API\Mobile\ProfilController;
 use App\Http\Controllers\API\Mobile\BerandaController;
 use App\Http\Controllers\API\Mobile\CheckoutController;
 use App\Http\Controllers\API\Mobile\Auth\AuthController;
+use App\Http\Controllers\API\Mobile\KeranjangController;
 use App\Http\Controllers\API\Mobile\OnboardingController;
 
 Route::get('/', function () {
@@ -57,6 +58,17 @@ Route::prefix('mobile')->group(function () {
                         Route::post('/pilih/{alamatId}', [CheckoutController::class, 'pilihAlamatPengiriman']);
                     });
                 });
+            });
+
+            // Keranjang
+            Route::prefix('keranjang')->group(function () {
+                Route::get('/', [KeranjangController::class, 'index']);
+                Route::put('/tambah-kuantitas/{keranjangId}', [KeranjangController::class, 'tambahKuantitas']);
+                Route::put('/kurang-kuantitas/{keranjangId}', [KeranjangController::class, 'kurangKuantitas']);
+                Route::delete('/hapus/{keranjangId}', [KeranjangController::class, 'hapus']);
+                Route::delete('/hapus-semua', [KeranjangController::class, 'hapusSemua']);
+                Route::post('/beli-sekarang', [KeranjangController::class, 'beliSekarang']);
+                Route::post('/beli-semua', [KeranjangController::class, 'beliSekarangSemua']);
             });
 
             // Profil

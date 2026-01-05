@@ -156,12 +156,7 @@ class BerandaController extends Controller
             $kuantitas = (int) $request->kuantitas;
 
             $varian = Varian::find($varianId);
-
-            if ($varian->stok < $kuantitas) {
-                return $this->successResponse([], 'Stok varian tidak mencukupi');
-            }
-
-            $subtotal = $kuantitas * $varian->harga;
+            $batasStok = $varian->stok - 10;
 
             $keranjang = Keranjang::where('user_id', $user->id)
                 ->where('produk_id', $produkId)
@@ -169,28 +164,33 @@ class BerandaController extends Controller
                 ->first();
 
             if ($keranjang) {
-                $keranjang->kuantitas = $keranjang->kuantitas + $kuantitas;
-                $keranjang->subtotal = $keranjang->subtotal + $subtotal;
+                $kuantitasTotal = $keranjang->kuantitas + $kuantitas;
+                if ($kuantitasTotal > $varian->stok || $kuantitasTotal > $batasStok) {
+                    $e = new \Exception('Stok tidak mencukupi');
+                    return $this->exceptionError($e, 'Stok tidak mencukupi', 400);
+                }
+                $keranjang->kuantitas = $kuantitasTotal;
+                $keranjang->subtotal = $keranjang->subtotal + ($kuantitas * $varian->harga);
                 $keranjang->save();
             } else {
+                if ($kuantitas > $varian->stok || $kuantitas > $batasStok) {
+                    $e = new \Exception('Stok tidak mencukupi');
+                    return $this->exceptionError($e, 'Stok tidak mencukupi', 400);
+                }
                 Keranjang::create([
                     'user_id' => $user->id,
                     'produk_id' => $produkId,
                     'varian_id' => $varianId,
                     'kuantitas' => $kuantitas,
-                    'subtotal' => $subtotal,
+                    'subtotal' => $kuantitas * $varian->harga,
                 ]);
             }
-
-            // Kurangi stok varian
-            $varian->stok = max(0, $varian->stok - $kuantitas);
-            $varian->save();
 
             $keranjangData = [
                 'produk_id' => $produkId,
                 'varian_id' => $varianId,
                 'kuantitas' => $kuantitas,
-                'subtotal' => $subtotal,
+                'subtotal' => $kuantitas * $varian->harga,
             ];
 
             return $this->successResponse([
@@ -210,7 +210,6 @@ class BerandaController extends Controller
         try {
             $user = Auth::user();
 
-            // Validasi request
             $request->validate([
                 'produk_id'  => 'required|integer|exists:produk,id',
                 'varian_id' => 'required|integer|exists:varian,id',
@@ -223,8 +222,11 @@ class BerandaController extends Controller
 
             $produk = Produk::find($produkId);
             $varian = Varian::find($varianId);
-            if ($varian->stok < $kuantitas) {
-                return $this->successResponse([], 'Stok varian tidak mencukupi');
+
+            $batasStok = $varian->stok - 10;
+            if ($kuantitas > $varian->stok || $kuantitas > $batasStok) {
+                $e = new \Exception('Stok tidak mencukupi');
+                return $this->exceptionError($e, 'Stok tidak mencukupi', 400);
             }
 
             $subtotal = $kuantitas * $varian->harga;

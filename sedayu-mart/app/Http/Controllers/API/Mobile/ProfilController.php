@@ -31,7 +31,7 @@ class ProfilController extends Controller
                     'kabupaten' => $profilUser->kabupaten,
                     // 'provinsi' => $profilUser->provinsi,
                     'nomor_telepon' => $profilUser->nomor_telepon,
-                    'avatar' => $profilUser->avatar ? 'storage/img/profil/' . $profilUser->avatar : null,
+                    'avatar' => 'storage/img/profil/' . ($profilUser->avatar ? $profilUser->avatar : null),
                 ],
                 'statistik_pesanan' => [
                     'total_pesanan' => $pesananCount,
@@ -91,7 +91,7 @@ class ProfilController extends Controller
                 'kabupaten' => $profil->kabupaten,
                 // 'provinsi' => $profil->provinsi,
                 'nomor_telepon' => $profil->nomor_telepon,
-                'avatar' => $profil->avatar ? 'storage/img/profil/' . $profil->avatar : null,
+                'avatar' => 'storage/img/profil/' . ($profil->avatar ? $profil->avatar : null),
             ];
             return $this->successResponse($profilData, 'Berhasil mengambil data profil pengguna');
         } catch (\Throwable $e) {
@@ -134,7 +134,7 @@ class ProfilController extends Controller
                 'avatar' => $profil->avatar,
             ]);
 
-            return $this->successResponse($user, 'Berhasil memperbarui data profil pengguna');
+            return $this->successResponse($user, 'Data profil berhasil diperbarui');
         } catch (\Throwable $e) {
             return $this->exceptionError($e, $e->getMessage(), 500);
         }
@@ -213,7 +213,7 @@ class ProfilController extends Controller
                     'nama' => $user->nama,
                 ],
                 'alamat_pengiriman' => $alamatPengiriman,
-            ], 'Berhasil menambahkan alamat pengiriman');
+            ], 'Alamat pengiriman berhasil ditambahkan');
         } catch (\Throwable $e) {
             return $this->exceptionError($e, $e->getMessage(), 500);
         }
@@ -264,7 +264,7 @@ class ProfilController extends Controller
                     'nama' => $user->nama,
                 ],
                 'alamat_pengiriman' => $alamatPengiriman,
-            ], 'Berhasil memperbarui alamat pengiriman');
+            ], 'Alamat pengiriman berhasil diperbarui');
         } catch (\Throwable $e) {
             return $this->exceptionError($e, $e->getMessage(), 500);
         }
@@ -296,7 +296,7 @@ class ProfilController extends Controller
                     'id'   => $user->id,
                     'nama' => $user->nama,
                 ],
-            ], 'Berhasil menghapus alamat pengiriman');
+            ], 'Alamat pengiriman berhasil dihapus');
         } catch (\Throwable $e) {
             return $this->exceptionError($e, $e->getMessage(), 500);
         }
