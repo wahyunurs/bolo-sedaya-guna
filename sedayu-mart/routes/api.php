@@ -6,6 +6,7 @@ use App\Http\Controllers\API\Mobile\ProfilController;
 use App\Http\Controllers\API\Mobile\BerandaController;
 use App\Http\Controllers\API\Mobile\CheckoutController;
 use App\Http\Controllers\API\Mobile\Auth\AuthController;
+use App\Http\Controllers\API\Mobile\CheckoutKeranjangController;
 use App\Http\Controllers\API\Mobile\KeranjangController;
 use App\Http\Controllers\API\Mobile\OnboardingController;
 
@@ -69,6 +70,23 @@ Route::prefix('mobile')->group(function () {
                 Route::delete('/hapus-semua', [KeranjangController::class, 'hapusSemua']);
                 Route::post('/beli-sekarang', [KeranjangController::class, 'beliSekarang']);
                 Route::post('/beli-semua', [KeranjangController::class, 'beliSekarangSemua']);
+
+                // Checkout dari Keranjang
+                Route::prefix('checkout')->group(function () {
+                    Route::post('/', [CheckoutKeranjangController::class, 'checkout']);
+                    Route::get('/alamat-utama', [CheckoutKeranjangController::class, 'alamatUtama']);
+                    Route::get('/rekening-list', [CheckoutKeranjangController::class, 'rekeningList']);
+
+                    // Alamat Pengiriman
+                    Route::prefix('alamat-pengiriman')->group(function () {
+                        Route::get('/', [CheckoutKeranjangController::class, 'alamatPengiriman']);
+                        Route::get('/kabupaten-dropdown', [CheckoutKeranjangController::class, 'kabupatenDropdown']);
+                        Route::post('/tambah', [CheckoutKeranjangController::class, 'tambahAlamatPengiriman']);
+                        Route::put('/update/{alamatId}', [CheckoutKeranjangController::class, 'updateAlamatPengiriman']);
+                        Route::delete('/hapus/{alamatId}', [CheckoutKeranjangController::class, 'hapusAlamatPengiriman']);
+                        Route::post('/pilih/{alamatId}', [CheckoutKeranjangController::class, 'pilihAlamatPengiriman']);
+                    });
+                });
             });
 
             // Profil
@@ -85,6 +103,7 @@ Route::prefix('mobile')->group(function () {
                 // Alamat Pengiriman
                 Route::prefix('alamat-pengiriman')->group(function () {
                     Route::get('/', [ProfilController::class, 'alamatPengiriman']);
+                    Route::put('/set-utama/{alamatId}', [ProfilController::class, 'setAlamatUtama']);
                     Route::post('/tambah', [ProfilController::class, 'tambahAlamatPengiriman']);
                     Route::put('/update/{alamatId}', [ProfilController::class, 'updateAlamatPengiriman']);
                     Route::delete('/hapus/{alamatId}', [ProfilController::class, 'hapusAlamatPengiriman']);

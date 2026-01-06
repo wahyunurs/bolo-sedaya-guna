@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers\API\Mobile;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\TarifPengiriman;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 
 class KeranjangController extends Controller
@@ -37,19 +38,16 @@ class KeranjangController extends Controller
             }
 
             return [
-                'user' => [
-                    'id' => $keranjang->user->id,
-                    'nama' => $keranjang->user->nama,
-                ],
                 'id' => $keranjang->id,
                 'produk' => [
                     'id' => $keranjang->produk->id,
                     'nama' => $keranjang->produk->nama,
                     'satuan_produk' => $keranjang->produk->satuan_produk,
-                    'gambar_utama' => 'storage/img/produk/' . ($keranjang->produk->gambarUtama ? $keranjang->produk->gambarUtama->gambar : null),
+                    'gambar_utama' => $keranjang->produk->gambarUtama ? 'storage/img/produk/' . $keranjang->produk->gambarUtama->gambar : null,
                 ],
                 'varian' => [
                     'id' => $keranjang->varian->id,
+                    'gambar_utama' => $keranjang->varian->gambar ? 'storage/img/varian/' . $keranjang->varian->gambar : null,
                     'nama_varian' => $keranjang->varian->nama,
                     'harga' => $keranjang->varian->harga,
                 ],
@@ -68,7 +66,6 @@ class KeranjangController extends Controller
 
         $keranjang = $user->keranjang()->where('id', $keranjangId)->firstOrFail();
 
-
         $request->validate([
             'tambah' => 'required|integer|min:1',
         ]);
@@ -86,22 +83,10 @@ class KeranjangController extends Controller
         $keranjang->save();
 
         $keranjangData = [
-            'user' => [
-                'id' => $keranjang->user->id,
-                'nama' => $keranjang->user->nama,
+            'input' => [
+                'tambah' => $tambah,
             ],
             'id' => $keranjang->id,
-            'produk' => [
-                'id' => $keranjang->produk->id,
-                'nama' => $keranjang->produk->nama,
-                'satuan_produk' => $keranjang->produk->satuan_produk,
-                'gambar_utama' => 'storage/img/produk/' . ($keranjang->produk->gambarUtama ? $keranjang->produk->gambarUtama->gambar : null),
-            ],
-            'varian' => [
-                'id' => $keranjang->varian->id,
-                'nama_varian' => $keranjang->varian->nama,
-                'harga' => $keranjang->varian->harga,
-            ],
             'kuantitas' => $keranjang->kuantitas,
             'subtotal' => $keranjang->subtotal,
         ];
@@ -132,22 +117,10 @@ class KeranjangController extends Controller
         $keranjang->save();
 
         $keranjangData = [
-            'user' => [
-                'id' => $keranjang->user->id,
-                'nama' => $keranjang->user->nama,
+            'input' => [
+                'kurang' => $kurang,
             ],
             'id' => $keranjang->id,
-            'produk' => [
-                'id' => $keranjang->produk->id,
-                'nama' => $keranjang->produk->nama,
-                'satuan_produk' => $keranjang->produk->satuan_produk,
-                'gambar_utama' => 'storage/img/produk/' . ($keranjang->produk->gambarUtama ? $keranjang->produk->gambarUtama->gambar : null),
-            ],
-            'varian' => [
-                'id' => $keranjang->varian->id,
-                'nama_varian' => $keranjang->varian->nama,
-                'harga' => $keranjang->varian->harga,
-            ],
             'kuantitas' => $keranjang->kuantitas,
             'subtotal' => $keranjang->subtotal,
         ];
@@ -198,25 +171,43 @@ class KeranjangController extends Controller
 
         $keranjang = $user->keranjang()->where('id', $request->keranjang_id)->firstOrFail();
 
+        // Ambil alamat utama user
+        $alamatUtama = $user->alamatPengiriman()->where('utama', true)->first();
+
+        // Hitung berat produk (dalam gram, default 1000 jika null)
+        $beratProduk = (int) ($keranjang->varian->berat ?? 1000);
+        $totalBeratGram = $beratProduk * $keranjang->kuantitas;
+        $totalBeratKg = (int) ceil($totalBeratGram / 1000);
+
+        // Hitung ongkir
+        $ongkir = 0;
+        if ($alamatUtama) {
+            $kabupaten = mb_strtolower(trim($alamatUtama->kabupaten));
+            $tarif = TarifPengiriman::whereRaw('LOWER(TRIM(kabupaten)) = ?', [$kabupaten])->first();
+            if ($tarif) {
+                $ongkir = (int) ($tarif->tarif_per_kg * $totalBeratKg);
+            }
+        }
+
+        $subtotal = $keranjang->subtotal;
+        $totalBayar = $subtotal + $ongkir;
+
         $beliSekarangData = [
-            'user' => [
-                'id' => $user->id,
-                'nama' => $user->nama,
-            ],
             'keranjang_id' => $keranjang->id,
-            'produk' => [
-                'id' => $keranjang->produk->id,
-                'nama' => $keranjang->produk->nama,
-                'satuan_produk' => $keranjang->produk->satuan_produk,
-                'gambar_utama' => 'storage/img/produk/' . ($keranjang->produk->gambarUtama ? $keranjang->produk->gambarUtama->gambar : null),
-            ],
-            'varian' => [
-                'id' => $keranjang->varian->id,
-                'nama_varian' => $keranjang->varian->nama,
-                'harga' => $keranjang->varian->harga,
-            ],
+            'produk_id' => $keranjang->produk->id,
+            'nama_produk' => $keranjang->produk->nama,
+            'satuan_produk' => $keranjang->produk->satuan_produk,
+            'varian_id' => $keranjang->varian->id,
+            'gambar_varian' => $keranjang->varian->gambar ? 'storage/img/varian/' . $keranjang->varian->gambar : null,
+            'nama_varian' => $keranjang->varian->nama,
+            'harga' => $keranjang->varian->harga,
+            'stok_varian' => $keranjang->varian->stok,
             'kuantitas' => $keranjang->kuantitas,
-            'subtotal' => $keranjang->subtotal,
+            'berat_gram' => $totalBeratGram,
+            'berat_kg' => $totalBeratKg,
+            'subtotal' => $subtotal,
+            'ongkir' => $ongkir,
+            'total_bayar' => $totalBayar,
         ];
 
         return $this->successResponse($beliSekarangData, 'Berhasil mengambil data beli sekarang dari keranjang');
@@ -234,29 +225,50 @@ class KeranjangController extends Controller
         $ids = $request->ids;
         $keranjangs = $user->keranjang()->whereIn('id', $ids)->get();
 
-        $beliSekarangData = $keranjangs->map(function ($keranjang) use ($user) {
-            return [
-                'user' => [
-                    'id' => $user->id,
-                    'nama' => $user->nama,
-                ],
+        // Ambil alamat utama user
+        $alamatUtama = $user->alamatPengiriman()->where('utama', true)->first();
+
+        // Hitung total berat dan subtotal semua keranjang
+        $totalBeratGram = 0;
+        $subtotal = 0;
+        $produkList = [];
+        foreach ($keranjangs as $keranjang) {
+            $beratProduk = (int) ($keranjang->varian->berat ?? 1000);
+            $totalBeratGram += $beratProduk * $keranjang->kuantitas;
+            $subtotal += $keranjang->subtotal;
+            $produkList[] = [
                 'keranjang_id' => $keranjang->id,
                 'produk' => [
-                    'id' => $keranjang->produk->id,
-                    'nama' => $keranjang->produk->nama,
+                    'produk_id' => $keranjang->produk->id,
+                    'nama_produk' => $keranjang->produk->nama,
                     'satuan_produk' => $keranjang->produk->satuan_produk,
-                    'gambar_utama' => 'storage/img/produk/' . ($keranjang->produk->gambarUtama ? $keranjang->produk->gambarUtama->gambar : null),
-                ],
-                'varian' => [
-                    'id' => $keranjang->varian->id,
+                    'varian_id' => $keranjang->varian->id,
+                    'gambar_varian' => $keranjang->varian->gambar ? 'storage/img/varian/' . $keranjang->varian->gambar : null,
                     'nama_varian' => $keranjang->varian->nama,
                     'harga' => $keranjang->varian->harga,
+                    'stok_varian' => $keranjang->varian->stok,
                 ],
                 'kuantitas' => $keranjang->kuantitas,
                 'subtotal' => $keranjang->subtotal,
             ];
-        });
+        }
 
-        return $this->successResponse($beliSekarangData, 'Berhasil mengambil data beli sekarang dari keranjang terpilih');
+        $totalBeratKg = (int) ceil($totalBeratGram / 1000);
+        $ongkir = 0;
+        if ($alamatUtama) {
+            $kabupaten = mb_strtolower(trim($alamatUtama->kabupaten));
+            $tarif = TarifPengiriman::whereRaw('LOWER(TRIM(kabupaten)) = ?', [$kabupaten])->first();
+            if ($tarif) {
+                $ongkir = (int) ($tarif->tarif_per_kg * $totalBeratKg);
+            }
+        }
+        $totalBayar = $subtotal + $ongkir;
+
+        return $this->successResponse([
+            'produkList' => $produkList,
+            'subtotal_semua' => $subtotal,
+            'ongkir' => $ongkir,
+            'total_bayar' => $totalBayar,
+        ], 'Berhasil mengambil data beli sekarang dari keranjang terpilih');
     }
 }

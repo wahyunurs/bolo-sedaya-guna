@@ -31,7 +31,7 @@ class ProfilController extends Controller
                     'kabupaten' => $profilUser->kabupaten,
                     // 'provinsi' => $profilUser->provinsi,
                     'nomor_telepon' => $profilUser->nomor_telepon,
-                    'avatar' => 'storage/img/profil/' . ($profilUser->avatar ? $profilUser->avatar : null),
+                    'avatar' => $profilUser->avatar ? 'storage/img/profil/' . $profilUser->avatar : null,
                 ],
                 'statistik_pesanan' => [
                     'total_pesanan' => $pesananCount,
@@ -91,7 +91,7 @@ class ProfilController extends Controller
                 'kabupaten' => $profil->kabupaten,
                 // 'provinsi' => $profil->provinsi,
                 'nomor_telepon' => $profil->nomor_telepon,
-                'avatar' => 'storage/img/profil/' . ($profil->avatar ? $profil->avatar : null),
+                'avatar' => $profil->avatar ? 'storage/img/profil/' . $profil->avatar : null,
             ];
             return $this->successResponse($profilData, 'Berhasil mengambil data profil pengguna');
         } catch (\Throwable $e) {
@@ -122,7 +122,7 @@ class ProfilController extends Controller
                 $file = $request->file('avatar');
                 $fileName = time() . '-' . $file->getClientOriginalName();
                 $file->storeAs('img/profil', $fileName, 'public');
-                $profil->avatar = 'img/profil/' . $fileName;
+                $profil->avatar = $fileName;
             }
 
             $profil->update([
@@ -173,10 +173,38 @@ class ProfilController extends Controller
         }
     }
 
+    public function setAlamatUtama(Request $request, $alamatId)
+    {
+        try {
+            $user = Auth::user();
+
+            $alamatPengiriman = AlamatPengiriman::where('user_id', $user->id)->where('id', $alamatId)->first();
+            if (! $alamatPengiriman) {
+                return $this->successResponse([], 'Alamat pengiriman tidak ditemukan');
+            }
+
+            // Set semua alamat lain menjadi bukan utama
+            AlamatPengiriman::where('user_id', $user->id)->update(['utama' => false]);
+            // Set alamat ini menjadi utama
+            $alamatPengiriman->update(['utama' => true]);
+
+            return $this->successResponse([
+                'user' => [
+                    'id'   => $user->id,
+                    'nama' => $user->nama,
+                ],
+                'alamat_pengiriman' => $alamatPengiriman,
+            ], 'Alamat pengiriman utama berhasil diperbarui');
+        } catch (\Throwable $e) {
+            return $this->exceptionError($e, $e->getMessage(), 500);
+        }
+    }
+
     public function tambahAlamatPengiriman(Request $request)
     {
         try {
             $user = Auth::user();
+
 
             // Validasi request
             $request->validate([
@@ -184,7 +212,16 @@ class ProfilController extends Controller
                 'nomor_telepon' => 'required|string|max:20',
                 'alamat'    => 'required|string|max:500',
                 'kabupaten'    => 'required|string|max:255',
-                'provinsi'    => 'required|string|in:Jawa Tengah|max:100',
+                'provinsi'    => [
+                    'required',
+                    'string',
+                    'max:100',
+                    function ($attribute, $value, $fail) {
+                        if (strtolower(trim($value)) !== 'jawa tengah') {
+                            $fail('Provinsi harus "Jawa Tengah"');
+                        }
+                    }
+                ],
                 'kode_pos'    => 'required|string|max:10',
                 'keterangan'    => 'nullable|string|max:1000',
                 'utama'    => 'sometimes|boolean',
@@ -195,13 +232,16 @@ class ProfilController extends Controller
                 AlamatPengiriman::where('user_id', $user->id)->update(['utama' => false]);
             }
 
+            // Pastikan provinsi yang disimpan selalu "Jawa Tengah"
+            $provinsi = 'Jawa Tengah';
+
             $alamatPengiriman = AlamatPengiriman::create([
                 'user_id' => $user->id,
                 'nama_penerima' => $request->nama_penerima,
                 'nomor_telepon' => $request->nomor_telepon,
                 'alamat' => $request->alamat,
                 'kabupaten' => $request->kabupaten,
-                'provinsi' => $request->provinsi,
+                'provinsi' => $provinsi,
                 'kode_pos' => $request->kode_pos,
                 'keterangan' => $request->keterangan,
                 'utama' => $request->has('utama') ? $request->utama : false,
@@ -219,15 +259,12 @@ class ProfilController extends Controller
         }
     }
 
+
+
     public function updateAlamatPengiriman(Request $request, $alamatId)
     {
         try {
             $user = Auth::user();
-
-            $alamatPengiriman = AlamatPengiriman::where('user_id', $user->id)->where('id', $alamatId)->first();
-            if (! $alamatPengiriman) {
-                return $this->successResponse([], 'Alamat pengiriman tidak ditemukan');
-            }
 
             // Validasi request
             $request->validate([
@@ -235,11 +272,23 @@ class ProfilController extends Controller
                 'nomor_telepon' => 'sometimes|string|max:20',
                 'alamat'    => 'sometimes|string|max:500',
                 'kabupaten'    => 'sometimes|string|max:255',
-                'provinsi'    => 'sometimes|string|in:Jawa Tengah|max:100',
+                'provinsi'    => [
+                    'sometimes',
+                    'string',
+                    'max:100',
+                    function ($attribute, $value, $fail) {
+                        if ($value !== null && strtolower(trim($value)) !== 'jawa tengah') {
+                            $fail('Provinsi harus "Jawa Tengah"');
+                        }
+                    }
+                ],
                 'kode_pos'    => 'sometimes|string|max:10',
                 'keterangan'    => 'nullable|string|max:1000',
                 'utama'    => 'sometimes|boolean',
             ]);
+
+
+            $alamatPengiriman = AlamatPengiriman::where('user_id', $user->id)->where('id', $alamatId)->first();
 
             // Jika alamat utama, set semua alamat lain menjadi bukan utama
             if ($request->has('utama') && $request->utama) {
@@ -247,7 +296,7 @@ class ProfilController extends Controller
             }
 
             // Update data alamat pengiriman
-            $alamatPengiriman->update($request->only([
+            $dataUpdate = $request->only([
                 'nama_penerima',
                 'nomor_telepon',
                 'alamat',
@@ -256,7 +305,14 @@ class ProfilController extends Controller
                 'kode_pos',
                 'keterangan',
                 'utama',
-            ]));
+            ]);
+
+            // Pastikan provinsi yang disimpan selalu "Jawa Tengah" jika ada pada request
+            if (array_key_exists('provinsi', $dataUpdate)) {
+                $dataUpdate['provinsi'] = 'Jawa Tengah';
+            }
+
+            $alamatPengiriman->update($dataUpdate);
 
             return $this->successResponse([
                 'user' => [

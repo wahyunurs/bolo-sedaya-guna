@@ -64,7 +64,7 @@ class BerandaController extends Controller
                     'nama'  => $produk->nama,
                     'stok'  => $totalStok,
                     'satuan' => $produk->satuan_produk,
-                    'gambar_utama' => 'storage/img/produk/' . ($produk->gambarUtama ? $produk->gambarUtama->gambar : null),
+                    'gambar_utama' => $produk->gambarUtama ? 'storage/img/produk/' . $produk->gambarUtama->gambar : null,
                     'varian_default' => $varianDefault ? [
                         'id' => $varianDefault->id,
                         'nama' => $varianDefault->nama,
@@ -108,16 +108,16 @@ class BerandaController extends Controller
                 'id'    => $produk->id,
                 'nama'  => $produk->nama,
                 'deskripsi' => $produk->deskripsi,
-                'gambar_produks' => $produk->gambarProduks->map(function ($gambar) {
+                'gambar_produks' => $produk->gambarProduks->map(function ($gambar) use ($produk) {
                     return [
                         'id' => $gambar->id,
-                        'gambar' => 'storage/img/produk/' . $gambar->gambar,
+                        'gambar' => $produk->gambarUtama ? 'storage/img/produk/' . $gambar->gambar : null,
                     ];
                 }),
                 'varians' => $produk->varians->map(function ($varian) {
                     return [
                         'id' => $varian->id,
-                        'gambar' => 'storage/img/varian/' . $varian->gambar,
+                        'gambar' => $varian->gambar ? 'storage/img/varian/' . $varian->gambar : null,
                         'nama' => $varian->nama,
                         'harga' => $varian->harga,
                         'stok' => $varian->stok,
@@ -231,26 +231,44 @@ class BerandaController extends Controller
 
             $subtotal = $kuantitas * $varian->harga;
 
+            // Ambil alamat utama user
+            $alamatUtama = $user->alamatPengiriman()->where('utama', true)->first();
+
+            // Hitung berat produk (dalam gram, default 1000 jika null)
+            $beratProduk = (int) ($varian->berat ?? 1000);
+            $totalBeratGram = $beratProduk * $kuantitas;
+            $totalBeratKg = (int) ceil($totalBeratGram / 1000);
+
+            // Hitung ongkir
+            $ongkir = 0;
+            if ($alamatUtama) {
+                $kabupaten = mb_strtolower(trim($alamatUtama->kabupaten));
+                $tarif = TarifPengiriman::whereRaw('LOWER(TRIM(kabupaten)) = ?', [$kabupaten])->first();
+                if ($tarif) {
+                    $ongkir = (int) ($tarif->tarif_per_kg * $totalBeratKg);
+                }
+            }
+
+            $totalBayar = $subtotal + $ongkir;
+
             $beliSekarangData = [
-                'produk' => [
-                    'id'    => $produkId,
-                    'nama'  => $produk->nama,
-                    'satuan' => $produk->satuan,
-                ],
-                'varian' => [
-                    'id'    => $varianId,
-                    'nama'  => $varian->nama,
-                    'harga' => $varian->harga,
-                ],
+                'produk_id'   => $produkId,
+                'nama_produk'  => $produk->nama,
+                'satuan_produk' => $produk->satuan_produk,
+                'varian_id'    => $varianId,
+                'gambar_varian' => $varian->gambar ? 'storage/img/varian/' . $varian->gambar : null,
+                'nama_varian'  => $varian->nama,
+                'stok_varian'  => $varian->stok,
+                'harga' => $varian->harga,
                 'kuantitas' => $kuantitas,
+                'berat_gram' => $totalBeratGram,
+                'berat_kg' => $totalBeratKg,
                 'subtotal' => $subtotal,
+                'ongkir' => $ongkir,
+                'total_bayar' => $totalBayar,
             ];
 
             return $this->successResponse([
-                'user' => [
-                    'id'   => $user->id,
-                    'nama' => $user->nama,
-                ],
                 'beli_sekarang' => $beliSekarangData,
             ], 'Berhasil mengambil data beli sekarang');
         } catch (\Throwable $e) {
