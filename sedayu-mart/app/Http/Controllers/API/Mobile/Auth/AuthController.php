@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use App\Http\Controllers\Controller;
+use App\Models\AlamatPengiriman;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Str;
 
@@ -30,11 +31,24 @@ class AuthController extends Controller
 
         $user = User::create([
             'nama'     => $request->nama,
+            'alamat'   => $request->alamat,
+            'kabupaten' => $request->kabupaten,
+            'nomor_telepon' => $request->nomor_telepon,
             'email'    => $request->email,
             'password' => Hash::make($request->password),
             'role'     => 'user',
             'status'   => 'aktif',
-            'is_onboarded' => true, // register manual = data cukup
+            'onboarded' => true,
+        ]);
+
+        $alamatPengiriman = AlamatPengiriman::create([
+            'user_id' => $user->id,
+            'nama_penerima' => $user->nama,
+            'alamat' => $user->alamat,
+            'kabupaten' => $user->kabupaten,
+            'provinsi' => 'Jawa Tengah',
+            'nomor_telepon' => $user->nomor_telepon,
+            'utama' => true,
         ]);
 
         $token = $user->createToken('mobile_auth')->plainTextToken;
@@ -44,7 +58,7 @@ class AuthController extends Controller
             'message' => 'Register berhasil',
             'access_token' => $token,
             'token_type' => 'Bearer',
-            'need_onboarding' => false,
+            'onboarded' => $user->onboarded,
             'data' => $user,
         ], 201);
     }

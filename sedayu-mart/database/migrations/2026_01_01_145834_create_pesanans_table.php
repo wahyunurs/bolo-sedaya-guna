@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('pesanan', function (Blueprint $table) {
             $table->id();
+            $table->string('nomor_pesanan')->unique();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->string('alamat');
             $table->string('kabupaten_tujuan'); // untuk lookup tarif
@@ -24,9 +25,9 @@ return new class extends Migration
             $table->enum('status', [
                 'Menunggu Verifikasi',
                 'Ditolak',
-                'Diterima',
-                'Dalam Pengiriman',
-                'Selesai'
+                'Diproses',
+                'Dikirim',
+                'Selesai',
             ])->default('Menunggu Verifikasi');
             $table->text('catatan')->nullable(); // catatan tambahan dari pembeli
             $table->text('keterangan')->nullable(); // alasan penolakan dari admin

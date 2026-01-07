@@ -112,7 +112,8 @@ class CheckoutController extends Controller
             )->first();
 
             if (! $tarif) {
-                return $this->successResponse([], 'Tarif pengiriman tidak tersedia.');
+                $e = new \Exception('Tarif pengiriman tidak ditemukan untuk kabupaten tujuan: ' . $alamat->kabupaten);
+                return $this->exceptionError($e, $e->getMessage(), 500);
             }
 
             $ongkir = (int) ($tarif->tarif_per_kg * $totalBeratKg);
@@ -124,6 +125,15 @@ class CheckoutController extends Controller
                 $fileName = time() . '-' . $file->getClientOriginalName();
                 Storage::disk('public')->putFileAs('img/bukti_pembayaran', $file, $fileName);
             }
+
+
+            // Inisialisasi nomor_pesanan di luar transaksi agar bisa digunakan di response
+            $now = now();
+            $bulanTahun = $now->format('my'); // MMYY
+            $counter = Pesanan::whereMonth('created_at', $now->month)
+                ->whereYear('created_at', $now->year)
+                ->count() + 1;
+            $nomorPesanan = 'ORD-' . $bulanTahun . '-' . str_pad($counter, 4, '0', STR_PAD_LEFT);
 
             DB::transaction(function () use (
                 $user,
@@ -138,6 +148,7 @@ class CheckoutController extends Controller
                 $fileName,
                 $catatan,
                 $totalBeratGram,
+                $nomorPesanan,
             ) {
                 if ($varian->stok < $kuantitas) {
                     throw new \Exception('Stok varian tidak mencukupi');
@@ -155,6 +166,7 @@ class CheckoutController extends Controller
                     'bukti_pembayaran' => $fileName,
                     'status' => 'Menunggu Verifikasi',
                     'catatan' => $catatan,
+                    'nomor_pesanan' => $nomorPesanan,
                 ]);
 
                 ItemPesanan::create([
@@ -168,6 +180,7 @@ class CheckoutController extends Controller
             });
 
             $checkoutData = [
+                'nomor_pesanan' => $nomorPesanan,
                 'produk' => [
                     'id' => $produk->id,
                     'nama' => $produk->nama,

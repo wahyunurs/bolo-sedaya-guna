@@ -13,6 +13,7 @@ class Pesanan extends Model
 
     protected $fillable = [
         'user_id',
+        'nomor_pesanan',
         'alamat',
         'kabupaten_tujuan',
         'ongkir',
@@ -35,8 +36,13 @@ class Pesanan extends Model
         return $this->belongsTo(Rekening::class, 'rekening_id');
     }
 
-    public function items()
+    public function ItemPesanan()
     {
         return $this->hasMany(ItemPesanan::class, 'pesanan_id');
+    }
+
+    public function informasiPengiriman()
+    {
+        return $this->hasOne(InformasiPengiriman::class, 'pesanan_id');
     }
 }

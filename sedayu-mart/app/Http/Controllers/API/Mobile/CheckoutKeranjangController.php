@@ -131,7 +131,8 @@ class CheckoutKeranjangController extends Controller
             )->first();
 
             if (! $tarif) {
-                return $this->successResponse([], 'Tarif pengiriman tidak tersedia.');
+                $e = new \Exception('Tarif pengiriman tidak ditemukan untuk kabupaten tujuan: ' . $alamat->kabupaten);
+                return $this->exceptionError($e, $e->getMessage(), 500);
             }
 
             $ongkir = (int) ($tarif->tarif_per_kg * $totalBeratKg);
@@ -144,6 +145,16 @@ class CheckoutKeranjangController extends Controller
                 Storage::disk('public')->putFileAs('img/bukti_pembayaran', $file, $fileName);
             }
 
+
+
+            // Inisialisasi nomor_pesanan di luar transaksi agar bisa digunakan di response
+            $now = now();
+            $bulanTahun = $now->format('my'); // MMYY
+            $counter = Pesanan::whereMonth('created_at', $now->month)
+                ->whereYear('created_at', $now->year)
+                ->count() + 1;
+            $nomorPesanan = 'ORD-' . $bulanTahun . '-' . str_pad($counter, 4, '0', STR_PAD_LEFT);
+
             DB::transaction(function () use (
                 $user,
                 $keranjangs,
@@ -155,6 +166,7 @@ class CheckoutKeranjangController extends Controller
                 $fileName,
                 $catatan,
                 $totalBeratGram,
+                $nomorPesanan,
             ) {
                 $pesanan = Pesanan::create([
                     'user_id' => $user->id,
@@ -167,6 +179,7 @@ class CheckoutKeranjangController extends Controller
                     'bukti_pembayaran' => $fileName,
                     'status' => 'Menunggu Verifikasi',
                     'catatan' => $catatan,
+                    'nomor_pesanan' => $nomorPesanan,
                 ]);
 
                 foreach ($keranjangs as $keranjang) {
@@ -199,6 +212,7 @@ class CheckoutKeranjangController extends Controller
             });
 
             $checkoutData = [
+                'nomor_pesanan' => $nomorPesanan,
                 'produk' => $produkCheckout,
                 'rekening' => [
                     'id' => $rekeningId,

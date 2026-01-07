@@ -4,11 +4,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\Mobile\ProfilController;
 use App\Http\Controllers\API\Mobile\BerandaController;
+use App\Http\Controllers\API\Mobile\PesananController;
 use App\Http\Controllers\API\Mobile\CheckoutController;
 use App\Http\Controllers\API\Mobile\Auth\AuthController;
-use App\Http\Controllers\API\Mobile\CheckoutKeranjangController;
 use App\Http\Controllers\API\Mobile\KeranjangController;
 use App\Http\Controllers\API\Mobile\OnboardingController;
+use App\Http\Controllers\API\Mobile\CheckoutKeranjangController;
 
 Route::get('/', function () {
     return response()->json([
@@ -87,6 +88,14 @@ Route::prefix('mobile')->group(function () {
                         Route::post('/pilih/{alamatId}', [CheckoutKeranjangController::class, 'pilihAlamatPengiriman']);
                     });
                 });
+            });
+
+            // Pesanan
+            Route::prefix('pesanan')->group(function () {
+                Route::get('/', [PesananController::class, 'index']);
+                Route::get('/menunggu-verifikasi', [PesananController::class, 'menungguVerifikasi']);
+                Route::get('/show/{pesananId}', [PesananController::class, 'show']);
+                Route::delete('/hapus/{pesananId}', [PesananController::class, 'hapus']);
             });
 
             // Profil
