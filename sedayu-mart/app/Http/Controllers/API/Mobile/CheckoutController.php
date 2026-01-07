@@ -157,6 +157,8 @@ class CheckoutController extends Controller
 
                 $pesanan = Pesanan::create([
                     'user_id' => $user->id,
+                    'nama_penerima' => $alamat->nama_penerima,
+                    'nomor_telepon' => $alamat->nomor_telepon,
                     'alamat' => $alamat->alamat,
                     'kabupaten_tujuan' => $alamat->kabupaten,
                     'ongkir' => $ongkir,

@@ -31,7 +31,7 @@ class PesananController extends Controller
                 $query->where('status', $statusList[$request->status]);
             }
 
-            $pesanans = $query->get();
+            $pesanans = $query->orderBy('created_at', 'desc')->get();
 
             if ($pesanans->isEmpty()) {
                 return $this->successResponse([], 'Data pesanan tidak ditemukan');
@@ -45,10 +45,11 @@ class PesananController extends Controller
                             'produk_id' => $item->produk->id,
                             'nama_produk' => $item->produk->nama,
                             'varian_id' => $item->varian->id,
-                            'gambar_varian' => $item->produk->gambarUtama ? 'storage/img/produk/' . $item->produk->gambarUtama->nama_file : null,
+                            'gambar_varian' => $item->varian->gambar ? 'storage/img/varian/' . $item->varian->gambar : null,
                             'nama_varian' => $item->varian->nama,
                             'harga' => $item->varian->harga,
                             'kuantitas' => $item->kuantitas,
+                            'satuan' => $item->produk->satuan_produk,
                             'subtotal' => $item->subtotal,
                         ],
                     ];
@@ -58,6 +59,7 @@ class PesananController extends Controller
                     'pesanan_id' => $pesanan->id,
                     'dihapus' => $pesanan->dihapus,
                     'nomor_pesanan' => $pesanan->nomor_pesanan,
+                    'pesanan_dibuat_pada' => $pesanan->created_at->toDateTimeString(),
                     'total_bayar' => $pesanan->total_bayar,
                     'status' => $pesanan->status,
                     'catatan' => $pesanan->catatan,
@@ -94,14 +96,17 @@ class PesananController extends Controller
                         'produk_id' => $item->produk->id,
                         'nama_produk' => $item->produk->nama,
                         'varian_id' => $item->varian->id,
-                        'gambar_varian' => $item->produk->gambarUtama ? 'storage/img/produk/' . $item->produk->gambarUtama->nama_file : null,
+                        'gambar_varian' => $item->varian->gambar ? 'storage/img/varian/' . $item->varian->gambar : null,
                         'nama_varian' => $item->varian->nama,
                         'harga' => $item->varian->harga,
                         'kuantitas' => $item->kuantitas,
+                        'satuan' => $item->produk->satuan_produk,
                         'subtotal' => $item->subtotal,
                     ],
                 ];
             });
+
+
 
             $infoPengiriman = $pesanan->informasiPengiriman;
             $informasiPengiriman = $infoPengiriman ? [
@@ -115,8 +120,13 @@ class PesananController extends Controller
                 'pesanan_id' => $pesanan->id,
                 'dihapus' => $pesanan->dihapus,
                 'nomor_pesanan' => $pesanan->nomor_pesanan,
-                'alamat' => $pesanan->alamat,
-                'kabupaten_tujuan' => $pesanan->kabupaten_tujuan,
+                'pesanan_dibuat_pada' => $pesanan->created_at->toDateTimeString(),
+                'data_penerima' => [
+                    'nama_penerima' => $pesanan->nama_penerima,
+                    'nomor_telepon' => $pesanan->nomor_telepon,
+                    'alamat' => $pesanan->alamat,
+                    'kabupaten_tujuan' => $pesanan->kabupaten_tujuan,
+                ],
                 'ongkir' => $pesanan->ongkir,
                 'subtotal_produk' => $pesanan->subtotal_produk,
                 'total_bayar' => $pesanan->total_bayar,

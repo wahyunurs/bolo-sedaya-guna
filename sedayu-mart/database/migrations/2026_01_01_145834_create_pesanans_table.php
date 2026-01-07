@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('nomor_pesanan')->unique();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->string('nama_penerima');
+            $table->string('nomor_telepon');
             $table->string('alamat');
             $table->string('kabupaten_tujuan'); // untuk lookup tarif
             $table->integer('ongkir'); // rupiah
