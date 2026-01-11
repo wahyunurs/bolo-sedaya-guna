@@ -1,0 +1,210 @@
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Seeder;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+
+class UserTestingSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     */
+    public function run(): void
+    {
+        $users = [
+            [
+                'nama' => 'Nofa Duren',
+                'email' => 'nofasetiyanto@gmail.com',
+                'password' => 'nofasetiyanto',
+                'alamat' => 'Jl. Sudirman No. 45',
+                'kabupaten' => 'Kota Semarang',
+                'nomor_telepon' => '08123456789',
+                'role' => 'user',
+                'status' => 'aktif',
+                'onboarded' => true,
+            ],
+            [
+                'nama' => 'Wahyou Nur',
+                'email' => 'wahyou2534@gmail.com',
+                'password' => 'wahyou2534',
+                'alamat' => 'Jl. Gatot Subroto No. 12',
+                'kabupaten' => 'Kabupaten Pati',
+                'nomor_telepon' => '08234567890',
+                'role' => 'user',
+                'status' => 'aktif',
+                'onboarded' => true,
+            ],
+            [
+                'nama' => 'Dika Putih',
+                'email' => 'meydikaangga2004@gmail.com',
+                'password' => 'meydikaangga2004',
+                'alamat' => 'Jl. Ahmad Yani No. 78',
+                'kabupaten' => 'Kabupaten Klaten',
+                'nomor_telepon' => '08345678901',
+                'role' => 'user',
+                'status' => 'aktif',
+                'onboarded' => true,
+            ],
+            [
+                'nama' => 'Jelita Racing',
+                'email' => 'jelitaseptiana31@gmail.com',
+                'password' => 'jelitaseptiana31',
+                'alamat' => 'Jl. Diponegoro No. 56',
+                'kabupaten' => 'Kabupaten Brebes',
+                'nomor_telepon' => '08456789012',
+                'role' => 'user',
+                'status' => 'aktif',
+                'onboarded' => true,
+            ],
+            [
+                'nama' => 'Akbar Kurus',
+                'email' => 'akbarputraalu@gmail.com',
+                'password' => 'akbarputraalu',
+                'alamat' => 'Jl. Merdeka No. 34',
+                'kabupaten' => 'Kabupaten Tegal',
+                'nomor_telepon' => '08567890123',
+                'role' => 'user',
+                'status' => 'aktif',
+                'onboarded' => true,
+            ],
+            [
+                'nama' => 'Aufa Tandon',
+                'email' => 'si.aufahaziq74@gmail.com',
+                'password' => 'si.aufahaziq74',
+                'alamat' => 'Jl. Imam Bonjol No. 23',
+                'kabupaten' => 'Kota Tegal',
+                'nomor_telepon' => '08678901234',
+                'role' => 'user',
+                'status' => 'aktif',
+                'onboarded' => true,
+            ],
+            [
+                'nama' => 'Sasa Kampung',
+                'email' => 'shasareg@gmail.com',
+                'password' => 'shasareg',
+                'alamat' => 'Jl. Kartini No. 67',
+                'kabupaten' => 'Kabupaten Wonogiri',
+                'nomor_telepon' => '08789012345',
+                'role' => 'user',
+                'status' => 'aktif',
+                'onboarded' => true,
+            ],
+            [
+                'nama' => 'Dawam Nota',
+                'email' => 'dawamalfirdauss@gmail.com',
+                'password' => 'dawamalfirdauss',
+                'alamat' => 'Jl. Raflesia No. 89',
+                'kabupaten' => 'Kabupaten Demak',
+                'nomor_telepon' => '08890123456',
+                'role' => 'user',
+                'status' => 'aktif',
+                'onboarded' => true,
+            ],
+            [
+                'nama' => 'Adka IoT',
+                'email' => 'adkafawaid420@gmail.com',
+                'password' => 'adkafawaid420',
+                'alamat' => 'Jl. Teuku Umar No. 45',
+                'kabupaten' => 'Kabupaten Cilacap',
+                'nomor_telepon' => '08901234567',
+                'role' => 'user',
+                'status' => 'aktif',
+                'onboarded' => true,
+            ],
+            [
+                'nama' => 'Daffa PSIS',
+                'email' => 'ardrakhansadaffa@gmail.com',
+                'password' => 'ardrakhansadaffa',
+                'alamat' => 'Jl. Hayam Wuruk No. 12',
+                'kabupaten' => 'Kabupaten Semarang',
+                'nomor_telepon' => '08912345678',
+                'role' => 'user',
+                'status' => 'aktif',
+                'onboarded' => true,
+            ],
+            [
+                'nama' => 'Fino Syariah',
+                'email' => 'alfinokautsarbahri@gmail.com',
+                'password' => 'alfinokautsarbahri',
+                'alamat' => 'Jl. Batu Ceper No. 56',
+                'kabupaten' => 'Kabupaten Jepara',
+                'nomor_telepon' => '08923456789',
+                'role' => 'user',
+                'status' => 'aktif',
+                'onboarded' => true,
+            ],
+            [
+                'nama' => 'Zilda Holic',
+                'email' => 'zildanisa390@gmail.com',
+                'password' => 'zildanisa390',
+                'alamat' => 'Jl. Jalan Raya No. 78',
+                'kabupaten' => 'Kabupaten Blora',
+                'nomor_telepon' => '08934567890',
+                'role' => 'user',
+                'status' => 'aktif',
+                'onboarded' => true,
+            ],
+            [
+                'nama' => 'Uun Briket',
+                'email' => 'luunaula@gmail.com',
+                'password' => 'luunaula',
+                'alamat' => 'Jl. Perintis Kemerdekaan No. 34',
+                'kabupaten' => 'Kota Surakarta',
+                'nomor_telepon' => '08945678901',
+                'role' => 'user',
+                'status' => 'aktif',
+                'onboarded' => true,
+            ],
+            [
+                'nama' => 'Pinkan Notulen',
+                'email' => 'pinkanayuwijaya22@gmail.com',
+                'password' => 'pinkanayuwijaya22',
+                'alamat' => 'Jl. Pattimura No. 23',
+                'kabupaten' => 'Kota Magelang',
+                'nomor_telepon' => '08956789012',
+                'role' => 'user',
+                'status' => 'aktif',
+                'onboarded' => true,
+            ],
+            [
+                'nama' => 'PMMB Bemkm Udinus',
+                'email' => 'pmmbbemkmudinus@gmail.com',
+                'password' => 'pmmbbemkmudinus',
+                'alamat' => 'Jl. Pendidikan No. 67',
+                'kabupaten' => 'Kota Salatiga',
+                'nomor_telepon' => '08967890123',
+                'role' => 'user',
+                'status' => 'aktif',
+                'onboarded' => true,
+            ],
+            [
+                'nama' => 'Wahyu Runs',
+                'email' => 'wruns250304@gmail.com',
+                'password' => 'wruns250304',
+                'alamat' => 'Jl. Veteran No. 45',
+                'kabupaten' => 'Kabupaten Rembang',
+                'nomor_telepon' => '08978901234',
+                'role' => 'user',
+                'status' => 'aktif',
+                'onboarded' => true,
+            ],
+        ];
+
+        foreach ($users as $user) {
+            User::create([
+                'nama' => $user['nama'],
+                'email' => $user['email'],
+                'password' => Hash::make($user['password']),
+                'alamat' => $user['alamat'],
+                'kabupaten' => $user['kabupaten'],
+                'nomor_telepon' => $user['nomor_telepon'],
+                'role' => $user['role'],
+                'status' => $user['status'],
+                'onboarded' => $user['onboarded'],
+            ]);
+        }
+    }
+}
