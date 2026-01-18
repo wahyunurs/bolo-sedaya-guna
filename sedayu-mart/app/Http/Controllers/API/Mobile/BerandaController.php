@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\API\Mobile;
 
+use App\Models\Banner;
 use App\Models\Produk;
 use App\Models\Varian;
 use App\Models\Keranjang;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use App\Models\AlamatPengiriman;
 use App\Models\TarifPengiriman;
+use App\Models\AlamatPengiriman;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 
 class BerandaController extends Controller
@@ -26,6 +27,26 @@ class BerandaController extends Controller
                 'welcome_message' => $welcome,
                 'user_name' => $userName,
             ], 'Berhasil mengambil data banner welcome');
+        } catch (\Throwable $e) {
+            return $this->exceptionError($e, $e->getMessage(), 500);
+        }
+    }
+
+    public function banner()
+    {
+        try {
+            $banners = Banner::all()->map(function ($banner) {
+                return [
+                    'id' => $banner->id,
+                    'judul' => $banner->judul,
+                    'gambar' => $banner->gambar ? 'storage/img/banner/' . $banner->gambar : null,
+                    'keterangan' => $banner->keterangan,
+                ];
+            });
+
+            return $this->successResponse([
+                'banners' => $banners,
+            ], 'Berhasil mengambil data banners');
         } catch (\Throwable $e) {
             return $this->exceptionError($e, $e->getMessage(), 500);
         }

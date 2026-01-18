@@ -39,6 +39,7 @@ Route::prefix('mobile')->group(function () {
             // Beranda
             Route::prefix('beranda')->group(function () {
                 Route::get('/welcome', [BerandaController::class, 'welcome']);
+                Route::get('/banner', [BerandaController::class, 'banner']);
                 Route::get('/produk', [BerandaController::class, 'produk']);
                 Route::get('/produk/{id}', [BerandaController::class, 'detailProduk']);
                 Route::post('/keranjang', [BerandaController::class, 'tambahKeranjang']);
@@ -117,6 +118,9 @@ Route::prefix('mobile')->group(function () {
                     Route::put('/update/{alamatId}', [ProfilController::class, 'updateAlamatPengiriman']);
                     Route::delete('/hapus/{alamatId}', [ProfilController::class, 'hapusAlamatPengiriman']);
                 });
+
+                // Ganti Password
+                Route::put('/ganti-password', [ProfilController::class, 'gantiPassword']);
             });
 
             // Logout

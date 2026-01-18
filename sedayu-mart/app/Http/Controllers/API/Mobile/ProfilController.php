@@ -8,6 +8,7 @@ use App\Models\TarifPengiriman;
 use App\Models\AlamatPengiriman;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
 class ProfilController extends Controller
@@ -135,6 +136,41 @@ class ProfilController extends Controller
             ]);
 
             return $this->successResponse($user, 'Data profil berhasil diperbarui');
+        } catch (\Throwable $e) {
+            return $this->exceptionError($e, $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * Update Password
+     */
+    public function gantiPassword(Request $request)
+    {
+        try {
+            $user = Auth::user();
+
+            $request->validate([
+                'old_password' => 'required',
+                'new_password' => 'required|min:8|confirmed',
+            ]);
+
+            // Verifikasi password lama
+            if (!Hash::check($request->old_password, $user->password)) {
+                $e = new \Exception('Password lama tidak sesuai');
+                return $this->exceptionError($e, 'Password lama tidak sesuai', 400);
+            }
+
+            // Update password baru
+            $user->update([
+                'password' => Hash::make($request->new_password),
+            ]);
+
+            return $this->successResponse([
+                'user' => [
+                    'id'   => $user->id,
+                    'nama' => $user->nama,
+                ],
+            ], 'Password berhasil diperbarui');
         } catch (\Throwable $e) {
             return $this->exceptionError($e, $e->getMessage(), 500);
         }
