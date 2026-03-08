@@ -141,6 +141,7 @@ class PesananController extends Controller
                 'keterangan' => $pesanan->keterangan,
                 'items' => $items,
                 'informasi_pengiriman' => $informasiPengiriman,
+                'hubungi_penjual' => 'https://wa.me/6285812064255?text=Halo%20Admin%20Toko%20Online%2C%20saya%20ingin%20bertanya%20tentang%20pesanan%20dengan%20nomor%20' . $pesanan->nomor_pesanan,
             ];
             return $this->successResponse($pesananData, 'Berhasil mengambil data pesanan');
         } catch (\Throwable $e) {
